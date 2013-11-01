@@ -33,24 +33,24 @@ typedef struct _lsu_packet_t
 typedef struct _lsa_packet_t
 {
 	uint8_t lsa_header_length:5;
-	uint8_t lsa_age:0;
-	uint8_t lsa_type:1;
+	uint8_t lsa_age:1;
+	uint8_t lsa_type:1; //cant have :0 that means 0 bytes
 	uchar lsa_ID[4]; // ip of originating router
 	uchar lsa_advertising_number[4]; // same as above
-	uint8_t lsa_sequence_number:0; // always incrementing by 1
-	uint8_t lsa_checksum:0;
+	uint8_t lsa_sequence_number:1; // always incrementing by 1
+	uint8_t lsa_checksum:1;
 	uint16_t lsa_length;
 } lsa_packet_t;
 
 typedef struct _hello_packet_t
 {
-	uchar    hello_network_mask[4];            // network mask - ALWAYS 255.255.255.0
+	uchar*    hello_network_mask[4];            // network mask - ALWAYS 255.255.255.0
 	uint16_t hello_hello_interval;          // hello interval - ALWAYS 10
 	uint8_t  hello_options;                 // options - ALWAYS 0
 	uint8_t  hello_priority;                // priority - ALWAYS 0
 	uint32_t hello_dead_interval;           // router dead interval - ALWAYS 40
-	uchar    hello_designated_ip[4];        // designated router ip address 0
-	uchar    hello_designated_ip_backup[4]; // backup designated router ip address 0
+	uchar*    hello_designated_ip[4];        // designated router ip address 0
+	uchar*    hello_designated_ip_backup[4]; // backup designated router ip address 0
 	uchar    hello_neighbours[DEFAULT_MTU/2];		// neighbors list 
 } hello_packet_t;
 
@@ -60,7 +60,7 @@ typedef struct _ospf_hdr_t
 	uint8_t ospf_type;                   	// type 
 	uint16_t ospf_message_length;           // message length 
 
-	uchar ospf_src[4];          	     	// source address
+	uchar* ospf_src[4];          	     	// source address
 	uint32_t ospf_aid;                   	// area ID
  
 	uint16_t ospf_cksum;                    // checksum
@@ -69,28 +69,28 @@ typedef struct _ospf_hdr_t
 	/* uint32_t ospf_auth;                     // authentication */
 } ospf_hdr_t;
 
-typedef struct _ospf_gnode_t
-{
-	uchar addr[4];				// node address
-	ospf_gnote_t *neighbours;		// adjacency list
-	int size;				// number of neighbours
-} ospf_gnode_t
+//typedef struct _ospf_gnode_t
+//{
+//	uchar addr[4];				// node address
+//	ospf_gnode_t *neighbours;		// adjacency list
+//	int size;				// number of neighbours
+//} ospf_gnode_t
 
 
-typedef struct _ospf_graph_t
-{
-	ospf_gnode_t *nodes;			// set of nodes
-	int size;				// number of nodes
-} ospf_graph_t
+//typedef struct _ospf_graph_t
+//{
+//	ospf_gnode_t *nodes;			// set of nodes
+//	int size;				// number of nodes
+//} ospf_graph_t
 
-gpacket_t *createOSPFHeader(gpacket_t *gpacket, int type, int mlength);
-void updateGraph(ospf_graph_t graph, ospf_gnode_t);
+gpacket_t *createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar* src[]);
+//void updateGraph(ospf_graph_t graph, ospf_gnode_t);
 void OSPFIncomingPacket(gpacket_t *pkt);
 bool isOSPFHelloMessage(ospf_hdr_t *ospf_pkt);
 bool isOSPFLSUpdate(ospf_hdr_t *ospf_pkt);
 void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP);
 void OSPFSendHelloPacket(uchar *dst_ip);
-gpacket_t *OSPFSendLSAPacket(g_router_t *gpkt, int seqNum_, uchar* sourceIP);
+//gpacket_t *OSPFSendLSAPacket(g_router_t *gpkt, int seqNum_, uchar* sourceIP);
 int OSPFSend2Output(gpacket_t *pkt);
 
 #endif
