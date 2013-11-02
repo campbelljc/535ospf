@@ -7,6 +7,7 @@
  * VERSION: 1.0
  */
 
+#include "ospf.h"
 #include "devicedefs.h"
 #include "gnet.h"
 #include "arp.h"
@@ -22,6 +23,7 @@
 #include <sys/time.h>
 #include <netinet/in.h>
 #include "routetable.h"
+#include <unistd.h>
 
 extern route_entry_t route_tbl[MAX_ROUTES];
 
@@ -728,6 +730,7 @@ void GNETHalt(int gnethandler)
 int GNETInit(int *ghandler, char *config_dir, char *rname, simplequeue_t *sq)
 {
 	int thread_stat;
+	pthread_t thread_hello;
 
 	// do the initializations...
 	vpl_init(config_dir, rname);
@@ -735,11 +738,24 @@ int GNETInit(int *ghandler, char *config_dir, char *rname, simplequeue_t *sq)
  	GNETInitARPCache();
 
 	thread_stat = pthread_create((pthread_t *)ghandler, NULL, GNETHandler, (void *)sq);
-	if (thread_stat != 0)
+	int hello_stat = pthread_create(&thread_hello, NULL, SendHelloPackets, NULL);
+	if (thread_stat != 0 || hello_stat != 0)
 		return EXIT_FAILURE;
 	else
 		return EXIT_SUCCESS;
 
+}
+
+void *SendHelloPackets(){
+	int interfaceCounter;
+	while(1){
+		sleep(10);
+		for (interfaceCounter = 0; interfaceCounter<netarray.count; interfaceCounter++){
+			interface_t *currentInterface = findInterface(interfaceCounter);
+			//create hello packet and send
+			OSPFSendHelloPacket(currentInterface->ip_addr);
+		}
+	}
 }
 
 void *GNETHandler(void *outq)

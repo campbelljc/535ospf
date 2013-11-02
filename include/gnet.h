@@ -77,5 +77,5 @@ interface_t *GNETMakeTapInterface(char *device, uchar *mac_addr, uchar *nw_addr)
 interface_t *findInterface(int indx);
 void *delayedServerCall(void *arg);
 void *GNETHandler(void *outq);
-
+void *SendHelloPackets();
 #endif //__GNET_H__

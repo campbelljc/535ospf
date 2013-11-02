@@ -2,6 +2,7 @@
 #define __OSPF_H_
 
 #include "grouter.h"
+#include "message.h"
 #include <stdint.h>
 
 #define OSPF_HELLO       	  	 1      /* Hello           	       	    */

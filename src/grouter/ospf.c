@@ -73,6 +73,7 @@ void OSPFSendHelloPacket(uchar *dst_ip)
 	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, 1, sizeof(hello_pkt), hello_pkt->hello_designated_ip);
 	
 	// TODO: send out packet.
+	OSPFSend2Output(finished_pkt);
 }
 
 void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP)
