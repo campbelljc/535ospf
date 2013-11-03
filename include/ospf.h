@@ -15,26 +15,28 @@
 #define OSPF_AREAID			 0
 #define OSPF_AUTHTYPE		 0
 
+#define OSPF_ROUTER			 2
+#define OSPF_STUB			 3
+
 typedef struct _neighbor_entry_t
 {
 	bool isEmpty; // indicates whether entry is free or not
 	uchar neighborIP[4];
 	bool isAlive;
-	int type; // 0 for router, 1 for stub network
+	int type; // either OSPF_ROUTER or OSPF_STUB
+	int interface;
 } neighbor_entry_t;
 
 typedef struct _lsu_link_t
 {
-	uint8_t lsu_header_length:4;
 	uchar lsu_link_ID[4]; // network address
 	uchar lsu_link_data[4]; // the router address for any-to-any networks and network mask for stub networks
-	uint8_t lsu_link_type; // 2 for any-to-any networks and 3 for stub networks
+	uint8_t lsu_link_type; // either OSPF_ROUTER or OSPF_STUB
 	uint8_t lsu_metric:1;
 } lsu_link_t;
 
 typedef struct _lsu_packet_t
 {
-	uint8_t lsa_header_length:1; // plus the link information.
 	uint8_t lsu_num_links;
 	lsu_link_t links[DEFAULT_MTU/2];
 } lsu_packet_t;
@@ -102,7 +104,8 @@ void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP);
 void OSPFSendHelloPacket(uchar *dst_ip);
 gpacket_t* OSPFSendLSAPacket(gpacket_t *gpkt, int seqNum_, uchar* sourceIP);
 int OSPFSend2Output(gpacket_t *pkt);
-void addNeighborEntry(uchar* neighborIP_, int type_);
+void addNeighborEntry(uchar* neighborIP_, int type_, int interface_);
 void OSPFSetStubNetwork(gpacket_t *pkt);
+void printNeighborTable();
 
 #endif

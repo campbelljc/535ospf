@@ -94,38 +94,43 @@ void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP)
 	lsa_pkt->lsa_header_length = 5;
 	lsu_packet_t *lsu_pkt = (lsu_packet_t *)((uchar *)lsa_pkt + lsa_pkt->lsa_header_length*4);
 	
-	uchar interfaceIPs[MAX_MTU][4];	
-	int totalInterfaceIPs = findAllInterfaceIPs(MTU_tbl, interfaceIPs); // get num links
+	//uchar interfaceIPs[MAX_MTU][4];	
+	//int totalInterfaceIPs = findAllInterfaceIPs(MTU_tbl, interfaceIPs); // get num links
+			
+	int currentLink = 0; // current position in lsu links array
 	
-	// prepare lsu_packet	
-	lsu_pkt->lsu_num_links = totalInterfaceIPs;
-	//lsu_pkt->lsa_header_length = 1 + (4 * lsu_pkt->lsu_num_links); // 4 lines for each link, plus 1 header line.
-	lsu_pkt->lsa_header_length = 1 + sizeof(lsu_packet_t);
-	
-//	lsu_link_t *currentLink = (lsu_link_t *)((uchar *)lsu_pkt + 1);
-	
-	int count;
-	for (count = 0; count < lsu_pkt->lsu_num_links; count ++)
+	int count; // position in neighbor table
+	for (count = 0; count < MAX_ROUTES; count ++)
 	{
-		lsu_pkt->links[count].lsu_link_type = 0; // 2 for any-to-any, 3 for stub network.
-//		lsu_pkt->links[count].lsu_link_ID = '0'; // TODO
-		COPY_IP(lsu_pkt->links[count].lsu_link_data, interfaceIPs[count]);
-		lsu_pkt->links[count].lsu_metric = 1;
+		if (neighbor_tbl[count].isEmpty == TRUE || neighbor_tbl[count].isAlive == FALSE) continue;
 		
-//		currentLink = currentLink + sizeof(lsu_link_t);
+		lsu_pkt->links[currentLink].lsu_metric = 1;
+		lsu_pkt->links[currentLink].lsu_link_type = neighbor_tbl[count].type;
+		if (neighbor_tbl[count].type == OSPF_STUB)
+		{
+			uchar bcastmask[4] = { "255", "255", "255", "0" };
+			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, bcastmask);
+		}
+		COPY_IP(lsu_pkt->links[currentLink].lsu_link_ID, neighbor_tbl[count].neighborIP);
+		
+		currentLink ++;
 	}
 	
+	lsu_pkt->lsu_num_links = currentLink - 1;
+
 	int totalLength = sizeof(lsa_packet_t) + sizeof(lsu_packet_t);
 	gpacket_t *finished_pkt = createOSPFHeader(OSPFSendLSUPacket(out_pkt, seqNum_, sourceIP), OSPF_LINK_STAT_UPDATE, totalLength, sourceIP);
 	
-	for (count = 0; count < totalInterfaceIPs; count ++)
-	{ // send out on each interface, unless it is stub network
-		//if (/* IS STUB NETWORK */) continue;
+	for (count = 0; count < MAX_ROUTES; count ++)
+	{ // send out to each neighbor, unless it is stub network
+		if (neighbor_tbl[count].isEmpty == TRUE
+			|| neighbor_tbl[count].isAlive == FALSE
+			|| neighbor_tbl[count].type == OSPF_STUB) continue;
+				
+		COPY_IP(finished_pkt->data.header.nxth_ip_addr, neighbor_tbl[count].neighborIP);
+		finished_pkt->data.header.dst_interface = neighbor_tbl[count].interface;
 		
-		//COPY_IP(finished_pkt->data.header.nxth_ip_addr, interfaceIPs[count]);
-		//finished_pkt->data.header.dst_interface = count;		
-		
-		//OSPFSend2Output(finished_pkt);
+		OSPFSend2Output(finished_pkt);
 	}
 }
 
@@ -178,7 +183,7 @@ gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar* sr
 	return gpacket;
 }
 
-void addNeighborEntry(uchar* neighborIP_, int type_)
+void addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 {
 	int i;
 	int ifree = -1;
@@ -194,6 +199,7 @@ void addNeighborEntry(uchar* neighborIP_, int type_)
 		else if ((COMPARE_IP(neighborIP_, neighbor_tbl[i].neighborIP)) == 0)
 		{ // match
 			neighbor_tbl[i].type = type_;
+			neighbor_tbl[i].isAlive = TRUE;
 
 			verbose(2, "[addRouteEntry]:: updated neighbor table entry #%d", i);
 			return;
@@ -203,6 +209,8 @@ void addNeighborEntry(uchar* neighborIP_, int type_)
 	COPY_IP(neighbor_tbl[ifree].neighborIP, neighborIP_);
 	neighbor_tbl[ifree].type = type_;
 	neighbor_tbl[ifree].isEmpty = FALSE;
+	neighbor_tbl[ifree].isAlive = TRUE;
+	neighbor_tbl[ifree].interface = interface_;
 
 	verbose(2, "[addNeighborEntry]:: added neighbor entry ");
 	return;
@@ -210,8 +218,29 @@ void addNeighborEntry(uchar* neighborIP_, int type_)
 
 void OSPFSetStubNetwork(gpacket_t *pkt)
 {
-	addNeighborEntry(pkt->frame.src_ip_addr, 1); // 1 = stub network.
+	addNeighborEntry(pkt->frame.src_ip_addr, OSPF_STUB, pkt->frame.src_interface);
 }
+
+void printNeighborTable()
+{
+	int i, rcount = 0;
+	char tmpbuf[MAX_TMPBUF_LEN];
+	interface_t *iface;
+
+	printf("\n=================================================================\n");
+	printf("      N E I G H B O R   T A B L E \n");
+	printf("-----------------------------------------------------------------\n");
+	printf("Index\tNeighbor IPt\tIs Alive\tType\t \n");
+
+	for (i = 0; i < MAX_ROUTES; i++)
+		if (neighbor_tbl[i].is_empty != TRUE)
+		{
+			printf("[%d]\t%d\t%d\t\n", i, IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), neighbor_tbl[i].isAlive, neighbor_tbl[i].type);
+			rcount++;
+		}
+	printf("-----------------------------------------------------------------\n");
+	printf("      %d number of neighbors found. \n", rcount);
+	return;
 
 // Add a new node and adjacency list to the graph if it does not exist, otherwise update its adjacency list
 //void updateGraph(ospf_graph_t graph, ospf_gnode_t)
