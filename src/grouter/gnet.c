@@ -26,6 +26,7 @@
 #include <unistd.h>
 
 extern route_entry_t route_tbl[MAX_ROUTES];
+extern neighbor_entry_t neighbor_tbl[MAX_ROUTES]; 
 
 interface_array_t netarray;
 devicearray_t devarray;

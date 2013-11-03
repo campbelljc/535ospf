@@ -15,6 +15,14 @@
 #define OSPF_AREAID			 0
 #define OSPF_AUTHTYPE		 0
 
+typedef struct _neighbor_entry_t
+{
+	bool isEmpty; // indicates whether entry is free or not
+	uchar neighborIP[4];
+	bool isAlive;
+	int type; // 0 for router, 1 for stub network
+} neighbor_entry_t;
+
 typedef struct _lsu_link_t
 {
 	uint8_t lsu_header_length:4;
@@ -84,6 +92,7 @@ typedef struct _ospf_hdr_t
 //	int size;				// number of nodes
 //} ospf_graph_t
 
+void OSPFInit();
 gpacket_t *createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar* src[]);
 //void updateGraph(ospf_graph_t graph, ospf_gnode_t);
 void OSPFIncomingPacket(gpacket_t *pkt);
@@ -91,7 +100,9 @@ bool isOSPFHelloMessage(ospf_hdr_t *ospf_pkt);
 bool isOSPFLSUpdate(ospf_hdr_t *ospf_pkt);
 void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP);
 void OSPFSendHelloPacket(uchar *dst_ip);
-//gpacket_t *OSPFSendLSAPacket(g_router_t *gpkt, int seqNum_, uchar* sourceIP);
+gpacket_t* OSPFSendLSAPacket(gpacket_t *gpkt, int seqNum_, uchar* sourceIP);
 int OSPFSend2Output(gpacket_t *pkt);
+void addNeighborEntry(uchar* neighborIP_, int type_);
+void OSPFSetStubNetwork(gpacket_t *pkt);
 
 #endif

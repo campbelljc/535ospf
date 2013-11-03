@@ -9,7 +9,16 @@
 #include <string.h>
 
 extern pktcore_t *pcore;
-extern mtu_entry_t MTU_tbl[MAX_MTU];	   
+extern mtu_entry_t MTU_tbl[MAX_MTU];	 
+
+neighbor_entry_t neighbor_tbl[MAX_ROUTES];  
+
+void OSPFInit()
+{
+	for(i = 0; i < MAX_ROUTES; i++)
+		neighbor_tbl[i].is_empty = TRUE;
+	verbose(2, "[OSPFInit]:: neighbor table initialized");
+}
 
 void OSPFIncomingPacket(gpacket_t *pkt)
 { // process incoming OSPF packet
@@ -107,7 +116,7 @@ void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP)
 	}
 	
 	int totalLength = sizeof(lsa_packet_t) + sizeof(lsu_packet_t);
-//	gpacket_t *finished_pkt = createOSPFHeader(createLSAHeader(out_pkt, seqNum_, sourceIP), OSPF_LINK_STAT_UPDATE, totalLength, sourceIP);
+	gpacket_t *finished_pkt = createOSPFHeader(OSPFSendLSUPacket(out_pkt, seqNum_, sourceIP), OSPF_LINK_STAT_UPDATE, totalLength, sourceIP);
 	
 	for (count = 0; count < totalInterfaceIPs; count ++)
 	{ // send out on each interface, unless it is stub network
@@ -167,6 +176,41 @@ gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar* sr
 	header->ospf_cksum = 0;
 
 	return gpacket;
+}
+
+void addNeighborEntry(uchar* neighborIP_, int type_)
+{
+	int i;
+	int ifree = -1;
+
+	// First check if the entry is already in the table, if it is, update it
+	for (i = 0; i < MAX_ROUTES; i++)
+	{
+		if (neighbor_tbl[i].isEmpty == TRUE)
+		{
+			if (ifree < 0) ifree = i;
+
+		}
+		else if ((COMPARE_IP(neighborIP_, neighbor_tbl[i].neighborIP)) == 0)
+		{ // match
+			neighbor_tbl[i].type = type_;
+
+			verbose(2, "[addRouteEntry]:: updated neighbor table entry #%d", i);
+			return;
+		}
+	}
+
+	COPY_IP(neighbor_tbl[ifree].neighborIP, neighborIP_);
+	neighbor_tbl[ifree].type = type_;
+	neighbor_tbl[ifree].isEmpty = FALSE;
+
+	verbose(2, "[addNeighborEntry]:: added neighbor entry ");
+	return;
+}
+
+void OSPFSetStubNetwork(gpacket_t *pkt)
+{
+	addNeighborEntry(pkt->frame.src_ip_addr, 1); // 1 = stub network.
 }
 
 // Add a new node and adjacency list to the graph if it does not exist, otherwise update its adjacency list

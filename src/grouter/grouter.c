@@ -71,6 +71,7 @@ int main(int ac, char *av[])
 	GNETInit(&(rconfig.ghandler), rconfig.config_dir, rconfig.router_name, outputQ);
 	ARPInit();
 	IPInit();
+	OSPFInit();
 
 	classifier = createClassifier();
 	filter = createFilter(classifier, 0);

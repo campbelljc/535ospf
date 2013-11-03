@@ -15,6 +15,7 @@
 #include "gnet.h"
 #include "arp.h"
 #include "ip.h"
+#include "ospf.h"
 #include <netinet/in.h>
 #include <stdlib.h>
 
@@ -84,6 +85,7 @@ void* fromEthernetDev(void *arg)
 	interface_t *iface = (interface_t *) arg;
 	interface_array_t *iarr = (interface_array_t *)iface->iarray;
 	uchar bcast_mac[] = MAC_BCAST_ADDR;
+	uchar stub_mac[][] = { MAC_STUB1_ADDR, MAC_STUB2_ADDR, MAC_STUB3_ADDR };
 
 	gpacket_t *in_pkt;
 
@@ -106,9 +108,25 @@ void* fromEthernetDev(void *arg)
 		if ((COMPARE_MAC(in_pkt->data.header.dst, iface->mac_addr) != 0) &&
 			(COMPARE_MAC(in_pkt->data.header.dst, bcast_mac) != 0))
 		{
-			verbose(1, "[fromEthernetDev]:: Packet dropped .. not for this router!? ");
-			free(in_pkt);
-			continue;
+			if ((COMPARE_MAC(in_pkt->data.header.dst, stub_mac[0]) != 0) &&
+			    (COMPARE_MAC(in_pkt->data.header.dst, stub_mac[1]) != 0) &&
+				(COMPARE_MAC(in_pkt->data.header.dst, stub_mac[3]) != 0))
+			{
+				verbose(1, "[fromEthernetDev]:: Packet dropped .. not for this router!? ");
+				free(in_pkt);
+				continue;
+			}
+			else
+			{
+				verbose(1, "[fromEthernetDev]:: Received message indicating stub network. ");
+				
+				in_pkt->frame.src_interface = iface->interface_id;
+				COPY_MAC(in_pkt->frame.src_hw_addr, iface->mac_addr);
+				COPY_IP(in_pkt->frame.src_ip_addr, iface->ip_addr);
+				
+				OSPFSetStubNetwork(in_pkt);
+				continue;
+			}
 		}
 
 		// copy fields into the message from the packet..
