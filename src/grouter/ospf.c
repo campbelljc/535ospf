@@ -3,6 +3,7 @@
 #include "mtu.h"
 #include "ospf.h"
 #include "packetcore.h"
+#include "routetable.h"
 #include <stdlib.h>
 #include <slack/err.h>
 #include <netinet/in.h>
@@ -15,6 +16,7 @@ neighbor_entry_t neighbor_tbl[MAX_ROUTES];
 
 void OSPFInit()
 {
+	int i;
 	for(i = 0; i < MAX_ROUTES; i++)
 		neighbor_tbl[i].is_empty = TRUE;
 	verbose(2, "[OSPFInit]:: neighbor table initialized");
@@ -27,7 +29,18 @@ void OSPFIncomingPacket(gpacket_t *pkt)
 	if (isOSPFHelloMessage(ospf_pkt))
 	{
 		verbose(2, "[OSPFIncomingPacket]:: received OSPF Hello message");
-		// update hello database
+		// update neighbor database
+		int i=0;
+		for (i=0; i<MAX_ROUTES;i++){
+			if (neighbor_tbl[i].isEmpty == TRUE){
+				neighbor_tbl.isEmpty = FALSE;
+				neighbor_tbl.neighborIP[0] = ospf_pkt->ospf_src[0];
+				neighbor_tbl.neighborIP[1] = ospf_pkt->ospf_src[1];
+				neighbor_tbl.neighborIP[2] = ospf_pkt->ospf_src[2];
+				neighbor_tbl.neighborIP[3] = ospf_pkt->ospf_src[3];
+			} 
+		}
+
 		// check for bi-directional connectivity
 	}
 	else if (isOSPFLSUpdate(ospf_pkt))
@@ -108,7 +121,7 @@ void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP)
 		lsu_pkt->links[currentLink].lsu_link_type = neighbor_tbl[count].type;
 		if (neighbor_tbl[count].type == OSPF_STUB)
 		{
-			uchar bcastmask[4] = { "255", "255", "255", "0" };
+			uchar bcastmask[4] = { '255', '255', '255', '0' };
 			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, bcastmask);
 		}
 		COPY_IP(lsu_pkt->links[currentLink].lsu_link_ID, neighbor_tbl[count].neighborIP);
