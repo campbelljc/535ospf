@@ -15,12 +15,16 @@ extern mtu_entry_t MTU_tbl[MAX_MTU];
 
 neighbor_entry_t neighbor_tbl[MAX_ROUTES];  
 
+int globalSeqNum;
+
 void OSPFInit()
 {
 	int i;
 	for(i = 0; i < MAX_ROUTES; i++)
 		neighbor_tbl[i].isEmpty = TRUE;
 	verbose(2, "[OSPFInit]:: neighbor table initialized");
+	
+	globalSeqNum = 0;
 }
 
 void OSPFIncomingPacket(gpacket_t *pkt)
@@ -46,7 +50,7 @@ void OSPFIncomingPacket(gpacket_t *pkt)
 void OSPFProcessHelloMessage(gpacket_t *pkt)
 {
 	// update neighbor database
-	addNeighborEntry(pkt->frame.src_ip_addr, OSPF_ROUTER, pkt->frame.src_interface);
+	int newUpdate = addNeighborEntry(pkt->frame.src_ip_addr, OSPF_ROUTER, pkt->frame.src_interface);
 	
 	//check bidirectional
 	uchar *currentIP = pkt->frame.nxth_ip_addr;
@@ -61,6 +65,12 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 			
 		} 
 	}
+	
+	// if it's a new update, then send out a new link state update to all neighbors.
+	if (newUpdate)
+	{
+		broadcastLSUpdate(createLSUPacket());
+	}
 }
 
 void OSPFProcessLSUpdate(gpacket_t *pkt)
@@ -70,7 +80,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 			// else, update routing graph, recompute shortest paths, and broadcast packet to all other interfaces
 }
 
-void OSPFSendHelloPacket(uchar *dst_ip)
+void OSPFSendHelloPacket(uchar *src_ip, uchar *dst_ip)
 {
 	gpacket_t *out_pkt = (gpacket_t *) malloc(sizeof(gpacket_t));
 	ospf_hdr_t *ospf_pkt = (ospf_hdr_t *)(out_pkt->data.data);
@@ -94,14 +104,34 @@ void OSPFSendHelloPacket(uchar *dst_ip)
 	int count;
 	for (count = 0; count < numEntries; count ++)
 	{
-		COPY_IP(hello_pkt->hello_neighbors[count], neighborEntries[count].neighborIP);
+		COPY_IP(hello_pkt->hello_neighbours[count], neighborEntries[count].neighborIP);
 	}
 	
-	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), hello_pkt->hello_designated_ip);	
+	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), src_ip);	
 	OSPFSend2Output(finished_pkt);
 }
 
-void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP)
+// Takes in a LS update packet of type gpacket and broadcasts it to your neighbors.
+// If you have received LS update packet from someone else, just call broadcastLSUpdate(packet).
+// If you want to send your own LS updates to your neighbors, call broadcastLSUpdate(createLSUPacket()).
+void broadcastLSUpdate(gpacket_t *pkt)
+{	
+	for (count = 0; count < MAX_ROUTES; count ++)
+	{ // send out to each neighbor, unless it is stub network
+		if (neighbor_tbl[count].isEmpty == TRUE
+			|| neighbor_tbl[count].isAlive == FALSE
+			|| neighbor_tbl[count].type == OSPF_STUB
+			|| neighbor_tbl[count].bidirectional == FALSE) continue;
+		
+		char tmpbuf[MAX_TMPBUF_LEN];
+		COPY_IP(pkt->frame.nxth_ip_addr, gHtonl(tmpbuf, neighbor_tbl[count].neighborIP));
+		pkt->frame.dst_interface = neighbor_tbl[count].interface;
+		
+		OSPFSend2Output(pkt);
+	}
+}
+
+gpacket_t* createLSUPacket()
 {
 	gpacket_t *out_pkt = (gpacket_t *) malloc(sizeof(gpacket_t));
 	ospf_hdr_t *ospf_pkt = (ospf_hdr_t *)(out_pkt->data.data);
@@ -139,30 +169,19 @@ void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP)
 	lsu_pkt->lsu_num_links = currentLink - 1;
 
 	int totalLength = sizeof(lsa_packet_t) + sizeof(lsu_packet_t);
-	gpacket_t *finished_pkt = createOSPFHeader(createLSAHeader(out_pkt, seqNum_, sourceIP), OSPF_LINK_STAT_UPDATE, totalLength, sourceIP);
 	
-	for (count = 0; count < MAX_ROUTES; count ++)
-	{ // send out to each neighbor, unless it is stub network
-		if (neighbor_tbl[count].isEmpty == TRUE
-			|| neighbor_tbl[count].isAlive == FALSE
-			|| neighbor_tbl[count].type == OSPF_STUB) continue;
-		
-		char tmpbuf[MAX_TMPBUF_LEN];
-		COPY_IP(finished_pkt->frame.nxth_ip_addr, gHtonl(tmpbuf, neighbor_tbl[count].neighborIP));
-		finished_pkt->frame.dst_interface = neighbor_tbl[count].interface;
-		
-		OSPFSend2Output(finished_pkt);
-	}
+	return createOSPFHeader(createLSAHeader(out_pkt, sourceIP), OSPF_LINK_STAT_UPDATE, totalLength, sourceIP);
 }
 
-gpacket_t* createLSAHeader(gpacket_t *gpkt, int seqNum_, uchar* sourceIP)
+gpacket_t* createLSAHeader(gpacket_t *gpkt, uchar* sourceIP)
 {
 	ospf_hdr_t *ospf_pkt = (ospf_hdr_t *)(gpkt->data.data);
 	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
 	
 	lsa_pkt->lsa_age = 0;
 	lsa_pkt->lsa_type = 1;
-	lsa_pkt->lsa_sequence_number = seqNum_;
+	lsa_pkt->lsa_sequence_number = globalSeqNum;
+	globalSeqNum ++;
 	lsa_pkt->lsa_checksum = 0;
 	lsa_pkt->lsa_length = sizeof(lsu_packet_t);
 	
@@ -189,14 +208,17 @@ int OSPFSend2Output(gpacket_t *pkt)
 	return writeQueue(pcore->outputQ, (void *)pkt, sizeof(gpacket_t));
 }
 
-gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar* src[]) 
+gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar* sourceIP) 
 {
 	ospf_hdr_t* header = (ospf_hdr_t *)(gpacket->data.data);
 
 	header->ospf_version = OSPF_VERSION;
 	header->ospf_type = type;
 	header->ospf_message_length = mlength + sizeof(ospf_hdr_t);
-	header->ospf_src[0] = src[0]; 
+
+	char tmpbuf[MAX_TMPBUF_LEN];
+	COPY_IP(header->ospf_src, gHtonl(tmpbuf, sourceIP));
+	
 	header->ospf_aid = OSPF_AREAID;
 	header->ospf_auth_type = OSPF_AUTHTYPE;
 	header->ospf_cksum = 0;
@@ -211,6 +233,8 @@ void addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 {
 	int i;
 	int ifree = -1;
+	
+	int fresh = false;
 
 	// First check if the entry is already in the table, if it is, update it
 	for (i = 0; i < MAX_ROUTES; i++)
@@ -222,21 +246,25 @@ void addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 		}
 		else if ((COMPARE_IP(neighborIP_, neighbor_tbl[i].neighborIP)) == 0)
 		{ // match
+			if (neighbor_tbl[i].isAlive == FALSE) fresh = true;
+			else if (neighbor_tbl[i].type != type_) fresh = true;
+			
 			neighbor_tbl[i].type = type_;
 			neighbor_tbl[i].isAlive = TRUE;
 			verbose(2, "[addRouteEntry]:: updated neighbor table entry #%d", i);
-			break;
+			return fresh;
 		}
 	}
 
 	COPY_IP(neighbor_tbl[ifree].neighborIP, neighborIP_);
 	neighbor_tbl[ifree].type = type_;
 	neighbor_tbl[ifree].isEmpty = FALSE;
+	neighbor_tbl[ifree].bidirectional = FALSE;
 	neighbor_tbl[ifree].isAlive = TRUE;
 	neighbor_tbl[ifree].interface = interface_;
-
+	
 	verbose(2, "[addNeighborEntry]:: added neighbor entry ");
-	return;
+	return true;
 }
 
 int getNeighborEntries(neighbor_entry_t buffer[])
