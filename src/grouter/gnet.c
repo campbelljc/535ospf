@@ -758,6 +758,7 @@ void *SendHelloPackets(){
 			for (counter = 0; counter<MAX_ROUTES; counter++){
 				if (neighbor_tbl[counter].isEmpty == FALSE && neighbor_tbl[counter].isAlive == FALSE){
 					neighbor_tbl[counter].isEmpty = TRUE;
+					broadcastLSUpdate(createLSUPacket());
 				}
 				neighbor_tbl[counter].isAlive = FALSE;
 			}
@@ -765,7 +766,8 @@ void *SendHelloPackets(){
 		for (counter = 0; counter<netarray.count; counter++){
 			interface_t *currentInterface = findInterface(counter);
 			//create hello packet and send
-			OSPFSendHelloPacket(currentInterface->ip_addr);
+			OSPFSendHelloPacket(currentInterface->ip_addr, DESTIP);
+			// TODO
 		}
 	}
 }

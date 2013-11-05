@@ -25,6 +25,7 @@ typedef struct _neighbor_entry_t
 	bool isAlive;
 	int type; // either OSPF_ROUTER or OSPF_STUB
 	int interface;
+	int bidirectional;
 } neighbor_entry_t;
 
 typedef struct _lsu_link_t
@@ -100,15 +101,16 @@ void OSPFProcessHelloMessage(gpacket_t *pkt);
 void OSPFProcessLSUpdate(gpacket_t *pkt);
 int OSPFSend2Output(gpacket_t *pkt);
 
-gpacket_t *createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar* src[]);
-gpacket_t *createLSAHeader(gpacket_t *gpkt, int seqNum_, uchar* sourceIP);
-void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP);
-void OSPFSendHelloPacket(uchar *dst_ip);
+gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar* sourceIP);
+gpacket_t* createLSAHeader(gpacket_t *gpkt, int seqNum_, uchar* sourceIP);
+gpacket_t* createLSUPacket(int seqNum_);
+void OSPFSendHelloPacket(uchar *src_ip, uchar *dst_ip);
+void broadcastLSUpdate(gpacket_t *pkt);
 
 //void updateGraph(ospf_graph_t graph, ospf_gnode_t);
 
 // Neighbor table functions.
-void addNeighborEntry(uchar* neighborIP_, int type_, int interface_);
+int addNeighborEntry(uchar* neighborIP_, int type_, int interface_);
 int getNeighborEntries(neighbor_entry_t buffer[]);
 void OSPFMarkDeadNeighbor(uchar* neighborIP_);
 void OSPFSetStubNetwork(gpacket_t *pkt);
