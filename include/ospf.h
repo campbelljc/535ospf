@@ -55,14 +55,14 @@ typedef struct _lsa_packet_t
 
 typedef struct _hello_packet_t
 {
-	uchar*    hello_network_mask[4];            // network mask - ALWAYS 255.255.255.0
+	uchar    hello_network_mask[4];            // network mask - ALWAYS 255.255.255.0
 	uint16_t hello_hello_interval;          // hello interval - ALWAYS 10
 	uint8_t  hello_options;                 // options - ALWAYS 0
 	uint8_t  hello_priority;                // priority - ALWAYS 0
 	uint32_t hello_dead_interval;           // router dead interval - ALWAYS 40
-	uchar*    hello_designated_ip[4];        // designated router ip address 0
-	uchar*    hello_designated_ip_backup[4]; // backup designated router ip address 0
-	uchar    hello_neighbours[DEFAULT_MTU/2];		// neighbors list 
+	uchar    hello_designated_ip[4];        // designated router ip address 0
+	uchar    hello_designated_ip_backup[4]; // backup designated router ip address 0
+	uchar    hello_neighbours[DEFAULT_MTU/2][4];		// neighbors list 
 } hello_packet_t;
 
 typedef struct _ospf_hdr_t

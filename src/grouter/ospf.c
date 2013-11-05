@@ -47,16 +47,20 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 {
 	// update neighbor database
 	addNeighborEntry(pkt->frame.src_ip_addr, OSPF_ROUTER, pkt->frame.src_interface);
+	
+	//check bidirectional
+	uchar *currentIP = pkt->frame.nxth_ip_addr;
+        ospf_hdr_t *ospf_pkt = (ospf_hdr_t *)(pkt->data.data);
+        hello_packet_t *hello_pkt = (hello_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
 
-/*	int i=0;
-	for (i=0; i<MAX_ROUTES;i++){
-		if (neighbor_tbl[i].isEmpty == TRUE){
-			neighbor_tbl[i].isEmpty = FALSE;
-			COPY_IP(neighbor_tbl[i].neighborIP, ospf_pkt->ospf_src);
+	int neighbor_size = sizeof(hello_pkt->hello_neighbours)/(sizeof(uchar)*4);
+
+	int i;
+	for (i=0; i< neighbor_size;i++){ 
+		if (COMPARE_IP(currentIP, hello_pkt->hello_neighbours[i]) == 0){
+			
 		} 
-	} */
-
-	// check for bi-directional connectivity
+	}
 }
 
 void OSPFProcessLSUpdate(gpacket_t *pkt)
