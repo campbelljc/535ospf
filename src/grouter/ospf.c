@@ -58,7 +58,8 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 	int i;
 	for (i=0; i< neighbor_size;i++){ 
 		if (COMPARE_IP(currentIP, hello_pkt->hello_neighbours[i]) == 0){
-			
+			//ip's are the same, therefore its bi-directional
+			//must search through local neighbor table, and set the bidiectional flag 
 		} 
 	}
 }
@@ -94,7 +95,7 @@ void OSPFSendHelloPacket(uchar *dst_ip)
 	int count;
 	for (count = 0; count < numEntries; count ++)
 	{
-		COPY_IP(hello_pkt->hello_neighbors[count], neighborEntries[count].neighborIP);
+		COPY_IP(hello_pkt->hello_neighbours[count], neighborEntries[count].neighborIP);
 	}
 	
 	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), hello_pkt->hello_designated_ip);	
