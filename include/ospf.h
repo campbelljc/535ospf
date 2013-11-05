@@ -32,7 +32,7 @@ typedef struct _lsu_link_t
 	uchar lsu_link_ID[4]; // network address
 	uchar lsu_link_data[4]; // the router address for any-to-any networks and network mask for stub networks
 	uint8_t lsu_link_type; // either OSPF_ROUTER or OSPF_STUB
-	uint8_t lsu_metric:1;
+	uint8_t lsu_metric;
 } lsu_link_t;
 
 typedef struct _lsu_packet_t
@@ -43,13 +43,13 @@ typedef struct _lsu_packet_t
 
 typedef struct _lsa_packet_t
 {
-	uint8_t lsa_header_length:5;
-	uint8_t lsa_age:1;
-	uint8_t lsa_type:1; //cant have :0 that means 0 bytes
+	uint8_t lsa_header_length;
+	uint8_t lsa_age;
+	uint8_t lsa_type; //cant have :0 that means 0 bytes
 	uchar lsa_ID[4]; // ip of originating router
 	uchar lsa_advertising_number[4]; // same as above
-	uint8_t lsa_sequence_number:1; // always incrementing by 1
-	uint8_t lsa_checksum:1;
+	uint8_t lsa_sequence_number; // always incrementing by 1
+	uint8_t lsa_checksum;
 	uint16_t lsa_length;
 } lsa_packet_t;
 
@@ -95,16 +95,21 @@ typedef struct _ospf_hdr_t
 //} ospf_graph_t
 
 void OSPFInit();
-gpacket_t *createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar* src[]);
-//void updateGraph(ospf_graph_t graph, ospf_gnode_t);
 void OSPFIncomingPacket(gpacket_t *pkt);
-bool isOSPFHelloMessage(ospf_hdr_t *ospf_pkt);
-bool isOSPFLSUpdate(ospf_hdr_t *ospf_pkt);
+void OSPFProcessHelloMessage(gpacket_t *pkt);
+void OSPFProcessLSUpdate(gpacket_t *pkt);
+int OSPFSend2Output(gpacket_t *pkt);
+
+gpacket_t *createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar* src[]);
+gpacket_t *createLSAHeader(gpacket_t *gpkt, int seqNum_, uchar* sourceIP);
 void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP);
 void OSPFSendHelloPacket(uchar *dst_ip);
-gpacket_t* OSPFSendLSAPacket(gpacket_t *gpkt, int seqNum_, uchar* sourceIP);
-int OSPFSend2Output(gpacket_t *pkt);
+
+//void updateGraph(ospf_graph_t graph, ospf_gnode_t);
+
+// Neighbor table functions.
 void addNeighborEntry(uchar* neighborIP_, int type_, int interface_);
+void OSPFMarkDeadNeighbor(uchar* neighborIP_);
 void OSPFSetStubNetwork(gpacket_t *pkt);
 void printNeighborTable();
 

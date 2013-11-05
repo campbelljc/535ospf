@@ -18,7 +18,7 @@ void OSPFInit()
 {
 	int i;
 	for(i = 0; i < MAX_ROUTES; i++)
-		neighbor_tbl[i].is_empty = TRUE;
+		neighbor_tbl[i].isEmpty = TRUE;
 	verbose(2, "[OSPFInit]:: neighbor table initialized");
 }
 
@@ -26,29 +26,28 @@ void OSPFIncomingPacket(gpacket_t *pkt)
 { // process incoming OSPF packet
 	ospf_hdr_t *ospf_pkt = (ospf_hdr_t*) &pkt->data.data;
 	
-	if (isOSPFHelloMessage(ospf_pkt))
+	if (ospf_pkt->ospf_type == OSPF_HELLO)
 	{
 		verbose(2, "[OSPFIncomingPacket]:: received OSPF Hello message");
 		// update neighbor database
 		int i=0;
 		for (i=0; i<MAX_ROUTES;i++){
 			if (neighbor_tbl[i].isEmpty == TRUE){
-				neighbor_tbl.isEmpty = FALSE;
-				neighbor_tbl.neighborIP[0] = ospf_pkt->ospf_src[0];
-				neighbor_tbl.neighborIP[1] = ospf_pkt->ospf_src[1];
-				neighbor_tbl.neighborIP[2] = ospf_pkt->ospf_src[2];
-				neighbor_tbl.neighborIP[3] = ospf_pkt->ospf_src[3];
+				neighbor_tbl[i].isEmpty = FALSE;
+				neighbor_tbl[i].neighborIP[0] = ospf_pkt->ospf_src[0];
+				neighbor_tbl[i].neighborIP[1] = ospf_pkt->ospf_src[1];
+				neighbor_tbl[i].neighborIP[2] = ospf_pkt->ospf_src[2];
+				neighbor_tbl[i].neighborIP[3] = ospf_pkt->ospf_src[3];
 			} 
 		}
 
 		// check for bi-directional connectivity
+		OSPFProcessHelloMessage(pkt);
 	}
-	else if (isOSPFLSUpdate(ospf_pkt))
+	else if (ospf_pkt->ospf_type == OSPF_LINK_STAT_UPDATE)
 	{
 		verbose(2, "[OSPFIncomingPacket]:: received OSPF link state update");
-		// check if we already know the information
-			// if we do, discard packet
-			// else, update routing graph, recompute shortest paths, and broadcast packet to all other interfaces
+		OSPFProcessLSUpdate(pkt);
 	}
 	else
 	{
@@ -56,14 +55,17 @@ void OSPFIncomingPacket(gpacket_t *pkt)
 	}
 }
 
-bool isOSPFHelloMessage(ospf_hdr_t *ospf_hdr)
+void OSPFProcessHelloMessage(gpacket_t *pkt)
 {
-	return (ospf_hdr->ospf_type == 1);
+		// update hello database
+		// check for bi-directional connectivity
 }
 
-bool isOSPFLSUpdate(ospf_hdr_t *ospf_pkt)
+void OSPFProcessLSUpdate(gpacket_t *pkt)
 {
-	
+		// check if we already know the information
+			// if we do, discard packet
+			// else, update routing graph, recompute shortest paths, and broadcast packet to all other interfaces
 }
 
 void OSPFSendHelloPacket(uchar *dst_ip)
@@ -92,7 +94,7 @@ void OSPFSendHelloPacket(uchar *dst_ip)
 
 	//hello_pkt->hello_neighbours = (uchar*) malloc(sizeof(NEIGHBOURS_LIST));
 
-	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, 1, sizeof(hello_pkt), hello_pkt->hello_designated_ip);
+	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), hello_pkt->hello_designated_ip);
 	
 	// TODO: send out packet.
 	OSPFSend2Output(finished_pkt);
@@ -147,7 +149,7 @@ void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP)
 	}
 }
 
-gpacket_t* OSPFSendLSAPacket(gpacket_t *gpkt, int seqNum_, uchar* sourceIP)
+gpacket_t* createLSAHeader(gpacket_t *gpkt, int seqNum_, uchar* sourceIP)
 {
 	ospf_hdr_t *ospf_pkt = (ospf_hdr_t *)(gpkt->data.data);
 	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
@@ -196,6 +198,9 @@ gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar* sr
 	return gpacket;
 }
 
+// Adds an entry to the neighbor table with the specified IP, type, and interface.
+// If an entry already exists with the specified IP, it is updated with the given type and interface.
+// Either way, the entry is marked as "alive."
 void addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 {
 	int i;
@@ -213,9 +218,8 @@ void addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 		{ // match
 			neighbor_tbl[i].type = type_;
 			neighbor_tbl[i].isAlive = TRUE;
-
 			verbose(2, "[addRouteEntry]:: updated neighbor table entry #%d", i);
-			return;
+			break;
 		}
 	}
 
@@ -227,6 +231,22 @@ void addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 
 	verbose(2, "[addNeighborEntry]:: added neighbor entry ");
 	return;
+}
+
+// Marks the entry for the specified IP as dead, if the IP exists. If it does not, nothing happens.
+void OSPFMarkDeadNeighbor(uchar* neighborIP_)
+{
+	int count;
+	for (count = 0; count < MAX_ROUTES; count ++)
+	{
+		if (neighbor_tbl[count].isEmpty == TRUE) continue;
+		else if ((COMPARE_IP(neighborIP_, neighbor_tbl[count].neighborIP)) == 0)
+		{ // match
+			neighbor_tbl[count].isAlive = FALSE;
+			verbose(2, "[addRouteEntry]:: neighbor table entry #%d marked as dead ", count);
+			break;
+		}
+	}
 }
 
 void OSPFSetStubNetwork(gpacket_t *pkt)
