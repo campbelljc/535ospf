@@ -87,9 +87,16 @@ void OSPFSendHelloPacket(uchar *dst_ip)
 	uchar zeroIP[4] = { '0', '0', '0', '0' };
 	COPY_IP(hello_pkt->hello_designated_ip, zeroIP);
 	COPY_IP(hello_pkt->hello_designated_ip_backup, zeroIP);
-
-	//hello_pkt->hello_neighbours = (uchar*) malloc(sizeof(NEIGHBOURS_LIST));
-
+	
+	neighbor_entry_t neighborEntries[MAX_ROUTES];
+	int numEntries = getNeighborEntries(neighborEntries);
+	
+	int count;
+	for (count = 0; count < numEntries; count ++)
+	{
+		COPY_IP(hello_pkt->hello_neighbors[count], neighborEntries[count].neighborIP);
+	}
+	
 	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), hello_pkt->hello_designated_ip);	
 	OSPFSend2Output(finished_pkt);
 }
@@ -102,10 +109,7 @@ void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP)
 	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
 	lsa_pkt->lsa_header_length = 5;
 	lsu_packet_t *lsu_pkt = (lsu_packet_t *)((uchar *)lsa_pkt + lsa_pkt->lsa_header_length*4);
-	
-	//uchar interfaceIPs[MAX_MTU][4];	
-	//int totalInterfaceIPs = findAllInterfaceIPs(MTU_tbl, interfaceIPs); // get num links
-			
+				
 	int currentLink = 0; // current position in lsu links array
 	
 	int count; // position in neighbor table
@@ -119,6 +123,13 @@ void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP)
 		{
 			uchar bcastmask[4] = { '255', '255', '255', '0' };
 			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, bcastmask);
+		}
+		else
+		{ // for a router addr 192.168.x.y, we want link data to be set 192.168.x.0
+			uchar netIP[4];
+			COPY_IP(netIP, neighbor_tbl[count].neighborIP);
+			netIP[3] = '0';
+			COPY_IP(lsu_pkt->links[currentLink].lsu_link_ID, netIP);
 		}
 		COPY_IP(lsu_pkt->links[currentLink].lsu_link_ID, neighbor_tbl[count].neighborIP);
 		
@@ -137,7 +148,7 @@ void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP)
 			|| neighbor_tbl[count].type == OSPF_STUB) continue;
 		
 		char tmpbuf[MAX_TMPBUF_LEN];
-		COPY_IP(finished_pkt->data.header.nxth_ip_addr, gHtonl(tmpbuf, neighbor_tbl[count].neighborIP));
+		COPY_IP(finished_pkt->frame.nxth_ip_addr, gHtonl(tmpbuf, neighbor_tbl[count].neighborIP));
 		finished_pkt->frame.dst_interface = neighbor_tbl[count].interface;
 		
 		OSPFSend2Output(finished_pkt);
@@ -226,6 +237,23 @@ void addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 
 	verbose(2, "[addNeighborEntry]:: added neighbor entry ");
 	return;
+}
+
+int getNeighborEntries(neighbor_entry_t buffer[])
+{
+	int count, bufferCount = 0;
+	for (count = 0; count < MAX_ROUTES; count ++)
+	{
+		if (neighbor_tbl[count].isEmpty == TRUE || neighbor_tbl[count].isAlive == FALSE) continue;
+		
+		COPY_IP(buffer[bufferCount].neighborIP, neighbor_tbl[count].neighborIP);
+		buffer[bufferCount].interface = neighbor_tbl[count].interface;
+		buffer[bufferCount].type = neighbor_tbl[count].type;
+			
+		bufferCount ++;
+	}
+	
+	return bufferCount;
 }
 
 // Marks the entry for the specified IP as dead, if the IP exists. If it does not, nothing happens.

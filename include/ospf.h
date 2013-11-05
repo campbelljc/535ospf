@@ -109,6 +109,7 @@ void OSPFSendHelloPacket(uchar *dst_ip);
 
 // Neighbor table functions.
 void addNeighborEntry(uchar* neighborIP_, int type_, int interface_);
+int getNeighborEntries(neighbor_entry_t buffer[]);
 void OSPFMarkDeadNeighbor(uchar* neighborIP_);
 void OSPFSetStubNetwork(gpacket_t *pkt);
 void printNeighborTable();
