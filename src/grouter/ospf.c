@@ -30,19 +30,6 @@ void OSPFIncomingPacket(gpacket_t *pkt)
 	if (ospf_pkt->ospf_type == OSPF_HELLO)
 	{
 		verbose(2, "[OSPFIncomingPacket]:: received OSPF Hello message");
-		// update neighbor database
-		int i=0;
-		for (i=0; i<MAX_ROUTES;i++){
-			if (neighbor_tbl[i].isEmpty == TRUE){
-				neighbor_tbl[i].isEmpty = FALSE;
-				neighbor_tbl[i].neighborIP[0] = ospf_pkt->ospf_src[0];
-				neighbor_tbl[i].neighborIP[1] = ospf_pkt->ospf_src[1];
-				neighbor_tbl[i].neighborIP[2] = ospf_pkt->ospf_src[2];
-				neighbor_tbl[i].neighborIP[3] = ospf_pkt->ospf_src[3];
-			} 
-		}
-
-		// check for bi-directional connectivity
 		OSPFProcessHelloMessage(pkt);
 	}
 	else if (ospf_pkt->ospf_type == OSPF_LINK_STAT_UPDATE)
@@ -58,8 +45,18 @@ void OSPFIncomingPacket(gpacket_t *pkt)
 
 void OSPFProcessHelloMessage(gpacket_t *pkt)
 {
-		// update hello database
-		// check for bi-directional connectivity
+	// update neighbor database
+	addNeighborEntry(pkt->frame.src_ip_addr, OSPF_ROUTER, pkt->frame.src_interface);
+
+/*	int i=0;
+	for (i=0; i<MAX_ROUTES;i++){
+		if (neighbor_tbl[i].isEmpty == TRUE){
+			neighbor_tbl[i].isEmpty = FALSE;
+			COPY_IP(neighbor_tbl[i].neighborIP, ospf_pkt->ospf_src);
+		} 
+	} */
+
+	// check for bi-directional connectivity
 }
 
 void OSPFProcessLSUpdate(gpacket_t *pkt)
@@ -76,28 +73,20 @@ void OSPFSendHelloPacket(uchar *dst_ip)
 	ospf_pkt->ospf_message_length = 4;                                 
 	hello_packet_t *hello_pkt = (hello_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
 		
-	hello_pkt->hello_network_mask[0] = "255";
-	hello_pkt->hello_network_mask[1] = "255";
-	hello_pkt->hello_network_mask[2] = "255";
-	hello_pkt->hello_network_mask[3] = "0";
+	uchar netmask[4] = { '255', '255', '255', '0' };
+	COPY_IP(hello_pkt->hello_network_mask, netmask);
 
 	hello_pkt->hello_hello_interval = 10;
 	hello_pkt->hello_priority = 0;
 	hello_pkt->hello_dead_interval= 40;
-	hello_pkt->hello_designated_ip[0] = "0"; 
-	hello_pkt->hello_designated_ip[1] = "0";
-	hello_pkt->hello_designated_ip[2] = "0";
-	hello_pkt->hello_designated_ip[3] = "0";
-	hello_pkt->hello_designated_ip_backup[0] = "0";
-	hello_pkt->hello_designated_ip_backup[1] = "0";
-	hello_pkt->hello_designated_ip_backup[2] = "0";
-	hello_pkt->hello_designated_ip_backup[3] = "0";
+	
+	uchar zeroIP[4] = { '0', '0', '0', '0' };
+	COPY_IP(hello_pkt->hello_designated_ip, zeroIP);
+	COPY_IP(hello_pkt->hello_designated_ip_backup, zeroIP);
 
 	//hello_pkt->hello_neighbours = (uchar*) malloc(sizeof(NEIGHBOURS_LIST));
 
-	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), hello_pkt->hello_designated_ip);
-	
-	// TODO: send out packet.
+	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), hello_pkt->hello_designated_ip);	
 	OSPFSend2Output(finished_pkt);
 }
 
@@ -142,11 +131,12 @@ void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP)
 		if (neighbor_tbl[count].isEmpty == TRUE
 			|| neighbor_tbl[count].isAlive == FALSE
 			|| neighbor_tbl[count].type == OSPF_STUB) continue;
-				
-		//COPY_IP(finished_pkt->data.header.nxth_ip_addr, neighbor_tbl[count].neighborIP);
-		//finished_pkt->data.header.dst_interface = neighbor_tbl[count].interface;
 		
-		//OSPFSend2Output(finished_pkt);
+		char tmpbuf[MAX_TMPBUF_LEN];
+		COPY_IP(finished_pkt->data.header.nxth_ip_addr, gHtonl(tmpbuf, neighbor_tbl[count].neighborIP));
+		finished_pkt->frame.dst_interface = neighbor_tbl[count].interface;
+		
+		OSPFSend2Output(finished_pkt);
 	}
 }
 

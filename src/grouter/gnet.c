@@ -759,6 +759,7 @@ void *SendHelloPackets(){
 				if (neighbor_tbl[counter].isEmpty == FALSE && neighbor_tbl[counter].isAlive == FALSE){
 					neighbor_tbl[counter].isEmpty = TRUE;
 				}
+				neighbor_tbl[counter].isAlive = FALSE;
 			}
 		}
 		for (counter = 0; counter<netarray.count; counter++){
