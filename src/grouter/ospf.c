@@ -119,7 +119,7 @@ void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP)
 	lsu_pkt->lsu_num_links = currentLink - 1;
 
 	int totalLength = sizeof(lsa_packet_t) + sizeof(lsu_packet_t);
-	gpacket_t *finished_pkt = createOSPFHeader(OSPFSendLSUPacket(out_pkt, seqNum_, sourceIP), OSPF_LINK_STAT_UPDATE, totalLength, sourceIP);
+	gpacket_t *finished_pkt = createOSPFHeader(createLSAHeader(out_pkt, seqNum_, sourceIP), OSPF_LINK_STAT_UPDATE, totalLength, sourceIP);
 	
 	for (count = 0; count < MAX_ROUTES; count ++)
 	{ // send out to each neighbor, unless it is stub network
