@@ -1,3 +1,4 @@
+#include "gnet.h"
 #include "message.h"
 #include "grouter.h"
 #include "mtu.h"
@@ -134,7 +135,7 @@ void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP)
 	lsu_pkt->lsu_num_links = currentLink - 1;
 
 	int totalLength = sizeof(lsa_packet_t) + sizeof(lsu_packet_t);
-	gpacket_t *finished_pkt = createOSPFHeader(OSPFSendLSUPacket(out_pkt, seqNum_, sourceIP), OSPF_LINK_STAT_UPDATE, totalLength, sourceIP);
+	//gpacket_t *finished_pkt = createOSPFHeader(OSPFSendLSUPacket(out_pkt, seqNum_, sourceIP), OSPF_LINK_STAT_UPDATE, totalLength, sourceIP);
 	
 	for (count = 0; count < MAX_ROUTES; count ++)
 	{ // send out to each neighbor, unless it is stub network
@@ -142,10 +143,10 @@ void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP)
 			|| neighbor_tbl[count].isAlive == FALSE
 			|| neighbor_tbl[count].type == OSPF_STUB) continue;
 				
-		COPY_IP(finished_pkt->data.header.nxth_ip_addr, neighbor_tbl[count].neighborIP);
-		finished_pkt->data.header.dst_interface = neighbor_tbl[count].interface;
+		//COPY_IP(finished_pkt->data.header.nxth_ip_addr, neighbor_tbl[count].neighborIP);
+		//finished_pkt->data.header.dst_interface = neighbor_tbl[count].interface;
 		
-		OSPFSend2Output(finished_pkt);
+		//OSPFSend2Output(finished_pkt);
 	}
 }
 
@@ -266,14 +267,14 @@ void printNeighborTable()
 	printf("Index\tNeighbor IPt\tIs Alive\tType\t \n");
 
 	for (i = 0; i < MAX_ROUTES; i++)
-		if (neighbor_tbl[i].is_empty != TRUE)
+		if (neighbor_tbl[i].isEmpty != TRUE)
 		{
-			printf("[%d]\t%d\t%d\t\n", i, IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), neighbor_tbl[i].isAlive, neighbor_tbl[i].type);
+			printf("[%d]\t%s\t%d\t%d\t\n", i, IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), neighbor_tbl[i].isAlive, neighbor_tbl[i].type);
 			rcount++;
 		}
 	printf("-----------------------------------------------------------------\n");
 	printf("      %d number of neighbors found. \n", rcount);
-	return;
+}
 
 // Add a new node and adjacency list to the graph if it does not exist, otherwise update its adjacency list
 //void updateGraph(ospf_graph_t graph, ospf_gnode_t)
