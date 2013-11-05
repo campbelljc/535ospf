@@ -62,7 +62,7 @@ typedef struct _hello_packet_t
 	uint32_t hello_dead_interval;           // router dead interval - ALWAYS 40
 	uchar*    hello_designated_ip[4];        // designated router ip address 0
 	uchar*    hello_designated_ip_backup[4]; // backup designated router ip address 0
-	uchar    hello_neighbours[DEFAULT_MTU/2];		// neighbors list 
+	uchar     hello_neighbours[DEFAULT_MTU/2][4];		// neighbors list 
 } hello_packet_t;
 
 typedef struct _ospf_hdr_t
@@ -109,6 +109,7 @@ void OSPFSendHelloPacket(uchar *dst_ip);
 
 // Neighbor table functions.
 void addNeighborEntry(uchar* neighborIP_, int type_, int interface_);
+int getNeighborEntries(neighbor_entry_t buffer[]);
 void OSPFMarkDeadNeighbor(uchar* neighborIP_);
 void OSPFSetStubNetwork(gpacket_t *pkt);
 void printNeighborTable();
