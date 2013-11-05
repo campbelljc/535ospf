@@ -1,8 +1,10 @@
+#include "gnet.h"
 #include "message.h"
 #include "grouter.h"
 #include "mtu.h"
 #include "ospf.h"
 #include "packetcore.h"
+#include "routetable.h"
 #include <stdlib.h>
 #include <slack/err.h>
 #include <netinet/in.h>
@@ -15,8 +17,9 @@ neighbor_entry_t neighbor_tbl[MAX_ROUTES];
 
 void OSPFInit()
 {
+	int i;
 	for(i = 0; i < MAX_ROUTES; i++)
-		neighbor_tbl[i].is_empty = TRUE;
+		neighbor_tbl[i].isEmpty = TRUE;
 	verbose(2, "[OSPFInit]:: neighbor table initialized");
 }
 
@@ -27,6 +30,19 @@ void OSPFIncomingPacket(gpacket_t *pkt)
 	if (ospf_pkt->ospf_type == OSPF_HELLO)
 	{
 		verbose(2, "[OSPFIncomingPacket]:: received OSPF Hello message");
+		// update neighbor database
+		int i=0;
+		for (i=0; i<MAX_ROUTES;i++){
+			if (neighbor_tbl[i].isEmpty == TRUE){
+				neighbor_tbl[i].isEmpty = FALSE;
+				neighbor_tbl[i].neighborIP[0] = ospf_pkt->ospf_src[0];
+				neighbor_tbl[i].neighborIP[1] = ospf_pkt->ospf_src[1];
+				neighbor_tbl[i].neighborIP[2] = ospf_pkt->ospf_src[2];
+				neighbor_tbl[i].neighborIP[3] = ospf_pkt->ospf_src[3];
+			} 
+		}
+
+		// check for bi-directional connectivity
 		OSPFProcessHelloMessage(pkt);
 	}
 	else if (ospf_pkt->ospf_type == OSPF_LINK_STAT_UPDATE)
@@ -108,7 +124,7 @@ void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP)
 		lsu_pkt->links[currentLink].lsu_link_type = neighbor_tbl[count].type;
 		if (neighbor_tbl[count].type == OSPF_STUB)
 		{
-			uchar bcastmask[4] = { "255", "255", "255", "0" };
+			uchar bcastmask[4] = { '255', '255', '255', '0' };
 			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, bcastmask);
 		}
 		COPY_IP(lsu_pkt->links[currentLink].lsu_link_ID, neighbor_tbl[count].neighborIP);
@@ -127,10 +143,10 @@ void OSPFSendLSUPacket(uchar *dst_ip, int seqNum_, uchar* sourceIP)
 			|| neighbor_tbl[count].isAlive == FALSE
 			|| neighbor_tbl[count].type == OSPF_STUB) continue;
 				
-		COPY_IP(finished_pkt->data.header.nxth_ip_addr, neighbor_tbl[count].neighborIP);
-		finished_pkt->data.header.dst_interface = neighbor_tbl[count].interface;
+		//COPY_IP(finished_pkt->data.header.nxth_ip_addr, neighbor_tbl[count].neighborIP);
+		//finished_pkt->data.header.dst_interface = neighbor_tbl[count].interface;
 		
-		OSPFSend2Output(finished_pkt);
+		//OSPFSend2Output(finished_pkt);
 	}
 }
 
@@ -203,9 +219,8 @@ void addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 		{ // match
 			neighbor_tbl[i].type = type_;
 			neighbor_tbl[i].isAlive = TRUE;
-
 			verbose(2, "[addRouteEntry]:: updated neighbor table entry #%d", i);
-			return;
+			break;
 		}
 	}
 
@@ -228,8 +243,8 @@ void OSPFMarkDeadNeighbor(uchar* neighborIP_)
 		if (neighbor_tbl[count].isEmpty == TRUE) continue;
 		else if ((COMPARE_IP(neighborIP_, neighbor_tbl[count].neighborIP)) == 0)
 		{ // match
-			neighbor_tbl[i].isAlive = FALSE;
-			verbose(2, "[addRouteEntry]:: neighbor table entry #%d marked as dead ", i);
+			neighbor_tbl[count].isAlive = FALSE;
+			verbose(2, "[addRouteEntry]:: neighbor table entry #%d marked as dead ", count);
 			break;
 		}
 	}
@@ -252,14 +267,14 @@ void printNeighborTable()
 	printf("Index\tNeighbor IPt\tIs Alive\tType\t \n");
 
 	for (i = 0; i < MAX_ROUTES; i++)
-		if (neighbor_tbl[i].is_empty != TRUE)
+		if (neighbor_tbl[i].isEmpty != TRUE)
 		{
-			printf("[%d]\t%d\t%d\t\n", i, IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), neighbor_tbl[i].isAlive, neighbor_tbl[i].type);
+			printf("[%d]\t%s\t%d\t%d\t\n", i, IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), neighbor_tbl[i].isAlive, neighbor_tbl[i].type);
 			rcount++;
 		}
 	printf("-----------------------------------------------------------------\n");
 	printf("      %d number of neighbors found. \n", rcount);
-	return;
+}
 
 // Add a new node and adjacency list to the graph if it does not exist, otherwise update its adjacency list
 //void updateGraph(ospf_graph_t graph, ospf_gnode_t)

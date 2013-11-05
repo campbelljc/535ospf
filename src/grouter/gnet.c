@@ -748,11 +748,21 @@ int GNETInit(int *ghandler, char *config_dir, char *rname, simplequeue_t *sq)
 }
 
 void *SendHelloPackets(){
-	int interfaceCounter;
+	int counter; //loop counter
+	int deadInterval = 0;
 	while(1){
 		sleep(10);
-		for (interfaceCounter = 0; interfaceCounter<netarray.count; interfaceCounter++){
-			interface_t *currentInterface = findInterface(interfaceCounter);
+		deadInterval++;
+		if (deadInterval == 4){	//40s
+			deadInterval = 0;
+			for (counter = 0; counter<MAX_ROUTES; counter++){
+				if (neighbor_tbl[counter].isEmpty == FALSE && neighbor_tbl[counter].isAlive == FALSE){
+					neighbor_tbl[counter].isEmpty = TRUE;
+				}
+			}
+		}
+		for (counter = 0; counter<netarray.count; counter++){
+			interface_t *currentInterface = findInterface(counter);
 			//create hello packet and send
 			OSPFSendHelloPacket(currentInterface->ip_addr);
 		}
