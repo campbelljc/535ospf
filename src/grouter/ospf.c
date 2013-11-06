@@ -83,7 +83,7 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 	// if it's a new update, then send out a new link state update to all neighbors.
 	if (newUpdate)
 	{
-		broadcastLSUpdate(createLSUPacket());
+		broadcastLSUpdate(true, NULL);
 	}
 }
 
@@ -131,7 +131,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	updateRoutingTable(graph);
 
 	// forward the update packet
-	broadcastLSUpdate(pkt);
+	broadcastLSUpdate(false, pkt);
 }
 
 void OSPFSendHelloPacket(uchar *src_ip)
@@ -172,8 +172,6 @@ void OSPFSendHelloPacket(uchar *src_ip)
 }
 
 // Takes in a LS update packet of type gpacket and broadcasts it to your neighbors.
-// If you have received LS update packet from someone else, just call broadcastLSUpdate(packet).
-// If you want to send your own LS updates to your neighbors, call broadcastLSUpdate(createLSUPacket()).
 void broadcastLSUpdate(bool createPacket, gpacket_t *pkt = NULL)
 {	
 	int count;
@@ -186,7 +184,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt = NULL)
 		
 		if (createPacket)
 		{
-			pkt = createLSUPacket(neighbor_tbl[count].neighborIP, neighbor_tbl[count].interface);
+			pkt = createLSUPacket(neighbor_tbl[count].neighborIP);
 		}
 
 		char tmpbuf[MAX_TMPBUF_LEN];
