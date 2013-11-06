@@ -233,7 +233,6 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			verbose(1, "[broadcastLSUpdate]:: Creating update from scratch");
 		}
 
-		char tmpbuf[MAX_TMPBUF_LEN];
 		COPY_IP(pkt->frame.nxth_ip_addr, gHtonl(tmpbuf, neighbor_tbl[count].neighborIP));
 		pkt->frame.dst_interface = neighbor_tbl[count].interface;
 		
