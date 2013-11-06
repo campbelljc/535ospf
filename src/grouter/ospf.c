@@ -183,8 +183,11 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 	verbose(1, "[sendHelloMessage]:: sending broadcast Hello message");
 
 	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), src_ip);
-	COPY_MAC(finished_pkt->data.header.dst, bcast_addr);
+	
+	COPY_MAC(finished_pkt->data.header.dst, bcast_addr); // set MAC to be broadcast.
 	finished_pkt->frame.dst_interface = interface_;
+	finished_pkt->frame.arp_bcast = TRUE;
+	COPY_IP(finished_pkt->frame.nxth_ip_addr, netmask);
 	OSPFSend2Output(finished_pkt);
 }
 
