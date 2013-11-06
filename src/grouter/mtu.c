@@ -108,6 +108,22 @@ int findAllInterfaceIPs(mtu_entry_t mtable[], uchar buf[][4])
 	return count;
 }
 
+int findAllInterfaceIPsWithIndexes(mtu_entry_t mtable[], uchar buf[][4], int indexes[])
+{
+	int i, count = 0;
+	
+	for (i = 0; i < MAX_MTU; i++)
+		if (mtable[i].is_empty == FALSE)
+		{
+			COPY_IP(buf[count], mtable[i].ip_addr);
+			indexes[count] = i;
+			count++;
+		}
+
+	verbose(2, "[findAllInterfaceIPs]:: output buffer ...");
+	return count;
+}
+
 
 
 /*
