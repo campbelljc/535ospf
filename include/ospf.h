@@ -21,6 +21,8 @@
 
 #define MAX_EDGES			 ((MAX_ROUTES * (MAX_ROUTES-1)) / 2)
 
+#define ZEROED_IP	  		{0x00, 0x00, 0x00, 0x00}
+
 typedef struct _neighbor_entry_t
 {
 	bool isEmpty; // indicates whether entry is free or not

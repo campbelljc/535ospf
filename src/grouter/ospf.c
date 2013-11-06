@@ -155,14 +155,17 @@ void OSPFSendHelloPacket(uchar *src_ip)
 	ospf_pkt->ospf_message_length = 4;
 	hello_packet_t *hello_pkt = (hello_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
 
-	uchar netmask[4] = { '255', '255', '255', '0' };
+	char tmpbuf[MAX_TMPBUF_LEN];
+	verbose(1, "[OSPFSendHelloPacket]:: Creating Hello packet with source IP %s", IP2Dot(tmpbuf, src_ip));
+
+	uchar netmask[] = IP_BCAST_ADDR;
 	COPY_IP(hello_pkt->hello_network_mask, netmask);
 
 	hello_pkt->hello_hello_interval = 10;
 	hello_pkt->hello_priority = 0;
 	hello_pkt->hello_dead_interval= 40;
 
-	uchar zeroIP[4] = { '0', '0', '0', '0' };
+	uchar zeroIP = ZEROED_IP;
 	COPY_IP(hello_pkt->hello_designated_ip, zeroIP);
 	COPY_IP(hello_pkt->hello_designated_ip_backup, zeroIP);
 
@@ -294,6 +297,15 @@ int OSPFSend2Output(gpacket_t *pkt)
 
 gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar* sourceIP)
 {
+	/*
+	gpacket_t *out_pkt = (gpacket_t *) malloc(sizeof(gpacket_t));
+	ospf_hdr_t *ospf_pkt = (ospf_hdr_t *)(out_pkt->data.data);
+	ospf_pkt->ospf_message_length = 4;
+	hello_packet_t *hello_pkt = (hello_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
+	 */
+	//	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), src_ip);
+	verbose(1, "[createOSPFHeader]:: Starting to create OSPF Header");
+	
 	ospf_hdr_t* header = (ospf_hdr_t *)(gpacket->data.data);
 
 	header->ospf_version = OSPF_VERSION;
@@ -307,7 +319,7 @@ gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar* so
 	header->ospf_auth_type = OSPF_AUTHTYPE;
 	header->ospf_cksum = 0;
 
-	verbose(1, "[createOSPFHeader]:: Created OSPF Header");
+	verbose(1, "[createOSPFHeader]:: Done creating OSPF Header");
 	return gpacket;
 }
 
