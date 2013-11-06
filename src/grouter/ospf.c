@@ -316,7 +316,7 @@ gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar sou
 	header->ospf_auth_type = OSPF_AUTHTYPE;
 	header->ospf_cksum = 0;
 	
-	gpacket->data.header.prot = OSPF_PROTOCOL;
+	gpacket->data.header.prot = htons(OSPF_PROTOCOL);
 
 	verbose(1, "[createOSPFHeader]:: Done creating OSPF Header");
 	return gpacket;
