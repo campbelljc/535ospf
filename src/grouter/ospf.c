@@ -5,6 +5,7 @@
 #include "ospf.h"
 #include "packetcore.h"
 #include "routetable.h"
+#include "protocols.h"
 #include <stdlib.h>
 #include <slack/err.h>
 #include <netinet/in.h>
