@@ -758,7 +758,7 @@ void *SendHelloPackets(){
 			for (counter = 0; counter<MAX_ROUTES; counter++){
 				if (neighbor_tbl[counter].isEmpty == FALSE && neighbor_tbl[counter].isAlive == FALSE){
 					neighbor_tbl[counter].isEmpty = TRUE;
-					broadcastLSUpdate(true, NULL);
+					broadcastLSUpdate(TRUE, NULL);
 				}
 				neighbor_tbl[counter].isAlive = FALSE;
 			}
