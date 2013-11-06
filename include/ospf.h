@@ -114,10 +114,10 @@ void OSPFProcessLSUpdate(gpacket_t *pkt);
 int OSPFSend2Output(gpacket_t *pkt);
 
 gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar* sourceIP);
-gpacket_t* createLSAHeader(gpacket_t *gpkt, uchar* sourceIP);
-gpacket_t* createLSUPacket();
+gpacket_t* createLSAHeader(gpacket_t *gpkt, uchar sourceIP[]);
+gpacket_t* createLSUPacket(uchar sourceIP[]);
 void OSPFSendHelloPacket(uchar *src_ip, uchar *dst_ip);
-void broadcastLSUpdate(gpacket_t *pkt);
+void broadcastLSUpdate(bool createPacket, gpacket_t *pkt);
 
 // Neighbor table functions.
 int addNeighborEntry(uchar* neighborIP_, int type_, int interface_);

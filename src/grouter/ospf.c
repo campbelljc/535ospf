@@ -134,7 +134,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	broadcastLSUpdate(pkt);
 }
 
-void OSPFSendHelloPacket(uchar *src_ip, uchar *dst_ip)
+void OSPFSendHelloPacket(uchar *src_ip)
 {
 	gpacket_t *out_pkt = (gpacket_t *) malloc(sizeof(gpacket_t));
 	ospf_hdr_t *ospf_pkt = (ospf_hdr_t *)(out_pkt->data.data);
@@ -160,6 +160,12 @@ void OSPFSendHelloPacket(uchar *src_ip, uchar *dst_ip)
 	{
 		COPY_IP(hello_pkt->hello_neighbours[count], neighborEntries[count].neighborIP);
 	}
+	
+	uchar bcast_addr[6];
+	memset(bcast_addr, 0xFF, 6);
+	COPY_MAC(pkt->data.header.dst, bcast_addr);
+
+	verbose(2, "[sendARPRequest]:: sending broadcast Hello message");
 
 	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), src_ip);
 	OSPFSend2Output(finished_pkt);
@@ -168,8 +174,8 @@ void OSPFSendHelloPacket(uchar *src_ip, uchar *dst_ip)
 // Takes in a LS update packet of type gpacket and broadcasts it to your neighbors.
 // If you have received LS update packet from someone else, just call broadcastLSUpdate(packet).
 // If you want to send your own LS updates to your neighbors, call broadcastLSUpdate(createLSUPacket()).
-void broadcastLSUpdate(gpacket_t *pkt)
-{
+void broadcastLSUpdate(bool createPacket, gpacket_t *pkt = NULL)
+{	
 	int count;
 	for (count = 0; count < MAX_ROUTES; count ++)
 	{ // send out to each neighbor, unless it is stub network
@@ -177,6 +183,11 @@ void broadcastLSUpdate(gpacket_t *pkt)
 			|| neighbor_tbl[count].isAlive == FALSE
 			|| neighbor_tbl[count].type == OSPF_STUB
 			|| neighbor_tbl[count].bidirectional == FALSE) continue;
+		
+		if (createPacket)
+		{
+			pkt = createLSUPacket(neighbor_tbl[count].neighborIP, neighbor_tbl[count].interface);
+		}
 
 		char tmpbuf[MAX_TMPBUF_LEN];
 		COPY_IP(pkt->frame.nxth_ip_addr, gHtonl(tmpbuf, neighbor_tbl[count].neighborIP));
@@ -186,7 +197,7 @@ void broadcastLSUpdate(gpacket_t *pkt)
 	}
 }
 
-gpacket_t* createLSUPacket()
+gpacket_t* createLSUPacket(uchar sourceIP[])
 {
 	gpacket_t *out_pkt = (gpacket_t *) malloc(sizeof(gpacket_t));
 	ospf_hdr_t *ospf_pkt = (ospf_hdr_t *)(out_pkt->data.data);
@@ -228,7 +239,7 @@ gpacket_t* createLSUPacket()
 	return createOSPFHeader(createLSAHeader(out_pkt, sourceIP), OSPF_LINK_STAT_UPDATE, totalLength, sourceIP);
 }
 
-gpacket_t* createLSAHeader(gpacket_t *gpkt, uchar* sourceIP)
+gpacket_t* createLSAHeader(gpacket_t *gpkt, uchar sourceIP[])
 {
 	ospf_hdr_t *ospf_pkt = (ospf_hdr_t *)(gpkt->data.data);
 	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);

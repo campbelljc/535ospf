@@ -765,10 +765,7 @@ void *SendHelloPackets(){
 		}
 		for (counter = 0; counter<netarray.count; counter++){
 			interface_t *currentInterface = findInterface(counter);
-			//create hello packet and send
-			uchar *broadcast_ip = IP_BCAST_ADDR;
-			OSPFSendHelloPacket(currentInterface->ip_addr, broadcast_ip);
-			// TODO
+			OSPFSendHelloPacket(currentInterface->ip_addr);
 		}
 	}
 }
