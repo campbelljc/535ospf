@@ -752,6 +752,7 @@ void *SendHelloPackets(){
 	int deadInterval = 0;
 	while(1){
 		sleep(10);
+		verbose(1, "[SendHelloPackets]:: Preparing to send Hello messages.");
 		deadInterval++;
 		if (deadInterval == 4){	//40s
 			deadInterval = 0;
@@ -763,11 +764,12 @@ void *SendHelloPackets(){
 				neighbor_tbl[counter].isAlive = FALSE;
 			}
 		}
+		verbose(1, "[SendHelloPackets]:: Preparing to send Hello messages 2.");
 		for (counter = 0; counter<netarray.count; counter++){
 			interface_t *currentInterface = findInterface(counter);
 			
 			char tmpbuf[MAX_TMPBUF_LEN];
-			verbose(1, "[SendHelloPackets]:: Preparing to send Hello message on interface %d with IP %s. ", counter, IP2Dot(tmpbuf, gNtohl((uchar *)tmpbuf, currentInterface->ip_addr))));
+			verbose(1, "[SendHelloPackets]:: Preparing to send Hello message on interface %d with IP %s. ", counter, IP2Dot(tmpbuf, gNtohl((uchar *)tmpbuf, currentInterface->ip_addr)));
 			
 			OSPFSendHelloPacket(currentInterface->ip_addr);
 		}
