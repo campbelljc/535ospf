@@ -19,6 +19,7 @@
 #include "tap.h"
 #include "tapio.h"
 #include "protocols.h"
+#include "mtu.h"
 #include <slack/err.h>
 #include <sys/time.h>
 #include <netinet/in.h>
@@ -766,6 +767,7 @@ void *SendHelloPackets(){
 		}
 		verbose(1, "[SendHelloPackets]:: Preparing to send Hello messages 2.");
 		uchar interfaceIPs[MAX_MTU][4];
+		int count, i;
 		if ((count = findAllInterfaceIPs(MTU_tbl, interfaceIPs)) > 0)
 		{
 			for (i = 0; i < count; i++)
