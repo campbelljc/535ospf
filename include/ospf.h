@@ -63,37 +63,46 @@ typedef struct _hello_packet_t
 	uint32_t hello_dead_interval;           // router dead interval - ALWAYS 40
 	uchar    hello_designated_ip[4];        // designated router ip address 0
 	uchar    hello_designated_ip_backup[4]; // backup designated router ip address 0
-	uchar    hello_neighbours[DEFAULT_MTU/2][4];		// neighbors list 
+	uchar    hello_neighbours[DEFAULT_MTU/2][4];		// neighbors list
 } hello_packet_t;
 
 typedef struct _ospf_hdr_t
 {
 	uint8_t ospf_version;                   // version
-	uint8_t ospf_type;                   	// type 
-	uint16_t ospf_message_length;           // message length 
+	uint8_t ospf_type;                   	// type
+	uint16_t ospf_message_length;           // message length
 
 	uchar* ospf_src[4];          	     	// source address
 	uint32_t ospf_aid;                   	// area ID
- 
+
 	uint16_t ospf_cksum;                    // checksum
 	uint16_t ospf_auth_type;                // authentication type
- 
+
 	/* uint32_t ospf_auth;                     // authentication */
 } ospf_hdr_t;
 
-//typedef struct _ospf_gnode_t
-//{
-//	uchar addr[4];				// node address
-//	ospf_gnode_t *neighbours;		// adjacency list
-//	int size;				// number of neighbours
-//} ospf_gnode_t
+typedef struct _ospf_gnode_t
+{
+	bool is_empty;							// whether node is used or not
+	uchar src[4];							// IP address
+	uchar networks[MAX_ROUTES][4];			// reachable networks
+	int num_networks;						// number of reachable networks
+	int types[MAX_ROUTES];					// type of network, 2 for any-to-any, 3 for stub
+	int last_LSN;							// Link Sequence Number of the last update sent by this node
+} ospf_gnode_t;
 
+typedef struct _ospf_gedge_t
+{
+	bool is_empty;							// whether edge is used or not
+	uchar addr1[4];							// IP address of first node
+	uchar addr2[4];							// IP address of second node
+} ospf_gedge_t;
 
-//typedef struct _ospf_graph_t
-//{
-//	ospf_gnode_t *nodes;			// set of nodes
-//	int size;				// number of nodes
-//} ospf_graph_t
+typedef struct _ospf_graph_t
+{
+	ospf_gnode_t nodes[MAX_ROUTES];			// set of nodes
+	ospf_gedge_t edges[MAX_EDGES];			// set of edges
+} ospf_graph_t;
 
 void OSPFInit();
 void OSPFIncomingPacket(gpacket_t *pkt);
@@ -107,13 +116,18 @@ gpacket_t* createLSUPacket(int seqNum_);
 void OSPFSendHelloPacket(uchar *src_ip, uchar *dst_ip);
 void broadcastLSUpdate(gpacket_t *pkt);
 
-//void updateGraph(ospf_graph_t graph, ospf_gnode_t);
-
 // Neighbor table functions.
 int addNeighborEntry(uchar* neighborIP_, int type_, int interface_);
 int getNeighborEntries(neighbor_entry_t buffer[]);
 void OSPFMarkDeadNeighbor(uchar* neighborIP_);
 void OSPFSetStubNetwork(gpacket_t *pkt);
 void printNeighborTable();
+
+// Graph management functions
+ospf_gnode_t* getNode(ospf_graph_t *graph, uchar *src);
+ospf_gnode_t* addNode(ospf_graph_t *graph, uchar *src);
+void updateLinkData(lsu_packet_t *lsu_pkt, ospf_gnode_t *node);
+void updateEdges(ospf_graph_t *graph, ospf_gnode_t *node);
+void addEdge(uchar *addr1, uchar *addr2);
 
 #endif
