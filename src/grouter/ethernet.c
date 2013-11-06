@@ -111,7 +111,7 @@ void* fromEthernetDev(void *arg)
 		{
 			if ((COMPARE_MAC(in_pkt->data.header.dst, stub_mac[0]) != 0) &&
 			    (COMPARE_MAC(in_pkt->data.header.dst, stub_mac[1]) != 0) &&
-				(COMPARE_MAC(in_pkt->data.header.dst, stub_mac[3]) != 0))
+				(COMPARE_MAC(in_pkt->data.header.dst, stub_mac[2]) != 0))
 			{
 				char tmpbuf[MAX_TMPBUF_LEN];
 								
