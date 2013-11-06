@@ -68,7 +68,7 @@ int main(int ac, char *av[])
 	outputQ = createSimpleQueue("outputQueue", INFINITE_Q_SIZE, 0, 1);
 	workQ = createSimpleQueue("work Queue", INFINITE_Q_SIZE, 0, 1);
 
-	GNETInit(&(rconfig.ghandler), &(rconfig.hello) rconfig.config_dir, rconfig.router_name, outputQ);
+	GNETInit(&(rconfig.ghandler), &(rconfig.hello), rconfig.config_dir, rconfig.router_name, outputQ);
 	ARPInit();
 	IPInit();
 	OSPFInit();
