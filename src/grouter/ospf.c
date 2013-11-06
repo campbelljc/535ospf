@@ -300,13 +300,6 @@ int OSPFSend2Output(gpacket_t *pkt)
 
 gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar sourceIP[])
 {
-	/*
-	gpacket_t *out_pkt = (gpacket_t *) malloc(sizeof(gpacket_t));
-	ospf_hdr_t *ospf_pkt = (ospf_hdr_t *)(out_pkt->data.data);
-	ospf_pkt->ospf_message_length = 4;
-	hello_packet_t *hello_pkt = (hello_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
-	 */
-	//	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), src_ip);
 	verbose(1, "[createOSPFHeader]:: Starting to create OSPF Header");
 	
 	ospf_hdr_t* header = (ospf_hdr_t *)(gpacket->data.data);
@@ -317,11 +310,12 @@ gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar sou
 
 	char tmpbuf[MAX_TMPBUF_LEN];
 	COPY_IP(header->ospf_src, sourceIP);
-//	COPY_IP(header->ospf_src, gHtonl(tmpbuf, sourceIP));
 
 	header->ospf_aid = OSPF_AREAID;
 	header->ospf_auth_type = OSPF_AUTHTYPE;
 	header->ospf_cksum = 0;
+	
+	gpacket->data.header.prot = OSPF_PROTOCOL;
 
 	verbose(1, "[createOSPFHeader]:: Done creating OSPF Header");
 	return gpacket;
