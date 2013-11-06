@@ -27,6 +27,7 @@
 
 extern route_entry_t route_tbl[MAX_ROUTES];
 extern neighbor_entry_t neighbor_tbl[MAX_ROUTES]; 
+extern mtu_entry_t MTU_tbl[MAX_MTU];
 
 interface_array_t netarray;
 devicearray_t devarray;
@@ -728,10 +729,9 @@ void GNETHalt(int gnethandler)
  * and injected back into the Output Queue once the ARP reply from a remote machine comes back.
  * This means a packet can go through the Output Queue two times.
  */
-int GNETInit(int *ghandler, char *config_dir, char *rname, simplequeue_t *sq)
+int GNETInit(int *ghandler, int* hello, char *config_dir, char *rname, simplequeue_t *sq)
 {
-	int thread_stat;
-	pthread_t thread_hello;
+	int thread_stat, hello_stat;
 
 	// do the initializations...
 	vpl_init(config_dir, rname);
@@ -739,7 +739,7 @@ int GNETInit(int *ghandler, char *config_dir, char *rname, simplequeue_t *sq)
  	GNETInitARPCache();
 
 	thread_stat = pthread_create((pthread_t *)ghandler, NULL, GNETHandler, (void *)sq);
-	int hello_stat = pthread_create(&thread_hello, NULL, SendHelloPackets, NULL);
+	hello_stat = pthread_create((pthread_t *)hello, NULL, SendHelloPackets, NULL);
 	if (thread_stat != 0 || hello_stat != 0)
 		return EXIT_FAILURE;
 	else
@@ -763,11 +763,20 @@ void *SendHelloPackets(){
 				neighbor_tbl[counter].isAlive = FALSE;
 			}
 		}
-		for (counter = 0; counter<netarray.count; counter++){
+		for (counter = 0; counter<netarray.count; counter++)
+		{
+			uchar interfaceIPs[MAX_MTU][4];
+			if ((count = findAllInterfaceIPs(MTU_tbl, interfaceIPs)) > 0)
+			{
+				for (i = 0; i < count; i++)
+				{
+				}
+			}
+			
 			interface_t *currentInterface = findInterface(counter);
 			
 			char tmpbuf[MAX_TMPBUF_LEN];
-			verbose(1, "[SendHelloPackets]:: Preparing to send Hello message on interface %d with IP %s. ", counter, IP2Dot(tmpbuf, gNtohl((uchar *)tmpbuf, currentInterface->ip_addr))));
+			verbose(1, "[SendHelloPackets]:: Preparing to send Hello message on interface %d with IP %s. ", counter, IP2Dot(tmpbuf, gNtohl((uchar *)tmpbuf, currentInterface->ip_addr)));
 			
 			OSPFSendHelloPacket(currentInterface->ip_addr);
 		}

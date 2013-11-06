@@ -17,7 +17,7 @@
 #include "filter.h"
 #include <pthread.h>
 
-router_config rconfig = {.router_name=NULL, .gini_home=NULL, .cli_flag=0, .config_file=NULL, .config_dir=NULL, .ghandler=0, .clihandler= 0, .scheduler=0, .worker=0, .schedcycle=10000};
+router_config rconfig = {.router_name=NULL, .gini_home=NULL, .cli_flag=0, .config_file=NULL, .config_dir=NULL, .ghandler=0, .clihandler= 0, .scheduler=0, .worker=0, .schedcycle=10000, .hello=0 };
 pktcore_t *pcore;
 classlist_t *classifier;
 filtertab_t *filter;
@@ -68,7 +68,7 @@ int main(int ac, char *av[])
 	outputQ = createSimpleQueue("outputQueue", INFINITE_Q_SIZE, 0, 1);
 	workQ = createSimpleQueue("work Queue", INFINITE_Q_SIZE, 0, 1);
 
-	GNETInit(&(rconfig.ghandler), rconfig.config_dir, rconfig.router_name, outputQ);
+	GNETInit(&(rconfig.ghandler), &(rconfig.hello) rconfig.config_dir, rconfig.router_name, outputQ);
 	ARPInit();
 	IPInit();
 	OSPFInit();
@@ -99,6 +99,7 @@ int main(int ac, char *av[])
 	wait4thread(rconfig.scheduler);
 	wait4thread(rconfig.worker);
 	wait4thread(rconfig.ghandler);
+	wait4thread(rconfig.hello);
 }
 
 
@@ -119,6 +120,9 @@ void shutdownRouter()
 	pthread_cancel(rconfig.worker);
 	verbose(1, "[main]:: shutting down the CLI handler.. ");
 	pthread_cancel(rconfig.clihandler);
+	
+	verbose(1, "[main]:: shutting down Hello thread... ");
+	pthread_cancel(rconfig.hello);
 
 	// we should cancel CLI thread too??
 	verbose(1, "[main]:: removing the PID files... ");
