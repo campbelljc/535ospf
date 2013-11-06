@@ -165,11 +165,11 @@ void OSPFSendHelloPacket(uchar *src_ip)
 	
 	uchar bcast_addr[6];
 	memset(bcast_addr, 0xFF, 6);
-	COPY_MAC(hello_pkt->data.header.dst, bcast_addr);
 
 	verbose(2, "[sendARPRequest]:: sending broadcast Hello message");
 
 	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), src_ip);
+	COPY_MAC(finished_pkt->data.header.dst, bcast_addr);
 	OSPFSend2Output(finished_pkt);
 }
 
