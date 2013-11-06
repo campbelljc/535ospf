@@ -103,7 +103,7 @@ int OSPFSend2Output(gpacket_t *pkt);
 
 gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar* sourceIP);
 gpacket_t* createLSAHeader(gpacket_t *gpkt, int seqNum_, uchar* sourceIP);
-gpacket_t* createLSUPacket(int seqNum_);
+gpacket_t* createLSUPacket();
 void OSPFSendHelloPacket(uchar *src_ip, uchar *dst_ip);
 void broadcastLSUpdate(gpacket_t *pkt);
 
