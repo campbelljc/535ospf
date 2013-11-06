@@ -86,6 +86,7 @@ void* fromEthernetDev(void *arg)
 	interface_array_t *iarr = (interface_array_t *)iface->iarray;
 	uchar bcast_mac[] = MAC_BCAST_ADDR;
 	uchar stub_mac[][6] = { MAC_STUB1_ADDR, MAC_STUB2_ADDR, MAC_STUB3_ADDR };
+	uchar bcast_ip[] = IP_BCAST_ADDR;
 
 	gpacket_t *in_pkt;
 

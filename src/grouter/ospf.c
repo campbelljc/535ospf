@@ -83,7 +83,7 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 	// if it's a new update, then send out a new link state update to all neighbors.
 	if (newUpdate)
 	{
-		broadcastLSUpdate(true, NULL);
+		broadcastLSUpdate(TRUE, NULL);
 	}
 }
 
@@ -131,7 +131,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	updateRoutingTable(graph);
 
 	// forward the update packet
-	broadcastLSUpdate(false, pkt);
+	broadcastLSUpdate(FALSE, pkt);
 }
 
 void OSPFSendHelloPacket(uchar *src_ip)
@@ -163,7 +163,7 @@ void OSPFSendHelloPacket(uchar *src_ip)
 	
 	uchar bcast_addr[6];
 	memset(bcast_addr, 0xFF, 6);
-	COPY_MAC(pkt->data.header.dst, bcast_addr);
+	COPY_MAC(hello_pkt->data.header.dst, bcast_addr);
 
 	verbose(2, "[sendARPRequest]:: sending broadcast Hello message");
 
@@ -172,7 +172,7 @@ void OSPFSendHelloPacket(uchar *src_ip)
 }
 
 // Takes in a LS update packet of type gpacket and broadcasts it to your neighbors.
-void broadcastLSUpdate(bool createPacket, gpacket_t *pkt = NULL)
+void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 {	
 	int count;
 	for (count = 0; count < MAX_ROUTES; count ++)
