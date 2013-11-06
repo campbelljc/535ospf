@@ -106,9 +106,8 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	lsu_packet_t *lsu_pkt = (lsu_packet_t *)((uchar *)lsa_pkt + lsa_pkt -> lsa_header_length*4);
 
 	// get src address
-	uchar srcIP[4];
-	COPY_IP(srcIP, ospf_pkt->ospf_src);
-	uchar* src = &srcIP;
+	uchar src[4];
+	COPY_IP(src, ospf_pkt->ospf_src);
 
 	// get sequence number
 	lsn = lsa_pkt -> lsa_sequence_number;
@@ -425,7 +424,7 @@ void printNeighborTable()
 }
 
 // Gets the node from the graph with the supplied IP address, or NULL if it does not exist
-ospf_gnode_t* getNode(ospf_graph_t *graph, uchar *src)
+ospf_gnode_t* getNode(ospf_graph_t *graph, uchar src[])
 {
 	int i;
 
@@ -448,7 +447,7 @@ ospf_gnode_t* getNode(ospf_graph_t *graph, uchar *src)
 }
 
 // Add a new node to the graph and return it
-ospf_gnode_t* addNode(ospf_graph_t *graph, uchar *src)
+ospf_gnode_t* addNode(ospf_graph_t *graph, uchar src[])
 {
 	int i;
 	ospf_gnode_t *node;
