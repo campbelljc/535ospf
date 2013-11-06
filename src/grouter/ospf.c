@@ -23,7 +23,7 @@ void OSPFInit()
 	int i;
 	for(i = 0; i < MAX_ROUTES; i++)
 		neighbor_tbl[i].isEmpty = TRUE;
-	verbose(2, "[OSPFInit]:: neighbor table initialized");
+	verbose(1, "[OSPFInit]:: neighbor table initialized");
 
 	globalSeqNum = 0;
 
@@ -37,7 +37,7 @@ void OSPFInit()
 	{
 		graph -> edges[i].is_empty = TRUE;
 	}
-	verbose(2, "[OSPFInit]:: graph initialized");
+	verbose(1, "[OSPFInit]:: graph initialized");
 }
 
 void OSPFIncomingPacket(gpacket_t *pkt)
@@ -46,17 +46,17 @@ void OSPFIncomingPacket(gpacket_t *pkt)
 
 	if (ospf_pkt->ospf_type == OSPF_HELLO)
 	{
-		verbose(2, "[OSPFIncomingPacket]:: received OSPF Hello message");
+		verbose(1, "[OSPFIncomingPacket]:: received OSPF Hello message");
 		OSPFProcessHelloMessage(pkt);
 	}
 	else if (ospf_pkt->ospf_type == OSPF_LINK_STAT_UPDATE)
 	{
-		verbose(2, "[OSPFIncomingPacket]:: received OSPF link state update");
+		verbose(1, "[OSPFIncomingPacket]:: received OSPF link state update");
 		OSPFProcessLSUpdate(pkt);
 	}
 	else
 	{
-		verbose(2, "[OSPFIncomingPacket]:: unknown OSPF packet received");
+		verbose(1, "[OSPFIncomingPacket]:: unknown OSPF packet received");
 	}
 }
 
@@ -166,7 +166,7 @@ void OSPFSendHelloPacket(uchar *src_ip)
 	uchar bcast_addr[6];
 	memset(bcast_addr, 0xFF, 6);
 
-	verbose(2, "[sendARPRequest]:: sending broadcast Hello message");
+	verbose(1, "[sendHelloMessage]:: sending broadcast Hello message");
 
 	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), src_ip);
 	COPY_MAC(finished_pkt->data.header.dst, bcast_addr);
@@ -317,7 +317,7 @@ int addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 
 			neighbor_tbl[i].type = type_;
 			neighbor_tbl[i].isAlive = TRUE;
-			verbose(2, "[addRouteEntry]:: updated neighbor table entry #%d", i);
+			verbose(1, "[addRouteEntry]:: updated neighbor table entry #%d", i);
 			return fresh;
 		}
 	}
@@ -329,7 +329,7 @@ int addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 	neighbor_tbl[ifree].isAlive = TRUE;
 	neighbor_tbl[ifree].interface = interface_;
 
-	verbose(2, "[addNeighborEntry]:: added neighbor entry ");
+	verbose(1, "[addNeighborEntry]:: added neighbor entry ");
 	return TRUE;
 }
 
@@ -360,7 +360,7 @@ void OSPFMarkDeadNeighbor(uchar* neighborIP_)
 		else if ((COMPARE_IP(neighborIP_, neighbor_tbl[count].neighborIP)) == 0)
 		{ // match
 			neighbor_tbl[count].isAlive = FALSE;
-			verbose(2, "[addRouteEntry]:: neighbor table entry #%d marked as dead ", count);
+			verbose(1, "[addRouteEntry]:: neighbor table entry #%d marked as dead ", count);
 			break;
 		}
 	}
@@ -435,7 +435,7 @@ ospf_gnode_t* addNode(ospf_graph_t *graph, uchar *src)
 	node -> is_empty = FALSE;
 	COPY_IP(node -> src, src);
 
-	verbose(2, "[addNode]:: node added");
+	verbose(1, "[addNode]:: node added");
 
 	return node;
 }
@@ -457,7 +457,7 @@ void updateLinkData(lsu_packet_t *lsu_pkt, ospf_gnode_t *node)
 
 	node -> num_networks = num_links;
 
-	verbose(2, "[updateLinkData]:: link data updated");
+	verbose(1, "[updateLinkData]:: link data updated");
 }
 
 // Update the edges of the graph
@@ -512,7 +512,7 @@ void updateEdges(ospf_graph_t *graph, ospf_gnode_t *node)
 		}
 	}
 
-	verbose(2, "[updateEdges]:: edges updated");
+	verbose(1, "[updateEdges]:: edges updated");
 }
 
 // Add an edge to the graph
@@ -529,7 +529,7 @@ void addEdge(uchar *addr1, uchar *addr2)
 			COPY_IP(edge -> addr1, addr1);
 			COPY_IP(edge -> addr2, addr2);
 			edge -> is_empty = FALSE;
-			verbose(2, "[addEdges]:: edge added");
+			verbose(1, "[addEdges]:: edge added");
 			return;
 		}
 	}

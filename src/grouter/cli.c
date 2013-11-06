@@ -91,6 +91,7 @@ int CLIInit(router_config *rarg)
 	registerCLI("spolicy", spolicyCmd, SHELP_SPOLICY, USAGE_SPOLICY, LHELP_SPOLICY); // Check
 	registerCLI("class", classCmd, SHELP_CLASS, USAGE_CLASS, LHELP_CLASS);
 	registerCLI("filter", filterCmd, SHELP_FILTER, USAGE_FILTER, LHELP_FILTER);
+	registerCLI("hello", helloCmd, SHELP_EXIT, USAGE_EXIT, LHELP_EXIT);
 
 
 	if (rarg->config_dir != NULL)
@@ -538,6 +539,11 @@ void routeCmd()
 			printRouteTable(route_tbl);
 	}
 	return;
+}
+
+void helloCmd()
+{
+	printNeighborTable();
 }
 
 /*

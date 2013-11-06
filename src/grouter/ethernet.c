@@ -113,7 +113,9 @@ void* fromEthernetDev(void *arg)
 			    (COMPARE_MAC(in_pkt->data.header.dst, stub_mac[1]) != 0) &&
 				(COMPARE_MAC(in_pkt->data.header.dst, stub_mac[3]) != 0))
 			{
-				verbose(1, "[fromEthernetDev]:: Packet dropped .. not for this router!? ");
+				char tmpbuf[MAX_TMPBUF_LEN];
+								
+				verbose(1, "[fromEthernetDev]:: Packet dropped .. not for this router!? MAC was %s ", MAC2Colon(tmpbuf, in_pkt->data.header.dst));
 				free(in_pkt);
 				continue;
 			}
