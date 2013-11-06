@@ -76,8 +76,8 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 	for (i=0; i< neighbor_size;i++){
 		if (COMPARE_IP(currentIP, hello_pkt->hello_neighbours[i]) == 0){
 			//ip's are the same, therefore its bi-directional
-			//must search through local neighbor table, and set the bidiectional flag 
-		} 
+			//must search through local neighbor table, and set the bidiectional flag
+		}
 	}
 
 	// if it's a new update, then send out a new link state update to all neighbors.
@@ -162,7 +162,7 @@ void OSPFSendHelloPacket(uchar *src_ip)
 	{
 		COPY_IP(hello_pkt->hello_neighbours[count], neighborEntries[count].neighborIP);
 	}
-	
+
 	uchar bcast_addr[6];
 	memset(bcast_addr, 0xFF, 6);
 
@@ -175,7 +175,7 @@ void OSPFSendHelloPacket(uchar *src_ip)
 
 // Takes in a LS update packet of type gpacket and broadcasts it to your neighbors.
 void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
-{	
+{
 	int count;
 	for (count = 0; count < MAX_ROUTES; count ++)
 	{ // send out to each neighbor, unless it is stub network
@@ -183,7 +183,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			|| neighbor_tbl[count].isAlive == FALSE
 			|| neighbor_tbl[count].type == OSPF_STUB
 			|| neighbor_tbl[count].bidirectional == FALSE) continue;
-		
+
 		if (createPacket)
 		{
 			pkt = createLSUPacket(neighbor_tbl[count].neighborIP);
@@ -317,7 +317,7 @@ int addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 
 			neighbor_tbl[i].type = type_;
 			neighbor_tbl[i].isAlive = TRUE;
-			verbose(1, "[addRouteEntry]:: updated neighbor table entry #%d", i);
+			verbose(1, "[addNeighborEntry]:: updated neighbor table entry #%d", i);
 			return fresh;
 		}
 	}
@@ -360,7 +360,7 @@ void OSPFMarkDeadNeighbor(uchar* neighborIP_)
 		else if ((COMPARE_IP(neighborIP_, neighbor_tbl[count].neighborIP)) == 0)
 		{ // match
 			neighbor_tbl[count].isAlive = FALSE;
-			verbose(1, "[addRouteEntry]:: neighbor table entry #%d marked as dead ", count);
+			verbose(1, "[addNeightborEntry]:: neighbor table entry #%d marked as dead ", count);
 			break;
 		}
 	}
