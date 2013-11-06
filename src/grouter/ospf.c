@@ -64,24 +64,40 @@ void OSPFIncomingPacket(gpacket_t *pkt)
 void OSPFProcessHelloMessage(gpacket_t *pkt)
 {
 	char tmpbuf[MAX_TMPBUF_LEN];
+	char tmpbuf2[MAX_TMPBUF_LEN];
 	verbose(1, "[OSPFProcessHelloMessage]:: Received Hello message");
+	ospf_hdr_t *ospf_pkt = (ospf_hdr_t*) &pkt->data.data;
+    hello_packet_t *hello_pkt = (hello_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
 	
 	// update neighbor database
-	int newUpdate = addNeighborEntry(pkt->frame.src_ip_addr, OSPF_ROUTER, pkt->frame.src_interface);
+	int newUpdate = addNeighborEntry(ospf_pkt->ospf_src, OSPF_ROUTER, pkt->frame.src_interface);
 
-	verbose(1, "[OSPFProcessHelloMessage]:: Pkt frame src ip addr is %s and nxth ip addr is %s. ", IP2Dot(tmpbuf, gNtohl((uchar *)tmpbuf, pkt->frame.src_ip_addr)), IP2Dot(tmpbuf, gNtohl((uchar *)tmpbuf, pkt->frame.nxth_ip_addr)));
+//	verbose(1, "[OSPFProcessHelloMessage]:: Pkt frame src ip addr is %s and nxth ip addr is %s. ", IP2Dot(tmpbuf, gNtohl((uchar *)tmpbuf, pkt->frame.src_ip_addr)), IP2Dot(tmpbuf2, gNtohl((uchar *)tmpbuf2, pkt->frame.nxth_ip_addr)));
 	
-
 	//check bidirectional
 	uchar *currentIP = pkt->frame.nxth_ip_addr;
-    ospf_hdr_t *ospf_pkt = (ospf_hdr_t *)(pkt->data.data);
-    hello_packet_t *hello_pkt = (hello_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
 
 //	int neighbor_size = sizeof(hello_pkt->hello_neighbours)/(sizeof(uchar)*4);
 
-	int i;
-	for (i=0; i< hello_pkt->hello_numneighbors;i++){
-		if (COMPARE_IP(currentIP, hello_pkt->hello_neighbours[i]) == 0) {
+	int count;
+	for (count = 0; count < hello_pkt->hello_numneighbors; count ++)
+	{
+		if (COMPARE_IP(currentIP, hello_pkt->hello_neighbours[count]) == 0)
+		{ // the IP the packet is sending to is also contained in its neighbor table.
+			// therefore, it knows about this router, and we know about it (entry added above)
+			// so we have bidirectionality
+			
+			for (count = 0; count < MAX_ROUTES; count ++)
+			{
+				if (neighbor_tbl[count].isEmpty == TRUE || neighbor_tbl[count].isAlive == FALSE) continue;
+				
+				if (COMPARE_IP(neighbor_tbl[count].neighborIP, ospf_pkt->ospf_src) == 0)
+				{
+					neighbor_tbl[count].bidirectional = TRUE;
+				}
+			}
+			
+			
 			//TODO
 			//ip's are the same, therefore its bi-directional
 			//must search through local neighbor table, and set the bidiectional flag
@@ -200,7 +216,6 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 // Takes in a LS update packet of type gpacket and broadcasts it to your neighbors.
 void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 {	
-	verbose(1, "[broadcastLSUpdate]:: Broadcasting LS update");
 	int count;
 	for (count = 0; count < MAX_ROUTES; count ++)
 	{ // send out to each neighbor, unless it is stub network
@@ -208,6 +223,9 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			|| neighbor_tbl[count].isAlive == FALSE
 			|| neighbor_tbl[count].type == OSPF_STUB
 			|| neighbor_tbl[count].bidirectional == FALSE) continue;
+
+		char tmpbuf[MAX_TMPBUF_LEN];
+		verbose(1, "[broadcastLSUpdate]:: Sending LS update to IP %s.", IP2Dot(tmpbuf, gNtohl((uchar *)tmpbuf, neighbor_tbl[count].neighborIP)));
 
 		if (createPacket)
 		{
@@ -218,9 +236,10 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 		char tmpbuf[MAX_TMPBUF_LEN];
 		COPY_IP(pkt->frame.nxth_ip_addr, gHtonl(tmpbuf, neighbor_tbl[count].neighborIP));
 		pkt->frame.dst_interface = neighbor_tbl[count].interface;
-
+		
 		OSPFSend2Output(pkt);
 	}
+	if (count == 0) verbose(1, "[broadcastLSUpdate]:: Wanted to send LS update, but have no neighbors to send it to :( ");
 }
 
 gpacket_t* createLSUPacket(uchar sourceIP[])
