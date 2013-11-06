@@ -147,7 +147,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	broadcastLSUpdate(FALSE, pkt);
 }
 
-void OSPFSendHelloPacket(uchar *src_ip)
+void OSPFSendHelloPacket(uchar src_ip[])
 {
 	gpacket_t *out_pkt = (gpacket_t *) malloc(sizeof(gpacket_t));
 	ospf_hdr_t *ospf_pkt = (ospf_hdr_t *)(out_pkt->data.data);
@@ -294,7 +294,7 @@ int OSPFSend2Output(gpacket_t *pkt)
 	return writeQueue(pcore->outputQ, (void *)pkt, sizeof(gpacket_t));
 }
 
-gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar* sourceIP)
+gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar sourceIP[])
 {
 	/*
 	gpacket_t *out_pkt = (gpacket_t *) malloc(sizeof(gpacket_t));
@@ -312,7 +312,8 @@ gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar* so
 	header->ospf_message_length = mlength + sizeof(ospf_hdr_t);
 
 	char tmpbuf[MAX_TMPBUF_LEN];
-	COPY_IP(header->ospf_src, gHtonl(tmpbuf, sourceIP));
+	COPY_IP(header->ospf_src, sourceIP);
+//	COPY_IP(header->ospf_src, gHtonl(tmpbuf, sourceIP));
 
 	header->ospf_aid = OSPF_AREAID;
 	header->ospf_auth_type = OSPF_AUTHTYPE;
