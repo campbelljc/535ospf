@@ -75,7 +75,7 @@ typedef struct _ospf_hdr_t
 	uint8_t ospf_type;                   	// type
 	uint16_t ospf_message_length;           // message length
 
-	uchar* ospf_src[4];          	     	// source address
+	uchar ospf_src[4];          	     	// source address
 	uint32_t ospf_aid;                   	// area ID
 
 	uint16_t ospf_cksum;                    // checksum

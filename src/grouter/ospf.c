@@ -100,7 +100,9 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	lsu_packet_t *lsu_pkt = (lsu_packet_t *)((uchar *)lsa_pkt + lsa_pkt -> lsa_header_length*4);
 
 	// get src address
-	uchar *src = ospf_pkt -> ospf_src;
+	uchar srcIP[4];
+	COPY_IP(srcIP, ospf_pkt->ospf_src);
+	uchar* src = &srcIP;
 
 	// get sequence number
 	lsn = lsa_pkt -> lsa_sequence_number;
