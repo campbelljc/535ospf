@@ -155,7 +155,7 @@ void OSPFSendHelloPacket(uchar *src_ip)
 	hello_packet_t *hello_pkt = (hello_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
 
 	char tmpbuf[MAX_TMPBUF_LEN];
-	verbose(1, "[OSPFSendHelloPacket]:: Creating Hello packet with source IP %s", IP2Dot(tmpbuf, src_ip));
+	verbose(1, "[OSPFSendHelloPacket]:: Creating Hello packet with source IP %s", IP2Dot(tmpbuf, gNtohl((uchar *)tmpbuf, src_ip))));
 
 	uchar netmask[] = IP_BCAST_ADDR;
 	COPY_IP(hello_pkt->hello_network_mask, netmask);

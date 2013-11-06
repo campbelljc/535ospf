@@ -767,7 +767,7 @@ void *SendHelloPackets(){
 			interface_t *currentInterface = findInterface(counter);
 			
 			char tmpbuf[MAX_TMPBUF_LEN];
-			verbose(1, "[SendHelloPackets]:: Preparing to send Hello message on interface %d with IP %s. ", counter, IP2Dot(tmpbuf, currentInterface->ip_addr));
+			verbose(1, "[SendHelloPackets]:: Preparing to send Hello message on interface %d with IP %s. ", counter, IP2Dot(tmpbuf, gNtohl((uchar *)tmpbuf, currentInterface->ip_addr))));
 			
 			OSPFSendHelloPacket(currentInterface->ip_addr);
 		}
