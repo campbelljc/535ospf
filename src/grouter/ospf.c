@@ -63,20 +63,24 @@ void OSPFIncomingPacket(gpacket_t *pkt)
 
 void OSPFProcessHelloMessage(gpacket_t *pkt)
 {
+	char tmpbuf[MAX_TMPBUF_LEN];
 	verbose(1, "[OSPFProcessHelloMessage]:: Received Hello message");
 	
 	// update neighbor database
 	int newUpdate = addNeighborEntry(pkt->frame.src_ip_addr, OSPF_ROUTER, pkt->frame.src_interface);
 
+	verbose(1, "[OSPFProcessHelloMessage]:: Pkt frame src ip addr is %s and nxth ip addr is %s. ", IP2Dot(tmpbuf, gNtohl((uchar *)tmpbuf, pkt->frame.src_ip_addr)), IP2Dot(tmpbuf, gNtohl((uchar *)tmpbuf, pkt->frame.nxth_ip_addr)));
+	
+
 	//check bidirectional
 	uchar *currentIP = pkt->frame.nxth_ip_addr;
-        ospf_hdr_t *ospf_pkt = (ospf_hdr_t *)(pkt->data.data);
-        hello_packet_t *hello_pkt = (hello_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
+    ospf_hdr_t *ospf_pkt = (ospf_hdr_t *)(pkt->data.data);
+    hello_packet_t *hello_pkt = (hello_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
 
-	int neighbor_size = sizeof(hello_pkt->hello_neighbours)/(sizeof(uchar)*4);
+//	int neighbor_size = sizeof(hello_pkt->hello_neighbours)/(sizeof(uchar)*4);
 
 	int i;
-	for (i=0; i< neighbor_size;i++){
+	for (i=0; i< hello_pkt->hello_numneighbors;i++){
 		if (COMPARE_IP(currentIP, hello_pkt->hello_neighbours[i]) == 0) {
 			//TODO
 			//ip's are the same, therefore its bi-directional
@@ -171,7 +175,8 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 
 	neighbor_entry_t neighborEntries[MAX_ROUTES];
 	int numEntries = getNeighborEntries(neighborEntries);
-
+	hello_pkt->hello_numneighbors = numEntries;
+	
 	int count;
 	for (count = 0; count < numEntries; count ++)
 	{
@@ -347,7 +352,9 @@ int addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 
 			neighbor_tbl[i].type = type_;
 			neighbor_tbl[i].isAlive = TRUE;
-			verbose(1, "[addNeighborEntry]:: updated neighbor table entry #%d", i);
+			
+			if (fresh == TRUE) verbose(1, "[addNeighborEntry]:: updated neighbor table entry #%d", i);
+			else verbose(1, "[addNeighborEntry]:: LS update did not contain new information. ");
 			return fresh;
 		}
 	}
@@ -359,7 +366,8 @@ int addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 	neighbor_tbl[ifree].isAlive = TRUE;
 	neighbor_tbl[ifree].interface = interface_;
 
-	verbose(1, "[addNeighborEntry]:: added neighbor entry ");
+	char tmpbuf[MAX_TMPBUF_LEN];
+	verbose(1, "[addNeighborEntry]:: added neighbor entry with IP %s", IP2Dot(tmpbuf, neighborIP_));
 	return TRUE;
 }
 
@@ -416,7 +424,7 @@ void printNeighborTable()
 	for (i = 0; i < MAX_ROUTES; i++)
 		if (neighbor_tbl[i].isEmpty != TRUE)
 		{
-			printf("[%d]\t%s\t%d\t%d\t\n", i, IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), neighbor_tbl[i].isAlive, neighbor_tbl[i].type);
+			printf("[%d]\t%s\t%d\t\t%d\t\n", i, IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), neighbor_tbl[i].isAlive, neighbor_tbl[i].type);
 			rcount++;
 		}
 	printf("-----------------------------------------------------------------\n");
