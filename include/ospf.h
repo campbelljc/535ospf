@@ -18,6 +18,8 @@
 #define OSPF_ROUTER			 2
 #define OSPF_STUB			 3
 
+#define MAX_EDGES			 ((MAX_ROUTES * (MAX_ROUTES-1)) / 2)
+
 typedef struct _neighbor_entry_t
 {
 	bool isEmpty; // indicates whether entry is free or not
