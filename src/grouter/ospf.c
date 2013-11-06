@@ -147,7 +147,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	broadcastLSUpdate(FALSE, pkt);
 }
 
-void OSPFSendHelloPacket(uchar src_ip[])
+void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 {
 	gpacket_t *out_pkt = (gpacket_t *) malloc(sizeof(gpacket_t));
 	ospf_hdr_t *ospf_pkt = (ospf_hdr_t *)(out_pkt->data.data);
@@ -184,6 +184,7 @@ void OSPFSendHelloPacket(uchar src_ip[])
 
 	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), src_ip);
 	COPY_MAC(finished_pkt->data.header.dst, bcast_addr);
+	finished_pkt->frame.dst_interface = interface_;
 	OSPFSend2Output(finished_pkt);
 }
 

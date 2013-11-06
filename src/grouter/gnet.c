@@ -772,7 +772,7 @@ void *SendHelloPackets(){
 		{
 			for (i = 0; i < count; i++)
 			{			
-				OSPFSendHelloPacket(interfaceIPs[i]);	
+				OSPFSendHelloPacket(interfaceIPs[i], i);	
 			}
 		}
 	}
