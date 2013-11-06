@@ -165,7 +165,7 @@ void OSPFSendHelloPacket(uchar *src_ip)
 	hello_pkt->hello_priority = 0;
 	hello_pkt->hello_dead_interval= 40;
 
-	uchar zeroIP = ZEROED_IP;
+	uchar zeroIP[] = ZEROED_IP;
 	COPY_IP(hello_pkt->hello_designated_ip, zeroIP);
 	COPY_IP(hello_pkt->hello_designated_ip_backup, zeroIP);
 
@@ -235,7 +235,7 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 		lsu_pkt->links[currentLink].lsu_link_type = neighbor_tbl[count].type;
 		if (neighbor_tbl[count].type == OSPF_STUB)
 		{
-			uchar bcastmask[4] = { '255', '255', '255', '0' };
+			uchar bcastmask[] = MAC_BCAST_ADDR;
 			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, bcastmask);
 		}
 		else
