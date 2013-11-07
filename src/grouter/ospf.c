@@ -215,7 +215,6 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 		if (createPacket)
 		{
 			pkt = createLSUPacket(neighbor_tbl[count].neighborIP);
-			verbose(1, "[broadcastLSUpdate]:: Creating update from scratch");
 			printLSData(pkt);
 		}
 
@@ -234,7 +233,7 @@ void printLSData(gpacket_t *pkt)
 	lsu_packet_t *lsu_pkt = (lsu_packet_t *)((uchar *)lsa_pkt + lsa_pkt->lsa_header_length*4);
 		
 	verbose(1, "===============L I N K   S T A T E   D A T A====================");
-	verbose(1, "Index\tLink IDt\tLink Data\tType");
+	verbose(1, "Index\tLink ID\tLink Data\tType");
 
 	int count;
 	char tmpbuf[MAX_TMPBUF_LEN];
@@ -242,7 +241,7 @@ void printLSData(gpacket_t *pkt)
 	{
 		verbose(1, "[%d]\t\t%s\t%s\t%d", count, IP2Dot(tmpbuf, lsu_pkt->links[count].lsu_link_ID), IP2Dot(tmpbuf, lsu_pkt->links[count].lsu_link_data), lsu_pkt->links[count].lsu_link_type);
 	}
-	verbose(1, "=================================================================");
+	verbose(1, "================================================================");
 }
 
 gpacket_t* createLSUPacket(uchar sourceIP[])
@@ -544,7 +543,7 @@ void updateEdges(ospf_graph_t *graph, ospf_gnode_t *node)
 	{
 		ospf_gnode_t *crt_node = &graph -> nodes[i];
 
-		if (crt_node -> is_empty)
+		if (crt_node == NULL || crt_node -> is_empty)
 		{
 			continue;
 		}
