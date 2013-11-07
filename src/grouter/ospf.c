@@ -135,7 +135,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	// if the node doesn't exist, create it
 	else
 	{
-		printLSData(pkt);
+//		printLSData(pkt);
 		node = (ospf_gnode_t *)addNode(graph, src);
 	}
 
@@ -222,7 +222,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 		{
 			interface_t* neighborInterface = findInterface(neighbor_tbl[count].interface);
 			pkt = createLSUPacket(neighborInterface->ip_addr);
-			printLSData(pkt);
+	//		printLSData(pkt);
 
 			char tmpbuf[MAX_TMPBUF_LEN];
 			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
@@ -243,7 +243,6 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 
 		verbose(1, "[broadcastLSUpdate]:: sent to IP %s", IP2Dot(tmpbuf, pkt->frame.nxth_ip_addr));
 	}
-	verbose(1, "[broadcastLSUpdate]:: end broadcasting LSU.");
 	if (count == 0) verbose(1, "[broadcastLSUpdate]:: Wanted to send LS update, but have no neighbors to send it to :( ");
 }
 
@@ -267,7 +266,7 @@ void printLSData(gpacket_t *pkt)
 
 gpacket_t* createLSUPacket(uchar sourceIP[])
 {
-	verbose(1, "[createLSUPacket]:: Creating LSU packet");
+//	verbose(1, "[createLSUPacket]:: Creating LSU packet");
 	gpacket_t *out_pkt = (gpacket_t *) malloc(sizeof(gpacket_t));
 	ospf_packet_t *ospf_pkt = (ospf_packet_t *)(out_pkt->data.data);
 	ospf_pkt->ospf_message_length = 4;
@@ -280,11 +279,7 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 	int neighborCount; // position in neighbor table
 	for (neighborCount = 0; neighborCount < MAX_ROUTES; neighborCount ++)
 	{
-		verbose(1, "Neighbor table index %d with type %d", neighborCount, neighbor_tbl[neighborCount].type);
-
 		if (neighbor_tbl[neighborCount].isEmpty == TRUE || neighbor_tbl[neighborCount].isAlive == FALSE) continue;
-
-		verbose(1, "Not skipped.");
 
 		lsu_pkt->links[currentLink].lsu_metric = 1;
 		lsu_pkt->links[currentLink].lsu_link_type = neighbor_tbl[neighborCount].type;
@@ -293,13 +288,11 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 		uchar netIP[] = ZEROED_IP;
 		COPY_IP(netIP, neighbor_tbl[neighborCount].neighborIP);
 		netIP[0] = 0;
-//		memcpy(netIP, neighbor_tbl[neighborCount].neighborIP, 3);
 		COPY_IP(lsu_pkt->links[currentLink].lsu_link_ID, netIP);
 
 		// Set link data.
 		if (neighbor_tbl[neighborCount].type == OSPF_STUB)
 		{
-			verbose(1, "STUB293");
 			uchar bcastmask[] = MAC_BCAST_ADDR;
 			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, bcastmask);
 		}
