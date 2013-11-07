@@ -13,9 +13,11 @@
 
 extern pktcore_t *pcore;
 extern mtu_entry_t MTU_tbl[MAX_MTU];
+extern route_entry_t route_tbl[MAX_ROUTES];
 
 neighbor_entry_t neighbor_tbl[MAX_ROUTES];
 ospf_graph_t *graph;
+ospf_cost_entry_t cost_tbl[MAX_ROUTES];
 
 int globalSeqNum;
 
@@ -37,7 +39,7 @@ void OSPFInit()
 	{
 		graph -> edges[i].is_empty = TRUE;
 	}
-	
+
 	verbose(1, "[OSPFInit]:: initialization complete");
 }
 
@@ -65,10 +67,10 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 {
 	ospf_packet_t *ospf_pkt = (ospf_packet_t*) &pkt->data.data;
     hello_packet_t *hello_pkt = (hello_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
-	
+
 	// update neighbor database
 	int newUpdate = addNeighborEntry(ospf_pkt->ospf_src, OSPF_ROUTER, pkt->frame.src_interface);
-	
+
 	int count;
 	for (count = 0; count < hello_pkt->hello_numneighbors; count ++)
 	{
@@ -76,11 +78,11 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 		{ // the IP the packet is sending to is also contained in its neighbor table.
 			// therefore, it knows about this router, and we know about it (entry added above)
 			// so we have bidirectionality
-			
+
 			for (count = 0; count < MAX_ROUTES; count ++)
 			{
 				if (neighbor_tbl[count].isEmpty == TRUE || neighbor_tbl[count].isAlive == FALSE) continue;
-				
+
 				if (COMPARE_IP(neighbor_tbl[count].neighborIP, ospf_pkt->ospf_src) == 0)
 				{
 					neighbor_tbl[count].bidirectional = TRUE;
@@ -99,7 +101,7 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 void OSPFProcessLSUpdate(gpacket_t *pkt)
 {
 	verbose(1, "[OSPFProcessLSUpdate]:: Received LS update");
-	
+
 	ospf_packet_t *ospf_pkt = (ospf_packet_t*) &pkt -> data.data;
 	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + ospf_pkt -> ospf_message_length*4);
 	lsu_packet_t *lsu_pkt = (lsu_packet_t *)((uchar *)lsa_pkt + lsa_pkt -> lsa_header_length*4);
@@ -127,7 +129,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	printLSData(pkt);
 
 	node -> last_LSN = lsa_pkt->lsa_sequence_number;
-	
+
 	verbose(1, "[OSPFProcessLSUpdate]:: New node created.");
 
 	// update the reachable networks of the node
@@ -164,7 +166,7 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 	neighbor_entry_t neighborEntries[MAX_ROUTES];
 	int numEntries = getNeighborEntries(neighborEntries);
 	hello_pkt->hello_numneighbors = numEntries;
-	
+
 	int count;
 	for (count = 0; count < numEntries; count ++)
 	{
@@ -178,7 +180,7 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 	verbose(1, "[OSPFSendHelloPacket]:: Broadcasting Hello packet with source IP %s", IP2Dot(tmpbuf, gNtohl((uchar *)tmpbuf, src_ip)));
 
 	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), src_ip);
-	
+
 	COPY_MAC(finished_pkt->data.header.dst, bcast_addr); // set MAC to be broadcast.
 	finished_pkt->frame.dst_interface = interface_;
 	finished_pkt->frame.arp_bcast = TRUE;
@@ -209,7 +211,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 
 		COPY_IP(pkt->frame.nxth_ip_addr, gHtonl(tmpbuf, neighbor_tbl[count].neighborIP));
 		pkt->frame.dst_interface = neighbor_tbl[count].interface;
-		
+
 		OSPFSend2Output(pkt);
 	}
 	if (count == 0) verbose(1, "[broadcastLSUpdate]:: Wanted to send LS update, but have no neighbors to send it to :( ");
@@ -220,7 +222,7 @@ void printLSData(gpacket_t *pkt)
 	ospf_packet_t *ospf_pkt = (ospf_packet_t*) &pkt -> data.data;
 	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
 	lsu_packet_t *lsu_pkt = (lsu_packet_t *)((uchar *)lsa_pkt + lsa_pkt->lsa_header_length*4);
-	
+
 	verbose(1, "\n=================================================================\n");
 	verbose(1, "               L I N K   S T A T E   D A T A \n");
 	verbose(1, "-----------------------------------------------------------------\n");
@@ -291,7 +293,7 @@ gpacket_t* createLSAHeader(gpacket_t *gpkt, uchar sourceIP[])
 
 	COPY_IP(lsa_pkt->lsa_ID, sourceIP);
 	COPY_IP(lsa_pkt->lsa_advertising_number, sourceIP);
-	
+
 	verbose(1, "[createLSAHeader]:: Creating LSA header");
 
 	return gpkt;
@@ -300,7 +302,7 @@ gpacket_t* createLSAHeader(gpacket_t *gpkt, uchar sourceIP[])
 gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar sourceIP[])
 {
 	verbose(1, "[createOSPFHeader]:: Creating OSPF Header");
-	
+
 	ospf_packet_t* header = (ospf_packet_t *)(gpacket->data.data);
 
 	header->ospf_version = OSPF_VERSION;
@@ -313,7 +315,7 @@ gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar sou
 	header->ospf_aid = OSPF_AREAID;
 	header->ospf_auth_type = OSPF_AUTHTYPE;
 	header->ospf_cksum = 0;
-	
+
 	gpacket->data.header.prot = htons(OSPF_PROTOCOL);
 
 	return gpacket;
@@ -356,7 +358,7 @@ int addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 
 			neighbor_tbl[i].type = type_;
 			neighbor_tbl[i].isAlive = TRUE;
-			
+
 			if (fresh == TRUE) verbose(1, "[addNeighborEntry]:: updated neighbor table entry #%d", i);
 			else verbose(1, "[addNeighborEntry]:: LS update did not contain new information. ");
 			return fresh;
@@ -580,5 +582,211 @@ void addEdge(uchar *addr1, uchar *addr2)
 
 void updateRoutingTable(ospf_graph_t *graph)
 {
-	// TO DO
+	int i, totalInterfaceIPs, num_neighbors, cost;
+	uchar interfaceIPs[MAX_MTU][4];
+	ospf_gnode_t *this_node;
+	uchar null_ip_addr[] = {0, 0, 0, 0};
+	uchar netmask[] = {255, 255, 255, 0};
+	ospf_gnode_t neighbors[MAX_ROUTES];
+
+	cost = 1;
+
+	// reset routing table to be empty
+	RouteTableInit(route_tbl);
+
+	// reset graph traversal
+	uncheckNodes(graph);
+
+	// reset cost table
+	for(i = 0; i < MAX_ROUTES; i++)
+	{
+		cost_tbl[i].is_empty = TRUE;
+	}
+
+	totalInterfaceIPs = findAllInterfaceIPs(MTU_tbl, interfaceIPs); // get num links
+
+	// find a node corresponding to this router
+	for (i=0; i<totalInterfaceIPs; i++)
+	{
+		this_node = (ospf_gnode_t *)getNode(graph, interfaceIPs[i]);
+		if (this_node != NULL)
+		{
+			break;
+		}
+	}
+
+	// If the graph does not contain a node for this router yet, do nothing
+	if (this_node == NULL)
+	{
+		return;
+	}
+
+	for (i=0; i<this_node -> num_networks; i++)
+	{
+		// get the interface ID to this network
+		int interface = getIfaceIDByNetwork(this_node -> networks[i]);
+
+		// add the entry to the cost table and routing table
+		if (isCheaper(cost_tbl, this_node -> networks[i], cost))
+		{
+			addRouteEntry(route_tbl, this_node -> networks[i], netmask, null_ip_addr, interface);
+		}
+	}
+
+	// mark this node as visited
+	this_node -> checked = TRUE;
+
+	// get the neighbors of this node
+	num_neighbors = getNodeNeighbors(graph, this_node, neighbors);
+
+	for (i=0; i<num_neighbors; i++)
+	{
+		// ignore already visited neighbors
+		if (neighbors[i].checked == TRUE)
+		{
+			continue;
+		}
+
+		cost++;
+
+		// Search for new reachable networks from each neighbor
+		findNetworks(graph, neighbors[i], neighbors[i].src, getIfaceIDByIP(neighbors[i].src), cost);
+	}
+}
+
+int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t neighbors[])
+{
+	int i, ncount = 0;
+
+	// Search through the edges of the graph for any which contain the given node as a vertex
+	for (i=0; i<MAX_EDGES; i++)
+	{
+		ospf_gedge_t *edge = &graph -> edges[i];
+
+		if (edge -> is_empty == TRUE)
+		{
+			continue;
+		}
+
+		if (COMPARE_IP(node -> src, edge -> addr1) == 0 || COMPARE_IP(node -> src, edge -> addr2) == 0)
+		{
+			if (COMPARE_IP(node -> src, edge -> addr1) == 0)
+			{
+				neighbors[ncount] = *getNode(graph, edge -> addr2);
+			}
+			else
+			{
+				neighbors[ncount] = *getNode(graph, edge -> addr1);
+			}
+
+			ncount++;
+		}
+	}
+
+	return ncount;
+}
+
+void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int iface, int cost)
+{
+	int i, num_neighbors;
+	uchar netmask[] = {255, 255, 255, 0};
+	ospf_gnode_t neighbors[MAX_ROUTES];
+
+	// mark node as visited
+	node -> checked = TRUE;
+
+	for (i=0; i<node -> num_networks; i++)
+	{
+		// For each reachable network from this node, add it to the routing table if
+		// it does not already exist, otherwise update if the current path is cheaper
+		if (isCheaper(cost_tbl, node -> networks[i], cost))
+		{
+			addRouteEntry(route_tbl, node -> networks[i], netmask, nxt_hop, iface);
+		}
+	}
+
+	num_neighbors = getNodeNeighbors(graph, node, neighbors);
+
+	for (i=0; i<num_neighbors; i++)
+	{
+		// ignore already visited neighbors
+		if (neighbors[i].checked == TRUE)
+		{
+			continue;
+		}
+
+		cost++;
+
+		findNetworks(graph, neighbors[i], nxt_hop, iface, cost);
+	}
+}
+
+int getIfaceIDByNetwork(uchar *net_addr)
+{
+	int i;
+	uchar netmask[] = {255,255,255,0};
+
+	for (i=0; i<MAX_ROUTES; i++)
+	{
+		if (compareIPUsingMask(neighbor_tbl[i].neighborIP, net_addr ,netmask) == 0)
+		{
+			return neighbor_tbl[i].interface;
+		}
+	}
+}
+
+int getIfaceIDByIP(uchar *ip_addr)
+{
+	int i;
+
+	for (i=0; i<MAX_ROUTES; i++)
+	{
+		if (compareIP(neighbor_tbl[i].neighborIP, ip_addr) == 0)
+		{
+			return neighbor_tbl[i].interface;
+		}
+	}
+}
+
+void uncheckNodes(ospf_graph_t *graph)
+{
+	int i;
+
+	for (i=0; i<MAX_ROUTES; i++)
+	{
+		graph -> nodes[i].checked = FALSE;
+	}
+}
+
+int isCheaper(ospf_cost_entry_t ctable[], uchar *dest_ip_, int cost_)
+{
+	int i, free_index;
+
+	for (i=0; i<MAX_ROUTES; i++)
+	{
+		if (ctable[i].is_empty == TRUE)
+		{
+			free_index = i;
+			continue;
+		}
+
+		if (COMPARE_IP(dest_ip_, ctable[i].dest_ip) == 0)
+		{
+			if (cost_ < ctable[i].cost)
+			{
+				ctable[i].cost = cost_;
+				return TRUE;
+			}
+			else
+			{
+				return FALSE;
+			}
+		}
+	}
+
+	// If entry for this network does not exist, add it
+	ctable[free_index].is_empty = FALSE;
+	COPY_IP(ctable[free_index].dest_ip, dest_ip_);
+	ctable[free_index].cost = cost_;
+	return TRUE;
 }
