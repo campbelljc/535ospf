@@ -117,7 +117,8 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	verbose(1, "[OSPFProcessLSUpdate]:: Received LS update");
 
 	ospf_packet_t *ospf_pkt = (ospf_packet_t*) &pkt -> data.data;
-	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + ospf_pkt -> ospf_message_length*4);
+	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + ospf_pkt -> 4*4);
+//	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + ospf_pkt -> ospf_message_length*4);
 	lsu_packet_t *lsu_pkt = (lsu_packet_t *)((uchar *)lsa_pkt + lsa_pkt -> lsa_header_length*4);
 
 	uchar src[4];
@@ -165,7 +166,8 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 	gpacket_t *out_pkt = (gpacket_t *) malloc(sizeof(gpacket_t));
 	ospf_packet_t *ospf_pkt = (ospf_packet_t *)(out_pkt->data.data);
 	ospf_pkt->ospf_message_length = 4;
-	hello_packet_t *hello_pkt = (hello_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
+	hello_packet_t *hello_pkt = (hello_packet_t *)((uchar *)ospf_pkt + 4*4);
+//	hello_packet_t *hello_pkt = (hello_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
 
 	uchar netmask[] = IP_BCAST_ADDR;
 	COPY_IP(hello_pkt->hello_network_mask, netmask);
@@ -193,7 +195,7 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 	}
 	
 	char tmpbuf[MAX_TMPBUF_LEN];
-	verbose(1, "first hello ip is %s.", IP2Dot(tmpbuf, hello_pkt->hello_neighbors[0].neighbor_ip));
+//	verbose(1, "first hello ip is %s.", IP2Dot(tmpbuf, hello_pkt->hello_neighbors[0].neighbor_ip));
 
 	uchar bcast_addr[] = MAC_BCAST_ADDR;
 
