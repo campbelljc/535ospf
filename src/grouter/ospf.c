@@ -681,7 +681,7 @@ void updateRoutingTable(ospf_graph_t *graph)
 			verbose(1, "[updateRoutingTable]:: New route entry added with interface %d.", interface);
 		}
 	}
-	
+
 	verbose(1, "684");
 
 	// mark this node as visited
@@ -790,6 +790,11 @@ int getIfaceIDByNetwork(uchar *net_addr)
 
 	for (i=0; i<MAX_ROUTES; i++)
 	{
+		if (neighbor_tbl[i].isEmpty == TRUE)
+		{
+			continue;
+		}
+
 		if (compareIPUsingMask(neighbor_tbl[i].neighborIP, net_addr ,netmask) == 0)
 		{
 			return neighbor_tbl[i].interface;
@@ -803,6 +808,11 @@ int getIfaceIDByIP(uchar *ip_addr)
 
 	for (i=0; i<MAX_ROUTES; i++)
 	{
+		if (neighbor_tbl[i].isEmpty == TRUE)
+		{
+			continue;
+		}
+
 		if (COMPARE_IP(neighbor_tbl[i].neighborIP, ip_addr) == 0)
 		{
 			return neighbor_tbl[i].interface;
