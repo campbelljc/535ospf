@@ -85,7 +85,7 @@ void* fromEthernetDev(void *arg)
 	interface_t *iface = (interface_t *) arg;
 	interface_array_t *iarr = (interface_array_t *)iface->iarray;
 	uchar bcast_mac[] = MAC_BCAST_ADDR;
-	uchar stub_mac[][6] = { MAC_STUB1_ADDR, MAC_STUB2_ADDR, MAC_STUB3_ADDR };
+	uchar stub_mac[][6] = { MAC_STUB1_ADDR, MAC_STUB2_ADDR, MAC_STUB3_ADDR, MAC_STUB4_ADDR };
 	uchar bcast_ip[] = IP_BCAST_ADDR;
 
 	gpacket_t *in_pkt;
@@ -111,7 +111,8 @@ void* fromEthernetDev(void *arg)
 		{
 			if ((COMPARE_MAC(in_pkt->data.header.dst, stub_mac[0]) != 0) &&
 			    (COMPARE_MAC(in_pkt->data.header.dst, stub_mac[1]) != 0) &&
-				(COMPARE_MAC(in_pkt->data.header.dst, stub_mac[2]) != 0))
+				(COMPARE_MAC(in_pkt->data.header.dst, stub_mac[2]) != 0) &&
+				(COMPARE_MAC(in_pkt->data.header.dst, stub_mac[3]) != 0))
 			{
 				char tmpbuf[MAX_TMPBUF_LEN];
 								
