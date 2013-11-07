@@ -74,14 +74,13 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 	
 	uchar zeroIP[] = ZEROED_IP;
 
-	verbose(1, "Analyzing hello packet");
 	int count;
 	for (count = 0; count < 10; count ++)
 	{
-		verbose(1, "Looking at received hello packet neighbor %d", count);
 		if (COMPARE_IP(hello_pkt->hello_neighbors[count], zeroIP) == 0) continue; // empty entry.
 		
-		if (COMPARE_IP(pkt->frame.nxth_ip_addr, hello_pkt->hello_neighbors[count]) == 0)
+		// pkt->frame.src_ip_addr will be set to the IP of this router's interface which the packet arrived on.
+		if (COMPARE_IP(pkt->frame.src_ip_addr, hello_pkt->hello_neighbors[count]) == 0)
 		{ // the IP the packet is sending to is also contained in its neighbor table.
 			// therefore, it knows about this router, and we know about it (entry added above)
 			// so we have bidirectionality
