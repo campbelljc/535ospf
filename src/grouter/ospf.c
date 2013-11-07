@@ -191,9 +191,11 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 	{
 		COPY_IP(hello_pkt->hello_neighbors[count], zeroIP);
 	}
+	
+	char tmpbuf[MAX_TMPBUF_LEN];
+	verbose(1, "first hello ip is %s.", IP2Dot(tmpbuf, hello_pkt->hello_neighbors[0]));
 
-	uchar bcast_addr[6];
-	memset(bcast_addr, 0xFF, 6);
+	uchar bcast_addr[] = MAC_BCAST_ADDR;
 
 	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), src_ip);
 
@@ -202,6 +204,7 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 	finished_pkt->frame.arp_bcast = TRUE;
 	COPY_IP(finished_pkt->frame.nxth_ip_addr, netmask);
 	OSPFSend2Output(finished_pkt);
+	verbose(1, "(2)first hello ip is %s.", IP2Dot(tmpbuf, hello_pkt->hello_neighbors[0]));
 }
 
 // Takes in a LS update packet of type gpacket and broadcasts it to your neighbors.
