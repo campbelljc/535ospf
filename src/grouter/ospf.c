@@ -243,8 +243,9 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			
 			verbose(1, "243");
 			
-			gpacket_t newpkt = *pkt;
-			OSPFSend2Output(&newpkt);
+			gpacket_t *newpkt = (gpacket_t *)malloc(sizeof(gpacket_t));
+			memcpy(newpkt, pkt, sizeof(gpacket_t));
+			OSPFSend2Output(newpkt);
 			
 			verbose(1, "248");
 		}
