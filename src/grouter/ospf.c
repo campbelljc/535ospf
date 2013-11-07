@@ -584,7 +584,7 @@ void updateEdges(ospf_graph_t *graph, ospf_gnode_t *node)
 			continue;
 		}
 
-		if (COMPARE_IP(crt_node -> src, node -> src))
+		if (COMPARE_IP(crt_node -> src, node -> src) == 0)
 		{
 			continue;
 		}
