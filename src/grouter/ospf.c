@@ -676,16 +676,20 @@ void updateRoutingTable(ospf_graph_t *graph)
 		// add the entry to the cost table and routing table
 		if (isCheaper(cost_tbl, this_node -> networks[i], cost))
 		{
-			addRouteEntry(route_tbl, this_node -> networks[i], netmask, null_ip_addr, interface);
+			addRouteEntry(route_tbl, this_node->networks[i], netmask, null_ip_addr, interface);
 			verbose(1, "[updateRoutingTable]:: New route entry added.");
 		}
 	}
+	
+	verbose(1, "684");
 
 	// mark this node as visited
 	this_node -> checked = TRUE;
 
 	// get the neighbors of this node
 	num_neighbors = getNodeNeighbors(graph, this_node, neighbors);
+
+	verbose(1, "690");
 
 	for (i=0; i<num_neighbors; i++)
 	{
@@ -697,9 +701,11 @@ void updateRoutingTable(ospf_graph_t *graph)
 
 		cost++;
 
+		verbose(1, "782 %d", i);
 		// Search for new reachable networks from each neighbor
 		findNetworks(graph, neighbors[i], neighbors[i]->src, getIfaceIDByIP(neighbors[i]->src), cost);
 	}
+	verbose(1, "785");
 }
 
 int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neighbors[])
@@ -743,6 +749,7 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 	// mark node as visited
 	node -> checked = TRUE;
 
+	verbose(1, "752");
 	for (i=0; i<node -> num_networks; i++)
 	{
 		// For each reachable network from this node, add it to the routing table if
@@ -759,6 +766,7 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 
 	num_neighbors = getNodeNeighbors(graph, node, neighbors);
 
+	verbose(1, "769");
 	for (i=0; i<num_neighbors; i++)
 	{
 		// ignore already visited neighbors
@@ -771,6 +779,7 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 
 		findNetworks(graph, neighbors[i], nxt_hop, iface, cost);
 	}
+	verbose(1, "782");
 }
 
 int getIfaceIDByNetwork(uchar *net_addr)
