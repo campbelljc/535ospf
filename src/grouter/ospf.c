@@ -227,7 +227,6 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
 			pkt->frame.dst_interface = neighbor_tbl[count].interface;
 
-			OSPFProcessLSUpdate(pkt);
 			OSPFSend2Output(pkt);
 		}
 		else
@@ -777,6 +776,11 @@ int getIfaceIDByNetwork(uchar *net_addr)
 
 	for (i=0; i<MAX_ROUTES; i++)
 	{
+		if (neighbor_tbl[i].isEmpty == TRUE)
+		{
+			continue;
+		}
+
 		if (compareIPUsingMask(neighbor_tbl[i].neighborIP, net_addr ,netmask) == 0)
 		{
 			return neighbor_tbl[i].interface;
@@ -790,6 +794,11 @@ int getIfaceIDByIP(uchar *ip_addr)
 
 	for (i=0; i<MAX_ROUTES; i++)
 	{
+		if (neighbor_tbl[i].isEmpty == TRUE)
+		{
+			continue;
+		}
+
 		if (COMPARE_IP(neighbor_tbl[i].neighborIP, ip_addr) == 0)
 		{
 			return neighbor_tbl[i].interface;
