@@ -230,7 +230,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
 			pkt->frame.dst_interface = neighbor_tbl[count].interface;
 
-			OSPFProcessLSUpdate(newpkt, FALSE);
+			OSPFProcessLSUpdate(pkt, FALSE);
 			OSPFSend2Output(pkt);
 		}
 		else
