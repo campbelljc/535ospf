@@ -110,8 +110,6 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 
 void OSPFProcessLSUpdate(gpacket_t *pkt)
 {
-	verbose(1, "[OSPFProcessLSUpdate]:: Received LS update");
-
 	ospf_packet_t *ospf_pkt = (ospf_packet_t*) &pkt -> data.data;
 	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + 4*4);
 	lsu_packet_t *lsu_pkt = (lsu_packet_t *)((uchar *)lsa_pkt + lsa_pkt -> lsa_header_length*4);
@@ -120,7 +118,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	COPY_IP(src, ospf_pkt->ospf_src); // get src address
 
 	// check if node with the address already exists
-	ospf_gnode_t *node = (ospf_gnode_t *)getNode(graph, src);
+	ospf_gnode_t *node = getNode(graph, src);
 
 	// if the node exists and the last sequence number received by the node is greater or equal to the current sequence number, ignore it
 	if (node != NULL)
@@ -505,7 +503,7 @@ void updateLinkData(lsu_packet_t *lsu_pkt, ospf_gnode_t *node)
 
 	for (i=0; i<num_links; i++)
 	{
-		lsu_link_t *link = &lsu_pkt -> links[i];
+		lsu_link_t link = lsu_pkt -> links[i];
 
 		COPY_IP(node -> networks[i], link -> lsu_link_ID);
 		node -> types[i] = link -> lsu_link_type;
