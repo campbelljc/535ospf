@@ -80,6 +80,9 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 		if (COMPARE_IP(hello_pkt->hello_neighbors[count], zeroIP) == 0) continue; // empty entry.
 		
 		// pkt->frame.src_ip_addr will be set to the IP of this router's interface which the packet arrived on.
+		char tmpbuf[MAX_TMPBUF_LEN];
+		char tmpbuf2[MAX_TMPBUF_LEN];
+		verbose(1, "pkt->frame.src_ip_addr is %s and hello packet neighbor IP is %s", IP2Dot(tmpbuf, pkt->frame.src_ip_addr), IP2Dot(tmpbuf, hello_pkt->hello_neighbors[count]));
 		if (COMPARE_IP(pkt->frame.src_ip_addr, hello_pkt->hello_neighbors[count]) == 0)
 		{ // the IP the packet is sending to is also contained in its neighbor table.
 			// therefore, it knows about this router, and we know about it (entry added above)
@@ -423,8 +426,8 @@ void OSPFMarkDeadNeighbor(uchar* neighborIP_)
 
 void OSPFSetStubNetwork(gpacket_t *pkt)
 {
-	verbose(1, "[OSPFSetStubNetwork]:: received packet was using protocol %d", pkt->data.header.prot);
-	ip_packet_t *ip_pkt = (ip_packet_t *)pkt->data.data;
+//	verbose(1, "[OSPFSetStubNetwork]:: received packet was using protocol %d", pkt->data.header.prot);
+//	ip_packet_t *ip_pkt = (ip_packet_t *)pkt->data.data;
 	
 	addNeighborEntry(ip_pkt->ip_src, OSPF_STUB, pkt->frame.src_interface);
 	
