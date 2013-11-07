@@ -184,7 +184,7 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 	memset(bcast_addr, 0xFF, 6);
 
 	char tmpbuf[MAX_TMPBUF_LEN];
-	verbose(1, "[OSPFSendHelloPacket]:: Broadcasting Hello packet with source IP %s", IP2Dot(tmpbuf, gNtohl((uchar *)tmpbuf, src_ip)));
+	verbose(1, "[OSPFSendHelloPacket]:: Broadcasting Hello packet with source IP %s, with numneighbors %d.", IP2Dot(tmpbuf, src_ip), hello_pkt->numneighbors);
 
 	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), src_ip);
 
@@ -415,6 +415,7 @@ void OSPFMarkDeadNeighbor(uchar* neighborIP_)
 
 void OSPFSetStubNetwork(gpacket_t *pkt)
 {
+	verbose(1, "[OSPFSetStubNetwork]:: received packet was using protocol %d", pkt->data.header.prot);
 	ip_packet_t *ip_pkt = (ip_packet_t *)pkt->data.data;
 	
 	addNeighborEntry(ip_pkt->ip_src, OSPF_STUB, pkt->frame.src_interface);
@@ -432,7 +433,7 @@ void printNeighborTable()
 	printf("\n=================================================================\n");
 	printf("      N E I G H B O R   T A B L E \n");
 	printf("-----------------------------------------------------------------\n");
-	printf("Index\tNeighbor IPt\tIs Alive\tType\t \n");
+	printf("Index\tNeighbor IP\tIs Alive\tType\t \n");
 
 	for (i = 0; i < MAX_ROUTES; i++)
 		if (neighbor_tbl[i].isEmpty != TRUE)
