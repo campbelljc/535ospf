@@ -93,6 +93,7 @@ typedef struct _ospf_gnode_t
 	int num_networks;						// number of reachable networks
 	int types[MAX_ROUTES];					// type of network, 2 for any-to-any, 3 for stub
 	int last_LSN;							// Link Sequence Number of the last update sent by this node
+	bool checked;							// Flag to indicate whether this node has been checked yet when building the routing table
 } ospf_gnode_t;
 
 typedef struct _ospf_gedge_t
@@ -107,6 +108,13 @@ typedef struct _ospf_graph_t
 	ospf_gnode_t nodes[MAX_ROUTES];			// set of nodes
 	ospf_gedge_t edges[MAX_EDGES];			// set of edges
 } ospf_graph_t;
+
+typedef struct _ospf_cost_entry_t
+{
+	bool is_empty;							// whether entry is used or not
+	uchar dest_ip[4];						// network ip
+	int cost;								// current lowest cost to this network
+} ospf_cost_entry_t;
 
 void OSPFInit();
 
@@ -140,5 +148,14 @@ void updateLinkData(lsu_packet_t *lsu_pkt, ospf_gnode_t *node);
 void updateEdges(ospf_graph_t *graph, ospf_gnode_t *node);
 void addEdge(uchar *addr1, uchar *addr2);
 void updateRoutingTable(ospf_graph_t *graph);
+
+// Routing table updating functions
+void updateRoutingTable(ospf_graph_t *graph);
+int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t neighbors[]);
+void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int iface, int cost);
+int getIfaceIDByNetwork(uchar *net_addr);
+int getIfaceIDByIP(uchar *ip_addr);
+void uncheckNodes(ospf_graph_t *graph);
+int isCheaper(ospf_cost_entry_t ctable[], uchar *dest_ip_, int cost_);
 
 #endif
