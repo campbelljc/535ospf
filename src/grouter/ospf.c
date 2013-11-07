@@ -215,26 +215,37 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 
 		verbose(1, "216");
 
-		char tmpbuf[MAX_TMPBUF_LEN];
-		COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
-		pkt->frame.dst_interface = neighbor_tbl[count].interface;
-
-		verbose(1, "222");
-
 		if (createPacket == TRUE)
 		{
-			verbose(1, "226");
+			verbose(1, "220");
 			interface_t* neighborInterface = findInterface(neighbor_tbl[count].interface);
 			pkt = createLSUPacket(neighborInterface->ip_addr);
 			printLSData(pkt);
-			verbose(1, "230");
+			
+			verbose(1, "225");
+			
+			char tmpbuf[MAX_TMPBUF_LEN];
+			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
+			pkt->frame.dst_interface = neighbor_tbl[count].interface;
+			
+			verbose(1, "231");
 			OSPFSend2Output(pkt);
-			verbose(1, "232");
+			verbose(1, "233");
 		}
 		else
 		{
+			verbose(1, "237");
+			
+			char tmpbuf[MAX_TMPBUF_LEN];
+			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
+			pkt->frame.dst_interface = neighbor_tbl[count].interface;
+			
+			verbose(1, "243");
+			
 			gpacket_t newpkt = *pkt;
 			OSPFSend2Output(&newpkt);
+			
+			verbose(1, "248");
 		}
 
 		verbose(1, "[broadcastLSUpdate]:: sent to IP %s", IP2Dot(tmpbuf, pkt->frame.nxth_ip_addr));
