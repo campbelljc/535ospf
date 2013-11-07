@@ -77,8 +77,8 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 	int count;
 	for (count = 0; count < 10; count ++)
 	{
-		char tmpbuf3[MAX_TMPBUF_LEN];
-		verbose(1, "hello neighbor at index %d has IP %s.", count, IP2Dot(tmpbuf3, hello_pkt->hello_neighbors[count].neighbor_ip));
+//		char tmpbuf3[MAX_TMPBUF_LEN];
+//		verbose(1, "hello neighbor at index %d has IP %s.", count, IP2Dot(tmpbuf3, hello_pkt->hello_neighbors[count].neighbor_ip));
 		if (COMPARE_IP(hello_pkt->hello_neighbors[count].neighbor_ip, zeroIP) == 0) continue; // empty entry.
 		
 		// pkt->frame.src_ip_addr will be set to the IP of this router's interface which the packet arrived on.
@@ -204,7 +204,7 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 	finished_pkt->frame.arp_bcast = TRUE;
 	COPY_IP(finished_pkt->frame.nxth_ip_addr, netmask);
 	OSPFSend2Output(finished_pkt);
-	verbose(1, "(2)first hello ip is %s.", IP2Dot(tmpbuf, hello_pkt->hello_neighbors[0].neighbor_ip));
+//	verbose(1, "(2)first hello ip is %s.", IP2Dot(tmpbuf, hello_pkt->hello_neighbors[0].neighbor_ip));
 }
 
 // Takes in a LS update packet of type gpacket and broadcasts it to your neighbors.
