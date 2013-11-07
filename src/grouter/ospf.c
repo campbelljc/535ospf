@@ -119,7 +119,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 
 	// check if node with the address already exists
 	ospf_gnode_t *node = getNode(src);
-	
+
 	// if the node exists and the last sequence number received by the node is greater or equal to the current sequence number, ignore it
 	if (node != NULL)
 	{
@@ -135,7 +135,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 		printLSData(pkt);
 		node = (ospf_gnode_t *)addNode(graph, src);
 	}
-	
+
 	node -> last_LSN = lsa_pkt->lsa_sequence_number;
 
 	verbose(1, "[OSPFProcessLSUpdate]:: New node created.");
@@ -155,7 +155,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	char tmpbuf[MAX_TMPBUF_LEN];
 	verbose(1, "[OSPFProcessLSUpdate]:: Broadcasting the LS update we just received from %s", IP2Dot(tmpbuf, src));
 	broadcastLSUpdate(FALSE, pkt);
-	
+
 	verbose(1, "[OSPFProcessLSUpdate]:: at end");
 }
 
@@ -551,6 +551,11 @@ void updateEdges(ospf_graph_t *graph, ospf_gnode_t *node)
 		ospf_gnode_t *crt_node = &graph -> nodes[i];
 
 		if (crt_node == NULL || crt_node -> is_empty)
+		{
+			continue;
+		}
+
+		if (COMPARE_IP(crt_node -> src, node -> src))
 		{
 			continue;
 		}
