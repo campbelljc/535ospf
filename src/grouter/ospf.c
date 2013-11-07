@@ -848,3 +848,25 @@ void printGraphEdges(ospf_graph_t *graph)
 	printf("      %d number of edges found. \n", ecount);
 	return;
 }
+
+void printCostTable(ospf_graph_t *graph)
+{
+	int i, ecount = 0;
+	char tmpbuf[MAX_TMPBUF_LEN];
+
+	printf("\n=================================================================\n");
+	printf("     C O S T   T A B L E \n");
+	printf("-----------------------------------------------------------------\n");
+	printf("Index\tIP\t\tCost \n");
+
+	for (i = 0; i < MAX_EDGES; i++)
+		if (cost_tbl[i].is_empty != TRUE)
+		{
+			printf("[%d]\t%s\t%d\n", i, IP2Dot(tmpbuf, cost_tbl[i].dest_ip),
+			        cost_tbl[i].cost);
+			ecount++;
+		}
+	printf("-----------------------------------------------------------------\n");
+	printf("      %d number of entries found. \n", ecount);
+	return;
+}
