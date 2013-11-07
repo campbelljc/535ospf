@@ -743,6 +743,9 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 		// it does not already exist, otherwise update if the current path is cheaper
 		if (isCheaper(cost_tbl, node -> networks[i], cost))
 		{
+			char tmpbuf[MAX_TMPBUF_LEN];
+			verbose(1, "checking route to %s\n",  IP2Dot(tmpbuf, node -> networks[i]));
+
 			addRouteEntry(route_tbl, node -> networks[i], netmask, nxt_hop, iface);
 			verbose(1, "[findNetworks]:: Routing table and cost table updated.");
 		}
@@ -801,7 +804,7 @@ void uncheckNodes(ospf_graph_t *graph)
 	}
 }
 
-int isCheaper(ospf_cost_entry_t ctable[], uchar dest_ip_[], int cost_)
+int isCheaper(ospf_cost_entry_t ctable[], uchar *dest_ip_, int cost_)
 {
 	int i, free_index;
 
@@ -894,7 +897,7 @@ void printCostTable(ospf_graph_t *graph)
 	printf("-----------------------------------------------------------------\n");
 	printf("Index\tIP\t\tCost \n");
 
-	for (i = 0; i < MAX_EDGES; i++)
+	for (i = 0; i < MAX_ROUTES; i++)
 		if (cost_tbl[i].is_empty != TRUE)
 		{
 			printf("[%d]\t%s\t%d\n", i, IP2Dot(tmpbuf, cost_tbl[i].dest_ip),
