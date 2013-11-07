@@ -759,6 +759,7 @@ void *SendHelloPackets(){
 			for (counter = 0; counter<MAX_ROUTES; counter++){
 				if (neighbor_tbl[counter].isEmpty == FALSE && neighbor_tbl[counter].isAlive == FALSE){
 					neighbor_tbl[counter].isEmpty = TRUE;
+					verbose(1, "Sending new LS update to neighbors because a link went down.");
 					broadcastLSUpdate(TRUE, NULL);
 				}
 				if (neighbor_tbl[counter].type != OSPF_STUB) // since we don't get continuous messages from stub networks.
@@ -771,6 +772,7 @@ void *SendHelloPackets(){
 		int i;
 		if (count > 0)
 		{
+			verbose(1, "Broadcasting hello packets to all %d interfaces.", count);
 			for (i = 0; i < count; i++)
 			{			
 				OSPFSendHelloPacket(interfaceIPs[i], indexes[i]);	

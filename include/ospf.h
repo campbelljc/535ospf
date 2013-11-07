@@ -59,6 +59,11 @@ typedef struct _lsa_packet_t
 	uint16_t lsa_length;
 } lsa_packet_t;
 
+typedef struct _hello_neighbor_t
+{
+	uchar neighbor_ip[4];
+} hello_neighbor_t;
+
 typedef struct _hello_packet_t
 {
 	uchar    hello_network_mask[4];            // network mask - ALWAYS 255.255.255.0
@@ -68,8 +73,8 @@ typedef struct _hello_packet_t
 	uint32_t hello_dead_interval;           // router dead interval - ALWAYS 40
 	uchar    hello_designated_ip[4];        // designated router ip address 0
 	uchar    hello_designated_ip_backup[4]; // backup designated router ip address 0
-	uint8_t  hello_numneighbors;
-	uchar    hello_neighbors[DEFAULT_MTU/2][4];		// neighbors list
+	hello_neighbor_t hello_neighbors[10];
+//	uchar    hello_neighbors[10][4];		// neighbors list
 } hello_packet_t;
 
 typedef struct _ospf_packet_t
@@ -151,7 +156,7 @@ void updateRoutingTable(ospf_graph_t *graph);
 
 // Routing table updating functions
 void updateRoutingTable(ospf_graph_t *graph);
-int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t neighbors[]);
+int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neighbors[]);
 void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int iface, int cost);
 int getIfaceIDByNetwork(uchar *net_addr);
 int getIfaceIDByIP(uchar *ip_addr);
