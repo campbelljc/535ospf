@@ -429,7 +429,7 @@ void OSPFSetStubNetwork(gpacket_t *pkt)
 //	verbose(1, "[OSPFSetStubNetwork]:: received packet was using protocol %d", pkt->data.header.prot);
 //	ip_packet_t *ip_pkt = (ip_packet_t *)pkt->data.data;
 	
-	addNeighborEntry(ip_pkt->ip_src, OSPF_STUB, pkt->frame.src_interface);
+	addNeighborEntry(pkt->frame.src_ip_addr, OSPF_STUB, pkt->frame.src_interface);
 	
 	char tmpbuf[MAX_TMPBUF_LEN];
 	verbose(1, "[OSPFSetStubNetwork]:: Interface %d marked as stub with IP %s", pkt->frame.src_interface, IP2Dot(tmpbuf, ip_pkt->ip_src));
