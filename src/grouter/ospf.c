@@ -213,16 +213,23 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			|| neighbor_tbl[count].type == OSPF_STUB
 			|| neighbor_tbl[count].bidirectional == FALSE) continue;
 
+		verbose(1, "216");
+
 		char tmpbuf[MAX_TMPBUF_LEN];
 		COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
 		pkt->frame.dst_interface = neighbor_tbl[count].interface;
 
+		verbose(1, "222");
+
 		if (createPacket == TRUE)
 		{
+			verbose(1, "226");
 			interface_t* neighborInterface = findInterface(neighbor_tbl[count].interface);
 			pkt = createLSUPacket(neighborInterface->ip_addr);
 			printLSData(pkt);
+			verbose(1, "230");
 			OSPFSend2Output(pkt);
+			verbose(1, "232");
 		}
 		else
 		{
