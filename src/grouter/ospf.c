@@ -210,7 +210,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			|| neighbor_tbl[count].bidirectional == FALSE) continue;
 
 		char tmpbuf[MAX_TMPBUF_LEN];
-		verbose(1, "[broadcastLSUpdate]:: Sending LS update to IP %s.", IP2Dot(tmpbuf, gNtohl((uchar *)tmpbuf, neighbor_tbl[count].neighborIP)));
+		verbose(1, "[broadcastLSUpdate]:: Sending LS update to IP %s.", IP2Dot(tmpbuf, neighbor_tbl[count].neighborIP));
 
 		if (createPacket)
 		{
@@ -218,9 +218,10 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			printLSData(pkt);
 		}
 
-		COPY_IP(pkt->frame.nxth_ip_addr, gHtonl(tmpbuf, neighbor_tbl[count].neighborIP));
+		COPY_IP(pkt->frame.nxth_ip_addr, neighbor_tbl[count].neighborIP);
+//		COPY_IP(pkt->frame.nxth_ip_addr, gHtonl(tmpbuf, neighbor_tbl[count].neighborIP));
 		pkt->frame.dst_interface = neighbor_tbl[count].interface;
-
+		verbose(1, "[broadcastLSUpdate]:: sent to IP %d", IP2Dot(tmpbuf, pkt->frame.nxth_ip_addr));
 		OSPFSend2Output(pkt);
 	}
 	if (count == 0) verbose(1, "[broadcastLSUpdate]:: Wanted to send LS update, but have no neighbors to send it to :( ");
@@ -233,7 +234,7 @@ void printLSData(gpacket_t *pkt)
 	lsu_packet_t *lsu_pkt = (lsu_packet_t *)((uchar *)lsa_pkt + lsa_pkt->lsa_header_length*4);
 		
 	verbose(1, "===============L I N K   S T A T E   D A T A====================");
-	verbose(1, "Index\tLink ID\tLink Data\tType");
+	verbose(1, "Index\tLink ID\t\tLink Data\tType");
 
 	int count;
 	char tmpbuf[MAX_TMPBUF_LEN];
