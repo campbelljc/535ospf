@@ -595,6 +595,9 @@ void updateEdges(ospf_graph_t *graph, ospf_gnode_t *node)
 		{
 			for (k=0; k<crt_num_networks; k++)
 			{
+				char tmpbuf[MAX_TMPBUF_LEN];
+				verbose(1, "[updateEdges]:: comparing %s with %s.", IP2Dot(tmpbuf, node -> networks[j]), IP2Dot(tmpbuf+20, crt_node -> networks[k]));
+
 				if (COMPARE_IP(node -> networks[j], crt_node -> networks[k]) == 0)
 				{
 					addEdge(node -> src, crt_node -> src);
