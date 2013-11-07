@@ -103,7 +103,7 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 
 	if (newUpdate)
 	{ // if it's a new update, then send out a new link state update to all neighbors.
-		verbose(1, "[OSPFProcessHelloMessage]:: Broadcasting new LS Update since we got new information.");
+		verbose(1, "[OSPFProcessHelloMessage]:: Broadcasting new LS Update since we got new information from hello packet.");
 		broadcastLSUpdate(TRUE, NULL);
 	}
 }
@@ -152,6 +152,8 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	updateRoutingTable(graph);
 
 	// forward the update packet
+	char tmpbuf[MAX_TMPBUF_LEN];
+	verbose(1, "[OSPFProcessLSUpdate]:: Broadcasting the LS update we just received from %s", IP2Dot(tmpbuf, src));
 	broadcastLSUpdate(FALSE, pkt);
 }
 
@@ -210,7 +212,6 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			|| neighbor_tbl[count].bidirectional == FALSE) continue;
 
 		char tmpbuf[MAX_TMPBUF_LEN];
-		verbose(1, "[broadcastLSUpdate]:: Sending LS update to IP %s.", IP2Dot(tmpbuf, neighbor_tbl[count].neighborIP));
 
 		if (createPacket)
 		{
@@ -221,8 +222,8 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 		COPY_IP(pkt->frame.nxth_ip_addr, neighbor_tbl[count].neighborIP);
 //		COPY_IP(pkt->frame.nxth_ip_addr, gHtonl(tmpbuf, neighbor_tbl[count].neighborIP));
 		pkt->frame.dst_interface = neighbor_tbl[count].interface;
-		verbose(1, "[broadcastLSUpdate]:: sent to IP %s", IP2Dot(tmpbuf, pkt->frame.nxth_ip_addr));
 		OSPFSend2Output(pkt);
+		verbose(1, "[broadcastLSUpdate]:: sent to IP %s", IP2Dot(tmpbuf, pkt->frame.nxth_ip_addr));
 	}
 	if (count == 0) verbose(1, "[broadcastLSUpdate]:: Wanted to send LS update, but have no neighbors to send it to :( ");
 }
