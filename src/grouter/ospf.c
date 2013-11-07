@@ -71,12 +71,16 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 
 	// update neighbor database
 	int newUpdate = addNeighborEntry(ospf_pkt->ospf_src, OSPF_ROUTER, pkt->frame.src_interface);
+	
+	uchar zeroIP[] = ZEROED_IP;
 
-	verbose(1, "Analyzing hello packet which has hello_numneighbors=%d", hello_pkt->hello_numneighbors);
+	verbose(1, "Analyzing hello packet");
 	int count;
-	for (count = 0; count < hello_pkt->hello_numneighbors; count ++)
+	for (count = 0; count < 10; count ++)
 	{
 		verbose(1, "Looking at received hello packet neighbor %d", count);
+		if (COMPARE_IP(hello_pkt->hello_neighbors[count], zeroIP) == 0) continue; // empty entry.
+		
 		if (COMPARE_IP(pkt->frame.nxth_ip_addr, hello_pkt->hello_neighbors[count]) == 0)
 		{ // the IP the packet is sending to is also contained in its neighbor table.
 			// therefore, it knows about this router, and we know about it (entry added above)
@@ -172,19 +176,24 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 
 	neighbor_entry_t neighborEntries[MAX_ROUTES];
 	int numEntries = getNeighborEntries(neighborEntries);
-	hello_pkt->hello_numneighbors = numEntries;
+//	hello_pkt->hello_numneighbors = numEntries;
 
 	int count;
 	for (count = 0; count < numEntries; count ++)
 	{
 		COPY_IP(hello_pkt->hello_neighbors[count], neighborEntries[count].neighborIP);
 	}
+	
+	for (count = numEntries; count < 10; count ++)
+	{
+		COPY_IP(hello_pkt->hello_neighbors[count], zeroIP);
+	}
 
 	uchar bcast_addr[6];
 	memset(bcast_addr, 0xFF, 6);
 
 	char tmpbuf[MAX_TMPBUF_LEN];
-	verbose(1, "[OSPFSendHelloPacket]:: Broadcasting Hello packet with source IP %s, with numneighbors %d.", IP2Dot(tmpbuf, src_ip), hello_pkt->hello_numneighbors);
+	verbose(1, "[OSPFSendHelloPacket]:: Broadcasting Hello packet with source IP %s.", IP2Dot(tmpbuf, src_ip));
 
 	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), src_ip);
 
