@@ -835,7 +835,7 @@ void printGraphNodes(ospf_graph_t *graph)
 		if (graph -> nodes[i].is_empty != TRUE)
 		{
 			node = &graph -> nodes[i];
-			printf("[%d]\t%s\t%d\t%d\n", i, IP2Dot(tmpbuf, node -> src),
+			printf("[%d]\t%s\t%d\t\t%d\n", i, IP2Dot(tmpbuf, node -> src),
 			       node -> last_LSN, node -> num_networks);
 			ncount++;
 		}
