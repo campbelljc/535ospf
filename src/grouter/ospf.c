@@ -121,14 +121,14 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 //	ospf_gnode_t *node = getNode(graph, src);
 	
 	// if the node exists and the last sequence number received by the node is greater or equal to the current sequence number, ignore it
-	if (node != NULL)
+/*	if (node != NULL)
 	{
 		if (node -> last_LSN >= lsa_pkt->lsa_sequence_number)
 		{
 			verbose(1, "[OSPFProcessLSUpdate]:: LS update is old so we are dropping it.");
 			return;
 		}
-	}
+	}*/
 	// if the node doesn't exist, create it
 	else
 	{
@@ -136,7 +136,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 //		node = (ospf_gnode_t *)addNode(graph, src);
 	}
 
-	node -> last_LSN = lsa_pkt->lsa_sequence_number;
+//	node -> last_LSN = lsa_pkt->lsa_sequence_number;
 
 	verbose(1, "[OSPFProcessLSUpdate]:: New node created.");
 
