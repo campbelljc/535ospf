@@ -432,7 +432,7 @@ void OSPFSetStubNetwork(gpacket_t *pkt)
 	addNeighborEntry(pkt->frame.src_ip_addr, OSPF_STUB, pkt->frame.src_interface);
 	
 	char tmpbuf[MAX_TMPBUF_LEN];
-	verbose(1, "[OSPFSetStubNetwork]:: Interface %d marked as stub with IP %s", pkt->frame.src_interface, IP2Dot(tmpbuf, ip_pkt->ip_src));
+	verbose(1, "[OSPFSetStubNetwork]:: Interface %d marked as stub with IP %s", pkt->frame.src_interface, IP2Dot(tmpbuf, pkt->frame.src_ip_addr));
 }
 
 void printNeighborTable()
