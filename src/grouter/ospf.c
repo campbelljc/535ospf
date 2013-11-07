@@ -634,7 +634,7 @@ void updateRoutingTable(ospf_graph_t *graph)
 	uchar interfaceIPs[MAX_MTU][4];
 	ospf_gnode_t *this_node;
 	uchar null_ip_addr[] = ZEROED_IP;
-	uchar netmask[] = IP_BCAST_ADDR;
+	uchar netmask[] = IP_BCAST_ADDR2;
 	ospf_gnode_t* neighbors[MAX_ROUTES];
 
 	cost = 1;
