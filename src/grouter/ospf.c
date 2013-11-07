@@ -277,9 +277,10 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 		}
 		else
 		{ // for a router addr 192.168.x.y, we want link data to be set 192.168.x.0
-			uchar netIP[4];
-			COPY_IP(netIP, neighbor_tbl[neighborCount].neighborIP);
-			netIP[3] = 0;
+			uchar netIP[] = ZEROED_IP;
+			memcpy(netIP, neighbor_tbl[neighborCount].neighborIP, 3);
+//			COPY_IP(netIP, neighbor_tbl[neighborCount].neighborIP);
+//			netIP[3] = 0;
 			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, netIP);
 		}
 		COPY_IP(lsu_pkt->links[currentLink].lsu_link_ID, neighbor_tbl[neighborCount].neighborIP);
