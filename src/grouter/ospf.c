@@ -56,7 +56,7 @@ void OSPFIncomingPacket(gpacket_t *pkt)
 	else if (ospf_pkt->ospf_type == OSPF_LINK_STAT_UPDATE)
 	{
 		verbose(1, "[OSPFIncomingPacket]:: received OSPF link state update");
-		OSPFProcessLSUpdate(pkt);
+		OSPFProcessLSUpdate(pkt, TRUE);
 	}
 	else
 	{
@@ -108,7 +108,7 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 	}
 }
 
-void OSPFProcessLSUpdate(gpacket_t *pkt)
+void OSPFProcessLSUpdate(gpacket_t *pkt, bool rebroadcast)
 {
 	ospf_packet_t *ospf_pkt = (ospf_packet_t*) &pkt -> data.data;
 	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + 4*4);
@@ -154,11 +154,15 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	// update the routing table
 	updateRoutingTable(graph);
 	printCostTable(graph);
+	printNeighborTable();
 	printRouteTable(route_tbl);
 
-	// forward the update packet
-	verbose(1, "[OSPFProcessLSUpdate]:: Broadcasting the LS update we just received from %s", IP2Dot(tmpbuf, src));
-	broadcastLSUpdate(FALSE, pkt);
+	if (rebroadcast == TRUE)
+	{
+		// forward the update packet
+		verbose(1, "[OSPFProcessLSUpdate]:: Broadcasting the LS update we just received from %s", IP2Dot(tmpbuf, src));
+		broadcastLSUpdate(FALSE, pkt);
+	}
 }
 
 void OSPFSendHelloPacket(uchar src_ip[], int interface_)
@@ -227,6 +231,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
 			pkt->frame.dst_interface = neighbor_tbl[count].interface;
 
+			OSPFProcessLSUpdate(pkt, FALSE);
 			OSPFSend2Output(pkt);
 		}
 		else
@@ -455,12 +460,12 @@ void printNeighborTable()
 	printf("\n=================================================================\n");
 	printf("      N E I G H B O R   T A B L E \n");
 	printf("-----------------------------------------------------------------\n");
-	printf("Index\tNeighbor IP\tIs Alive\tType\tBidirectional \n");
+	printf("Index\tNeighbor IP\tIs Alive\tType\tBidirectional\tInterface \n");
 
 	for (i = 0; i < MAX_ROUTES; i++)
 		if (neighbor_tbl[i].isEmpty != TRUE)
 		{
-			printf("[%d]\t%s\t%d\t\t%d\t\t%d\n", i, IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), neighbor_tbl[i].isAlive, neighbor_tbl[i].type, neighbor_tbl[i].bidirectional);
+			printf("[%d]\t%s\t%d\t\t%d\t\t%d\t%d\n", i, IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), neighbor_tbl[i].isAlive, neighbor_tbl[i].type, neighbor_tbl[i].bidirectional, neighbor_tbl[i].interface);
 			rcount++;
 		}
 	printf("-----------------------------------------------------------------\n");
@@ -672,16 +677,20 @@ void updateRoutingTable(ospf_graph_t *graph)
 		// add the entry to the cost table and routing table
 		if (isCheaper(cost_tbl, this_node -> networks[i], cost))
 		{
-			addRouteEntry(route_tbl, this_node -> networks[i], netmask, null_ip_addr, interface);
-			verbose(1, "[updateRoutingTable]:: New route entry added.");
+			addRouteEntry(route_tbl, this_node->networks[i], netmask, null_ip_addr, interface);
+			verbose(1, "[updateRoutingTable]:: New route entry added with interface %d.", interface);
 		}
 	}
+
+	verbose(1, "684");
 
 	// mark this node as visited
 	this_node -> checked = TRUE;
 
 	// get the neighbors of this node
 	num_neighbors = getNodeNeighbors(graph, this_node, neighbors);
+
+	verbose(1, "690");
 
 	for (i=0; i<num_neighbors; i++)
 	{
@@ -693,9 +702,11 @@ void updateRoutingTable(ospf_graph_t *graph)
 
 		cost++;
 
+		verbose(1, "782 %d", i);
 		// Search for new reachable networks from each neighbor
 		findNetworks(graph, neighbors[i], neighbors[i]->src, getIfaceIDByIP(neighbors[i]->src), cost);
 	}
+	verbose(1, "785");
 }
 
 int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neighbors[])
@@ -739,6 +750,7 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 	// mark node as visited
 	node -> checked = TRUE;
 
+	verbose(1, "752");
 	for (i=0; i<node -> num_networks; i++)
 	{
 		// For each reachable network from this node, add it to the routing table if
@@ -755,6 +767,7 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 
 	num_neighbors = getNodeNeighbors(graph, node, neighbors);
 
+	verbose(1, "769");
 	for (i=0; i<num_neighbors; i++)
 	{
 		// ignore already visited neighbors
@@ -767,6 +780,7 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 
 		findNetworks(graph, neighbors[i], nxt_hop, iface, cost);
 	}
+	verbose(1, "782");
 }
 
 int getIfaceIDByNetwork(uchar *net_addr)

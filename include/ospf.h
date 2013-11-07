@@ -126,7 +126,7 @@ void OSPFInit();
 // OSPF packet processing.
 void OSPFIncomingPacket(gpacket_t *pkt);
 void OSPFProcessHelloMessage(gpacket_t *pkt);
-void OSPFProcessLSUpdate(gpacket_t *pkt);
+void OSPFProcessLSUpdate(gpacket_t *pkt, bool rebroadcast);
 
 // Creating and sending Hello/LSU packets.
 gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar sourceIP[]);
