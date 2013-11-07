@@ -284,7 +284,7 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 		}
 		else // OSPF_ROUTER
 		{
-			interface_t* neighborInterface = findInterface(neighbor_tbl[count].interface);
+			interface_t* neighborInterface = findInterface(neighbor_tbl[neighborCount].interface);
 			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, neighborInterface->ip_addr);
 		}
 		
