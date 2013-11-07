@@ -581,6 +581,11 @@ void updateEdges(ospf_graph_t *graph, ospf_gnode_t *node)
 // Add an edge to the graph
 void addEdge(uchar addr1[], uchar addr2[])
 {
+	if (COMPARE_IP(addr1, addr2) == 0)
+	{
+		return;
+	}
+
 	int i;
 
 	for (i=0; i<MAX_EDGES; i++)
