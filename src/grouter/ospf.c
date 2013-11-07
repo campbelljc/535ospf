@@ -740,7 +740,7 @@ int getIfaceIDByIP(uchar *ip_addr)
 
 	for (i=0; i<MAX_ROUTES; i++)
 	{
-		if (compareIP(neighbor_tbl[i].neighborIP, ip_addr) == 0)
+		if (COMPARE_IP(neighbor_tbl[i].neighborIP, ip_addr) == 0)
 		{
 			return neighbor_tbl[i].interface;
 		}
