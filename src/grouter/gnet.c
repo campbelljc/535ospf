@@ -771,6 +771,7 @@ void *SendHelloPackets(){
 		int i;
 		if (count > 0)
 		{
+			verbose(1, "Broadcasting hello packets to all %d interfaces.", count);
 			for (i = 0; i < count; i++)
 			{			
 				OSPFSendHelloPacket(interfaceIPs[i], indexes[i]);	

@@ -77,6 +77,8 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 	int count;
 	for (count = 0; count < 10; count ++)
 	{
+		char tmpbuf3[MAX_TMPBUF_LEN];
+		verbose(1, "hello neighbor at index %d has IP %s.", count, IP2Dot(tmpbuf3, hello_pkt->hello_neighbors[count]));
 		if (COMPARE_IP(hello_pkt->hello_neighbors[count], zeroIP) == 0) continue; // empty entry.
 		
 		// pkt->frame.src_ip_addr will be set to the IP of this router's interface which the packet arrived on.
@@ -178,7 +180,6 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 
 	neighbor_entry_t neighborEntries[MAX_ROUTES];
 	int numEntries = getNeighborEntries(neighborEntries);
-//	hello_pkt->hello_numneighbors = numEntries;
 
 	int count;
 	for (count = 0; count < numEntries; count ++)
@@ -193,9 +194,6 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 
 	uchar bcast_addr[6];
 	memset(bcast_addr, 0xFF, 6);
-
-	char tmpbuf[MAX_TMPBUF_LEN];
-	verbose(1, "[OSPFSendHelloPacket]:: Broadcasting Hello packet with source IP %s.", IP2Dot(tmpbuf, src_ip));
 
 	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), src_ip);
 
