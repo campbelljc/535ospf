@@ -213,6 +213,8 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			|| neighbor_tbl[count].type == OSPF_STUB
 			|| neighbor_tbl[count].bidirectional == FALSE) continue;
 
+		char tmpbuf[MAX_TMPBUF_LEN];
+
 		verbose(1, "216");
 
 		if (createPacket == TRUE)
@@ -236,7 +238,6 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 		{
 			verbose(1, "237");
 			
-			char tmpbuf[MAX_TMPBUF_LEN];
 			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
 			pkt->frame.dst_interface = neighbor_tbl[count].interface;
 			
