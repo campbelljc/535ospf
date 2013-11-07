@@ -762,7 +762,8 @@ void *SendHelloPackets(){
 					neighbor_tbl[counter].isEmpty = TRUE;
 					broadcastLSUpdate(TRUE, NULL);
 				}
-				neighbor_tbl[counter].isAlive = FALSE;
+				if (neighbor_tbl[counter].type != OSPF_STUB) // since we don't get continuous messages from stub networks.
+					neighbor_tbl[counter].isAlive = FALSE;
 			}
 		}
 		verbose(1, "[SendHelloPackets]:: Preparing to send Hello messages 2.");

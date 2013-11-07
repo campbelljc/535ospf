@@ -69,10 +69,10 @@ typedef struct _hello_packet_t
 	uchar    hello_designated_ip[4];        // designated router ip address 0
 	uchar    hello_designated_ip_backup[4]; // backup designated router ip address 0
 	uint8_t  hello_numneighbors;
-	uchar    hello_neighbours[DEFAULT_MTU/2][4];		// neighbors list
+	uchar    hello_neighbors[DEFAULT_MTU/2][4];		// neighbors list
 } hello_packet_t;
 
-typedef struct _ospf_hdr_t
+typedef struct _ospf_packet_t
 {
 	uint8_t ospf_version;                   // version
 	uint8_t ospf_type;                   	// type
@@ -83,9 +83,7 @@ typedef struct _ospf_hdr_t
 
 	uint16_t ospf_cksum;                    // checksum
 	uint16_t ospf_auth_type;                // authentication type
-
-	/* uint32_t ospf_auth;                     // authentication */
-} ospf_hdr_t;
+} ospf_packet_t;
 
 typedef struct _ospf_gnode_t
 {
@@ -111,23 +109,29 @@ typedef struct _ospf_graph_t
 } ospf_graph_t;
 
 void OSPFInit();
+
+// OSPF packet processing.
 void OSPFIncomingPacket(gpacket_t *pkt);
 void OSPFProcessHelloMessage(gpacket_t *pkt);
 void OSPFProcessLSUpdate(gpacket_t *pkt);
-int OSPFSend2Output(gpacket_t *pkt);
 
+// Creating and sending Hello/LSU packets.
 gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar sourceIP[]);
 gpacket_t* createLSAHeader(gpacket_t *gpkt, uchar sourceIP[]);
 gpacket_t* createLSUPacket(uchar sourceIP[]);
 void OSPFSendHelloPacket(uchar src_ip[], int interface_);
 void broadcastLSUpdate(bool createPacket, gpacket_t *pkt);
+int OSPFSend2Output(gpacket_t *pkt);
 
 // Neighbor table functions.
 int addNeighborEntry(uchar* neighborIP_, int type_, int interface_);
 int getNeighborEntries(neighbor_entry_t buffer[]);
 void OSPFMarkDeadNeighbor(uchar* neighborIP_);
 void OSPFSetStubNetwork(gpacket_t *pkt);
+
+// Debug functions
 void printNeighborTable();
+void printLSData(gpacket_t *pkt);
 
 // Graph management functions
 ospf_gnode_t* getNode(ospf_graph_t *graph, uchar src[]);
