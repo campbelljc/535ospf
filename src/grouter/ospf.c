@@ -56,7 +56,7 @@ void OSPFIncomingPacket(gpacket_t *pkt)
 	else if (ospf_pkt->ospf_type == OSPF_LINK_STAT_UPDATE)
 	{
 		verbose(1, "[OSPFIncomingPacket]:: received OSPF link state update");
-//		OSPFProcessLSUpdate(pkt);
+		OSPFProcessLSUpdate(pkt);
 	}
 	else
 	{
@@ -119,7 +119,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 
 	// check if node with the address already exists
 	ospf_gnode_t *node = getNode(graph, src);
-
+	
 	// if the node exists and the last sequence number received by the node is greater or equal to the current sequence number, ignore it
 	if (node != NULL)
 	{
@@ -132,8 +132,8 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	// if the node doesn't exist, create it
 	else
 	{
-		printLSData(pkt);
-		node = (ospf_gnode_t *)addNode(graph, src);
+//		printLSData(pkt);
+//		node = (ospf_gnode_t *)addNode(graph, src);
 	}
 
 	node -> last_LSN = lsa_pkt->lsa_sequence_number;
@@ -141,7 +141,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	verbose(1, "[OSPFProcessLSUpdate]:: New node created.");
 
 	// update the reachable networks of the node
-	updateLinkData(lsu_pkt, node);
+/*	updateLinkData(lsu_pkt, node);
 
 	// update the edges of the graph
 	updateEdges(graph, node);
@@ -152,7 +152,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	// forward the update packet
 	char tmpbuf[MAX_TMPBUF_LEN];
 	verbose(1, "[OSPFProcessLSUpdate]:: Broadcasting the LS update we just received from %s", IP2Dot(tmpbuf, src));
-	broadcastLSUpdate(FALSE, pkt);
+	broadcastLSUpdate(FALSE, pkt); */
 }
 
 void OSPFSendHelloPacket(uchar src_ip[], int interface_)
@@ -455,7 +455,7 @@ ospf_gnode_t* getNode(ospf_graph_t *graph, uchar src[])
 	{
 		ospf_gnode_t *node = &graph -> nodes[i];
 
-		if (node -> is_empty)
+		if (node -> is_empty || node == NULL)
 		{
 			continue;
 		}
