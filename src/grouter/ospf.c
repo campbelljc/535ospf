@@ -71,14 +71,14 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 
 	// update neighbor database
 	int newUpdate = addNeighborEntry(ospf_pkt->ospf_src, OSPF_ROUTER, pkt->frame.src_interface);
-	
+
 	uchar zeroIP[] = ZEROED_IP;
 
 	int count;
 	for (count = 0; count < 10; count ++)
 	{
 		if (COMPARE_IP(hello_pkt->hello_neighbors[count].neighbor_ip, zeroIP) == 0) continue; // empty entry.
-		
+
 		// pkt->frame.src_ip_addr will be set to the IP of this router's interface which the packet arrived on.
 		char tmpbuf[MAX_TMPBUF_LEN];
 		char tmpbuf2[MAX_TMPBUF_LEN];
@@ -86,7 +86,7 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 		{ // the IP the packet is sending to is also contained in its neighbor table.
 			// therefore, it knows about this router, and we know about it (entry added above)
 			// so we have bidirectionality
-			
+
 			for (count = 0; count < MAX_ROUTES; count ++)
 			{
 				if (neighbor_tbl[count].isEmpty == TRUE || neighbor_tbl[count].isAlive == FALSE) continue;
@@ -183,12 +183,12 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 	{
 		COPY_IP(hello_pkt->hello_neighbors[count].neighbor_ip, neighborEntries[count].neighborIP);
 	}
-	
+
 	for (count = numEntries; count < 10; count ++)
 	{
 		COPY_IP(hello_pkt->hello_neighbors[count].neighbor_ip, zeroIP);
 	}
-	
+
 	uchar bcast_addr[] = MAC_BCAST_ADDR;
 
 	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), src_ip);
@@ -236,7 +236,7 @@ void printLSData(gpacket_t *pkt)
 	ospf_packet_t *ospf_pkt = (ospf_packet_t*) &pkt -> data.data;
 	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + 4*4);
 	lsu_packet_t *lsu_pkt = (lsu_packet_t *)((uchar *)lsa_pkt + lsa_pkt->lsa_header_length*4);
-		
+
 	verbose(1, "===============L I N K   S T A T E   D A T A====================");
 	verbose(1, "Index\tLink ID\t\tLink Data\tType");
 
@@ -309,7 +309,7 @@ gpacket_t* createLSAHeader(gpacket_t *gpkt, uchar sourceIP[])
 }
 
 gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar sourceIP[])
-{	
+{
 	ospf_packet_t* header = (ospf_packet_t *)(gpacket->data.data);
 
 	header->ospf_version = OSPF_VERSION;
@@ -420,9 +420,9 @@ void OSPFSetStubNetwork(gpacket_t *pkt)
 {
 //	verbose(1, "[OSPFSetStubNetwork]:: received packet was using protocol %d", pkt->data.header.prot);
 //	ip_packet_t *ip_pkt = (ip_packet_t *)pkt->data.data;
-	
+
 	addNeighborEntry(pkt->frame.src_ip_addr, OSPF_STUB, pkt->frame.src_interface);
-	
+
 	char tmpbuf[MAX_TMPBUF_LEN];
 	verbose(1, "[OSPFSetStubNetwork]:: Interface %d marked as stub with IP %s", pkt->frame.src_interface, IP2Dot(tmpbuf, pkt->frame.src_ip_addr));
 }
@@ -730,7 +730,7 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 
 		cost++;
 
-		findNetworks(graph, &neighbors[i], nxt_hop, iface, cost);
+		findNetworks(graph, neighbors[i], nxt_hop, iface, cost);
 	}
 }
 
@@ -802,4 +802,74 @@ int isCheaper(ospf_cost_entry_t ctable[], uchar *dest_ip_, int cost_)
 	COPY_IP(ctable[free_index].dest_ip, dest_ip_);
 	ctable[free_index].cost = cost_;
 	return TRUE;
+}
+
+void printGraphNodes(ospf_graph_t *graph)
+{
+	int i, ncount = 0;
+	char tmpbuf[MAX_TMPBUF_LEN];
+	ospf_gnode_t *node;
+
+	printf("\n=================================================================\n");
+	printf("      G R A P H   N O D E S \n");
+	printf("-----------------------------------------------------------------\n");
+	printf("Index\tIP\t\tLSN\t\tNum Networks \n");
+
+	for (i = 0; i < MAX_ROUTES; i++)
+		if (graph -> nodes[i].is_empty != TRUE)
+		{
+			node = &graph -> nodes[i];
+			printf("[%d]\t%s\t%d\t%d\n", i, IP2Dot(tmpbuf, node -> src),
+			       node -> last_LSN, node -> num_networks);
+			ncount++;
+		}
+	printf("-----------------------------------------------------------------\n");
+	printf("      %d number of nodes found. \n", ncount);
+	return;
+}
+
+void printGraphEdges(ospf_graph_t *graph)
+{
+	int i, ecount = 0;
+	char tmpbuf[MAX_TMPBUF_LEN];
+	ospf_gedge_t *edge;
+
+	printf("\n=================================================================\n");
+	printf("      G R A P H   E D G E S \n");
+	printf("-----------------------------------------------------------------\n");
+	printf("Index\tIP 1\t\tIP 2 \n");
+
+	for (i = 0; i < MAX_EDGES; i++)
+		if (graph -> edges[i].is_empty != TRUE)
+		{
+			edge = &graph -> edges[i];
+			printf("[%d]\t%s\t%s\n", i, IP2Dot(tmpbuf, edge -> addr1),
+			       IP2Dot((tmpbuf+20), edge -> addr2));
+			ecount++;
+		}
+	printf("-----------------------------------------------------------------\n");
+	printf("      %d number of edges found. \n", ecount);
+	return;
+}
+
+void printCostTable(ospf_graph_t *graph)
+{
+	int i, ecount = 0;
+	char tmpbuf[MAX_TMPBUF_LEN];
+
+	printf("\n=================================================================\n");
+	printf("     C O S T   T A B L E \n");
+	printf("-----------------------------------------------------------------\n");
+	printf("Index\tIP\t\tCost \n");
+
+	for (i = 0; i < MAX_EDGES; i++)
+		if (cost_tbl[i].is_empty != TRUE)
+		{
+			printf("[%d]\t%s\t%d\n", i, IP2Dot(tmpbuf, cost_tbl[i].dest_ip),
+			        cost_tbl[i].cost);
+			ecount++;
+		}
+	printf("-----------------------------------------------------------------\n");
+	printf("      %d number of entries found. \n", ecount);
+	return;
 }
