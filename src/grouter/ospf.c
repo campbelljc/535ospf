@@ -118,10 +118,10 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	COPY_IP(src, ospf_pkt->ospf_src); // get src address
 
 	// check if node with the address already exists
-/*	ospf_gnode_t *node = getNode(graph, src);
+	ospf_gnode_t *node = getNode(src);
 	
 	// if the node exists and the last sequence number received by the node is greater or equal to the current sequence number, ignore it
-	if (node != NULL)
+/*	if (node != NULL)
 	{
 		if (node -> last_LSN >= lsa_pkt->lsa_sequence_number)
 		{
@@ -153,6 +153,8 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	char tmpbuf[MAX_TMPBUF_LEN];
 	verbose(1, "[OSPFProcessLSUpdate]:: Broadcasting the LS update we just received from %s", IP2Dot(tmpbuf, src));
 	broadcastLSUpdate(FALSE, pkt); */
+	
+	verbose(1, "[OSPFProcessLSUpdate]:: at end");
 }
 
 void OSPFSendHelloPacket(uchar src_ip[], int interface_)
@@ -447,20 +449,20 @@ void printNeighborTable()
 }
 
 // Gets the node from the graph with the supplied IP address, or NULL if it does not exist
-ospf_gnode_t* getNode(ospf_graph_t *graph, uchar src[])
+ospf_gnode_t* getNode(uchar src[])
 {
 	int i;
 
 	for (i=0; i<MAX_ROUTES; i++)
 	{
-		ospf_gnode_t *node = &graph -> nodes[i];
+		ospf_gnode_t *node = &(graph->nodes[i]);
 
-		if (node -> is_empty || node == NULL)
+		if (node == NULL || node -> is_empty)
 		{
 			continue;
 		}
 
-		if ((COMPARE_IP(node -> src, src)) == 0)
+		else if ((COMPARE_IP(node -> src, src)) == 0)
 		{
 			return node;
 		}
@@ -617,7 +619,7 @@ void updateRoutingTable(ospf_graph_t *graph)
 	// find a node corresponding to this router
 	for (i=0; i<totalInterfaceIPs; i++)
 	{
-		this_node = (ospf_gnode_t *)getNode(graph, interfaceIPs[i]);
+		this_node = (ospf_gnode_t *)getNode(interfaceIPs[i]);
 		if (this_node != NULL)
 		{
 			break;
@@ -682,11 +684,11 @@ int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neig
 		{
 			if (COMPARE_IP(node -> src, edge -> addr1) == 0)
 			{
-				neighbors[ncount] = getNode(graph, edge -> addr2);
+				neighbors[ncount] = getNode(edge -> addr2);
 			}
 			else
 			{
-				neighbors[ncount] = getNode(graph, edge -> addr1);
+				neighbors[ncount] = getNode(edge -> addr1);
 			}
 
 			ncount++;
