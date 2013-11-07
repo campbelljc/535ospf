@@ -68,7 +68,6 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 {
 	ospf_packet_t *ospf_pkt = (ospf_packet_t*) &pkt->data.data;
     hello_packet_t *hello_pkt = (hello_packet_t *)((uchar *)ospf_pkt + 4*4);
-//    hello_packet_t *hello_pkt = (hello_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
 
 	// update neighbor database
 	int newUpdate = addNeighborEntry(ospf_pkt->ospf_src, OSPF_ROUTER, pkt->frame.src_interface);
@@ -78,28 +77,24 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 	int count;
 	for (count = 0; count < 10; count ++)
 	{
-//		char tmpbuf3[MAX_TMPBUF_LEN];
-//		verbose(1, "hello neighbor at index %d has IP %s.", count, IP2Dot(tmpbuf3, hello_pkt->hello_neighbors[count].neighbor_ip));
 		if (COMPARE_IP(hello_pkt->hello_neighbors[count].neighbor_ip, zeroIP) == 0) continue; // empty entry.
 		
 		// pkt->frame.src_ip_addr will be set to the IP of this router's interface which the packet arrived on.
 		char tmpbuf[MAX_TMPBUF_LEN];
 		char tmpbuf2[MAX_TMPBUF_LEN];
-		verbose(1, "pkt->frame.src_ip_addr is %s and hello packet neighbor IP is %s", IP2Dot(tmpbuf, pkt->frame.src_ip_addr), IP2Dot(tmpbuf, hello_pkt->hello_neighbors[count].neighbor_ip));
 		if (COMPARE_IP(pkt->frame.src_ip_addr, hello_pkt->hello_neighbors[count].neighbor_ip) == 0)
 		{ // the IP the packet is sending to is also contained in its neighbor table.
 			// therefore, it knows about this router, and we know about it (entry added above)
 			// so we have bidirectionality
 			
-			verbose(1, "This router's IP matches an IP in received hello packet neighbor table.");
-
 			for (count = 0; count < MAX_ROUTES; count ++)
 			{
 				if (neighbor_tbl[count].isEmpty == TRUE || neighbor_tbl[count].isAlive == FALSE) continue;
 
 				if (COMPARE_IP(neighbor_tbl[count].neighborIP, ospf_pkt->ospf_src) == 0)
 				{
-					verbose(1, "[OSPFProcessHelloMessage]:: We got bidirectionality with neighbor index %d.", count);
+					char tmpbuf[MAX_TMPBUF_LEN];
+					verbose(1, "[OSPFProcessHelloMessage]:: We have bidirectional connection with IP %s.", IP2Dot(tmpbuf, neighbor_tbl[count].neighborIP));
 					neighbor_tbl[count].bidirectional = TRUE;
 				}
 			}
@@ -119,7 +114,6 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 
 	ospf_packet_t *ospf_pkt = (ospf_packet_t*) &pkt -> data.data;
 	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + 4*4);
-//	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + ospf_pkt -> ospf_message_length*4);
 	lsu_packet_t *lsu_pkt = (lsu_packet_t *)((uchar *)lsa_pkt + lsa_pkt -> lsa_header_length*4);
 
 	uchar src[4];
@@ -142,7 +136,6 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	{
 		node = (ospf_gnode_t *)addNode(graph, src);
 	}
-	verbose(1, "HERE");
 	printLSData(pkt);
 
 	node -> last_LSN = lsa_pkt->lsa_sequence_number;
@@ -194,9 +187,6 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 		COPY_IP(hello_pkt->hello_neighbors[count].neighbor_ip, zeroIP);
 	}
 	
-	char tmpbuf[MAX_TMPBUF_LEN];
-//	verbose(1, "first hello ip is %s.", IP2Dot(tmpbuf, hello_pkt->hello_neighbors[0].neighbor_ip));
-
 	uchar bcast_addr[] = MAC_BCAST_ADDR;
 
 	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), src_ip);
@@ -206,7 +196,6 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 	finished_pkt->frame.arp_bcast = TRUE;
 	COPY_IP(finished_pkt->frame.nxth_ip_addr, netmask);
 	OSPFSend2Output(finished_pkt);
-//	verbose(1, "(2)first hello ip is %s.", IP2Dot(tmpbuf, hello_pkt->hello_neighbors[0].neighbor_ip));
 }
 
 // Takes in a LS update packet of type gpacket and broadcasts it to your neighbors.
@@ -241,7 +230,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 void printLSData(gpacket_t *pkt)
 {
 	ospf_packet_t *ospf_pkt = (ospf_packet_t*) &pkt -> data.data;
-	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
+	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + 4*4);
 	lsu_packet_t *lsu_pkt = (lsu_packet_t *)((uchar *)lsa_pkt + lsa_pkt->lsa_header_length*4);
 	
 	printf("LINK STATE DATA");
