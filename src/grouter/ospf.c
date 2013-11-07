@@ -118,7 +118,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	COPY_IP(src, ospf_pkt->ospf_src); // get src address
 
 	// check if node with the address already exists
-	ospf_gnode_t *node = getNode(graph, src);
+//	ospf_gnode_t *node = getNode(graph, src);
 	
 	// if the node exists and the last sequence number received by the node is greater or equal to the current sequence number, ignore it
 	if (node != NULL)
