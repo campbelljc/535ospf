@@ -56,7 +56,7 @@ void OSPFIncomingPacket(gpacket_t *pkt)
 	else if (ospf_pkt->ospf_type == OSPF_LINK_STAT_UPDATE)
 	{
 		verbose(1, "[OSPFIncomingPacket]:: received OSPF link state update");
-		OSPFProcessLSUpdate(pkt);
+		OSPFProcessLSUpdate(pkt, TRUE);
 	}
 	else
 	{
@@ -108,7 +108,7 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 	}
 }
 
-void OSPFProcessLSUpdate(gpacket_t *pkt)
+void OSPFProcessLSUpdate(gpacket_t *pkt, bool rebroadcast)
 {
 	ospf_packet_t *ospf_pkt = (ospf_packet_t*) &pkt -> data.data;
 	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + 4*4);
@@ -156,9 +156,12 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	printCostTable(graph);
 	printRouteTable(route_tbl);
 
-	// forward the update packet
-	verbose(1, "[OSPFProcessLSUpdate]:: Broadcasting the LS update we just received from %s", IP2Dot(tmpbuf, src));
-	broadcastLSUpdate(FALSE, pkt);
+	if (rebroadcast == TRUE)
+	{
+		// forward the update packet
+		verbose(1, "[OSPFProcessLSUpdate]:: Broadcasting the LS update we just received from %s", IP2Dot(tmpbuf, src));
+		broadcastLSUpdate(FALSE, pkt);
+	}
 }
 
 void OSPFSendHelloPacket(uchar src_ip[], int interface_)
@@ -227,6 +230,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
 			pkt->frame.dst_interface = neighbor_tbl[count].interface;
 
+			OSPFProcessLSUpdate(newpkt, FALSE);
 			OSPFSend2Output(pkt);
 		}
 		else
