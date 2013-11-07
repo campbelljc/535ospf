@@ -648,7 +648,7 @@ void updateRoutingTable(ospf_graph_t *graph)
 		cost++;
 
 		// Search for new reachable networks from each neighbor
-		findNetworks(graph, neighbors[i], neighbors[i].src, getIfaceIDByIP(neighbors[i].src), cost);
+		findNetworks(graph, neighbors[i], neighbors[i]->src, getIfaceIDByIP(neighbors[i]->src), cost);
 	}
 }
 
@@ -688,7 +688,7 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 {
 	int i, num_neighbors;
 	uchar netmask[] = {255, 255, 255, 0};
-	ospf_gnode_t neighbors[MAX_ROUTES];
+	ospf_gnode_t* neighbors[MAX_ROUTES];
 
 	// mark node as visited
 	node -> checked = TRUE;
