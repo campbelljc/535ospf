@@ -121,7 +121,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	ospf_gnode_t *node = getNode(src);
 	
 	// if the node exists and the last sequence number received by the node is greater or equal to the current sequence number, ignore it
-/*	if (node != NULL)
+	if (node != NULL)
 	{
 		if (node -> last_LSN >= lsa_pkt->lsa_sequence_number)
 		{
@@ -152,7 +152,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	// forward the update packet
 	char tmpbuf[MAX_TMPBUF_LEN];
 	verbose(1, "[OSPFProcessLSUpdate]:: Broadcasting the LS update we just received from %s", IP2Dot(tmpbuf, src));
-	broadcastLSUpdate(FALSE, pkt); */
+	broadcastLSUpdate(FALSE, pkt);
 	
 	verbose(1, "[OSPFProcessLSUpdate]:: at end");
 }
