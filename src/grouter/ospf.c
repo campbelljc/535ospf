@@ -38,7 +38,7 @@ void OSPFInit()
 		graph -> edges[i].is_empty = TRUE;
 	}
 	
-	verbose(1, "[OSPFInit]:: initializion complete");
+	verbose(1, "[OSPFInit]:: initialization complete");
 }
 
 void OSPFIncomingPacket(gpacket_t *pkt)
@@ -250,7 +250,7 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 	int currentLink = 0; // current position in lsu links array
 
 	int neighborCount; // position in neighbor table
-	for (neighborCount = 0; count < MAX_ROUTES; count ++)
+	for (neighborCount = 0; neighborCount < MAX_ROUTES; neighborCount ++)
 	{
 		if (neighbor_tbl[neighborCount].isEmpty == TRUE || neighbor_tbl[neighborCount].isAlive == FALSE) continue;
 
