@@ -273,7 +273,9 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 		
 		// Set link ID.
 		uchar netIP[] = ZEROED_IP;
-		memcpy(netIP, neighbor_tbl[neighborCount].neighborIP, 3);
+		COPY_IP(netIP, neighbor_tbl[neighborCount].neighborIP);
+		netIP[0] = 0;
+//		memcpy(netIP, neighbor_tbl[neighborCount].neighborIP, 3);
 		COPY_IP(lsu_pkt->links[currentLink].lsu_link_ID, netIP);
 		
 		// Set link data.
