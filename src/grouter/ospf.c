@@ -309,7 +309,7 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 		currentLink ++;
 	}
 
-	lsu_pkt->lsu_num_links = currentLink - 1;
+	lsu_pkt->lsu_num_links = currentLink;
 
 	int totalLength = sizeof(lsa_packet_t) + sizeof(lsu_packet_t);
 	return createOSPFHeader(createLSAHeader(out_pkt, sourceIP), OSPF_LINK_STAT_UPDATE, totalLength, sourceIP);
