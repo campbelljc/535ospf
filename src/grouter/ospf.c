@@ -157,7 +157,6 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	printRouteTable(route_tbl);
 
 	// forward the update packet
-	char tmpbuf[MAX_TMPBUF_LEN];
 	verbose(1, "[OSPFProcessLSUpdate]:: Broadcasting the LS update we just received from %s", IP2Dot(tmpbuf, src));
 	broadcastLSUpdate(FALSE, pkt);
 }
