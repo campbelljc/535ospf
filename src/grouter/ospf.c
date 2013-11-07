@@ -275,7 +275,11 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 	int neighborCount; // position in neighbor table
 	for (neighborCount = 0; neighborCount < MAX_ROUTES; neighborCount ++)
 	{
+		verbose(1, "Neighbor table index %d with type %d", neighborCount, neighbor_tbl[neighborCount].type);
+
 		if (neighbor_tbl[neighborCount].isEmpty == TRUE || neighbor_tbl[neighborCount].isAlive == FALSE) continue;
+
+		verbose(1, "Not skipped.");
 
 		lsu_pkt->links[currentLink].lsu_metric = 1;
 		lsu_pkt->links[currentLink].lsu_link_type = neighbor_tbl[neighborCount].type;
@@ -290,6 +294,7 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 		// Set link data.
 		if (neighbor_tbl[neighborCount].type == OSPF_STUB)
 		{
+			verbose(1, "STUB293");
 			uchar bcastmask[] = MAC_BCAST_ADDR;
 			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, bcastmask);
 		}
