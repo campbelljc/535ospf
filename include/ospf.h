@@ -147,6 +147,8 @@ void printNeighborTable();
 void printLSData(gpacket_t *pkt);
 void printGraphNodes(ospf_graph_t *graph);
 void printGraphEdges(ospf_graph_t *graph);
+void printCostTable(ospf_graph_t *graph);
+void printNodeNetworks(ospf_gnode_t *node);
 
 // Graph management functions
 ospf_gnode_t* getNode(uchar src[]);

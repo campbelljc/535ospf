@@ -223,13 +223,13 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			interface_t* neighborInterface = findInterface(neighbor_tbl[count].interface);
 			pkt = createLSUPacket(neighborInterface->ip_addr);
 			printLSData(pkt);
-			
+
 			verbose(1, "225");
-			
+
 			char tmpbuf[MAX_TMPBUF_LEN];
 			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
 			pkt->frame.dst_interface = neighbor_tbl[count].interface;
-			
+
 			verbose(1, "231");
 			OSPFSend2Output(pkt);
 			verbose(1, "233");
@@ -237,16 +237,16 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 		else
 		{
 			verbose(1, "237");
-			
+
 			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
 			pkt->frame.dst_interface = neighbor_tbl[count].interface;
-			
+
 			verbose(1, "243");
-			
+
 			gpacket_t *newpkt = (gpacket_t *)malloc(sizeof(gpacket_t));
 			memcpy(newpkt, pkt, sizeof(gpacket_t));
 			OSPFSend2Output(newpkt);
-			
+
 			verbose(1, "248");
 		}
 
@@ -293,14 +293,14 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 
 		lsu_pkt->links[currentLink].lsu_metric = 1;
 		lsu_pkt->links[currentLink].lsu_link_type = neighbor_tbl[neighborCount].type;
-		
+
 		// Set link ID.
 		uchar netIP[] = ZEROED_IP;
 		COPY_IP(netIP, neighbor_tbl[neighborCount].neighborIP);
 		netIP[0] = 0;
 //		memcpy(netIP, neighbor_tbl[neighborCount].neighborIP, 3);
 		COPY_IP(lsu_pkt->links[currentLink].lsu_link_ID, netIP);
-		
+
 		// Set link data.
 		if (neighbor_tbl[neighborCount].type == OSPF_STUB)
 		{
@@ -312,7 +312,7 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 			interface_t* neighborInterface = findInterface(neighbor_tbl[neighborCount].interface);
 			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, neighborInterface->ip_addr);
 		}
-		
+
 		currentLink ++;
 	}
 
@@ -863,6 +863,8 @@ void printGraphNodes(ospf_graph_t *graph)
 			printf("[%d]\t%s\t%d\t\t%d\n", i, IP2Dot(tmpbuf, node -> src),
 			       node -> last_LSN, node -> num_networks);
 			ncount++;
+
+			printNodeNetworks(node);
 		}
 	printf("-----------------------------------------------------------------\n");
 	printf("      %d number of nodes found. \n", ncount);
@@ -912,5 +914,27 @@ void printCostTable(ospf_graph_t *graph)
 		}
 	printf("-----------------------------------------------------------------\n");
 	printf("      %d number of entries found. \n", ecount);
+	return;
+}
+
+void printNodeNetworks(ospf_gnode_t *node)
+{
+	int i, num_networks, ncount = 0;
+	char tmpbuf[MAX_TMPBUF_LEN];
+
+	num_networks = node -> num_networks;
+
+	printf("\n=================================================================\n");
+	printf("      R E A C H A B L E   N E T W O R K S \n");
+	printf("-----------------------------------------------------------------\n");
+	printf("Index\tIP \n");
+
+	for (i = 0; i < num_networks; i++)
+	{
+		printf("[%d]\t%s\n", i, IP2Dot(tmpbuf, node -> networks[i]));
+		ncount++;
+	}
+	printf("-----------------------------------------------------------------\n");
+	printf("      %d number of networks found. \n", ncount);
 	return;
 }
