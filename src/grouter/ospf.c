@@ -630,6 +630,7 @@ void updateRoutingTable(ospf_graph_t *graph)
 		if (isCheaper(cost_tbl, this_node -> networks[i], cost))
 		{
 			addRouteEntry(route_tbl, this_node -> networks[i], netmask, null_ip_addr, interface);
+			verbose(1, "[updateRoutingTable]:: New route entry added.");
 		}
 	}
 
@@ -702,6 +703,7 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 		if (isCheaper(cost_tbl, node -> networks[i], cost))
 		{
 			addRouteEntry(route_tbl, node -> networks[i], netmask, nxt_hop, iface);
+			verbose(1, "[findNetworks]:: Routing table and cost table updated.");
 		}
 	}
 
