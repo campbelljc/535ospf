@@ -72,13 +72,17 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 	// update neighbor database
 	int newUpdate = addNeighborEntry(ospf_pkt->ospf_src, OSPF_ROUTER, pkt->frame.src_interface);
 
+	verbose(1, "Analyzing hello packet");
 	int count;
 	for (count = 0; count < hello_pkt->hello_numneighbors; count ++)
 	{
+		verbose(1, "Looking at received hello packet neighbor %d", count);
 		if (COMPARE_IP(pkt->frame.nxth_ip_addr, hello_pkt->hello_neighbors[count]) == 0)
 		{ // the IP the packet is sending to is also contained in its neighbor table.
 			// therefore, it knows about this router, and we know about it (entry added above)
 			// so we have bidirectionality
+			
+			verbose(1, "This router's IP matches an IP in received hello packet neighbor table.");
 
 			for (count = 0; count < MAX_ROUTES; count ++)
 			{
@@ -86,6 +90,7 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 
 				if (COMPARE_IP(neighbor_tbl[count].neighborIP, ospf_pkt->ospf_src) == 0)
 				{
+					verbose(1, "[OSPFProcessHelloMessage]:: We got bidirectionality with neighbor index %d.", count);
 					neighbor_tbl[count].bidirectional = TRUE;
 				}
 			}
@@ -414,7 +419,8 @@ void OSPFSetStubNetwork(gpacket_t *pkt)
 	
 	addNeighborEntry(ip_pkt->ip_src, OSPF_STUB, pkt->frame.src_interface);
 	
-	verbose(1, "[OSPFSetStubNetwork]:: Interface %d marked as stub", pkt->frame.src_interface);
+	char tmpbuf[MAX_TMPBUF_LEN];
+	verbose(1, "[OSPFSetStubNetwork]:: Interface %d marked as stub with IP %s", pkt->frame.src_interface, IP2Dot(tmpbuf, ip_pkt->ip_src));
 }
 
 void printNeighborTable()
