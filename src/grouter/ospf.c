@@ -214,19 +214,22 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			|| neighbor_tbl[count].bidirectional == FALSE) continue;
 
 		char tmpbuf[MAX_TMPBUF_LEN];
+		COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
+		pkt->frame.dst_interface = neighbor_tbl[count].interface;
 
 		if (createPacket == TRUE)
 		{
 			interface_t* neighborInterface = findInterface(neighbor_tbl[count].interface);
 			pkt = createLSUPacket(neighborInterface->ip_addr);
 			printLSData(pkt);
+			OSPFSend2Output(pkt);
+		}
+		else
+		{
+			gpacket_t newpkt = *pkt;
+			OSPFSend2Output(&newpkt);
 		}
 
-		COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
-		pkt->frame.dst_interface = neighbor_tbl[count].interface;
-		
-		gpacket_t newpkt = *pkt;
-		OSPFSend2Output(&newpkt);
 		verbose(1, "[broadcastLSUpdate]:: sent to IP %s", IP2Dot(tmpbuf, pkt->frame.nxth_ip_addr));
 	}
 	verbose(1, "[broadcastLSUpdate]:: end broadcasting LSU.");
