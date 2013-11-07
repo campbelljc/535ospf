@@ -151,7 +151,7 @@ ospf_gnode_t* getNode(ospf_graph_t *graph, uchar src[]);
 ospf_gnode_t* addNode(ospf_graph_t *graph, uchar src[]);
 void updateLinkData(lsu_packet_t *lsu_pkt, ospf_gnode_t *node);
 void updateEdges(ospf_graph_t *graph, ospf_gnode_t *node);
-void addEdge(uchar *addr1, uchar *addr2);
+void addEdge(uchar addr1[], uchar addr2[]);
 
 // Routing table updating functions
 void updateRoutingTable(ospf_graph_t *graph);
@@ -160,6 +160,6 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 int getIfaceIDByNetwork(uchar *net_addr);
 int getIfaceIDByIP(uchar *ip_addr);
 void uncheckNodes(ospf_graph_t *graph);
-int isCheaper(ospf_cost_entry_t ctable[], uchar *dest_ip_, int cost_);
+int isCheaper(ospf_cost_entry_t ctable[], uchar dest_ip_[], int cost_);
 
 #endif

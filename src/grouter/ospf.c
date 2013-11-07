@@ -503,10 +503,10 @@ void updateLinkData(lsu_packet_t *lsu_pkt, ospf_gnode_t *node)
 
 	for (i=0; i<num_links; i++)
 	{
-		lsu_link_t link = lsu_pkt -> links[i];
+		lsu_link_t link = lsu_pkt->links[i];
 
-		COPY_IP(node -> networks[i], link.lsu_link_ID);
-		node -> types[i] = link.lsu_link_type;
+		COPY_IP(node->networks[i], link.lsu_link_ID);
+		node->types[i] = link.lsu_link_type;
 	}
 
 	node -> num_networks = num_links;
@@ -570,7 +570,7 @@ void updateEdges(ospf_graph_t *graph, ospf_gnode_t *node)
 }
 
 // Add an edge to the graph
-void addEdge(uchar *addr1, uchar *addr2)
+void addEdge(uchar addr1[], uchar addr2[])
 {
 	int i;
 
@@ -594,8 +594,8 @@ void updateRoutingTable(ospf_graph_t *graph)
 	int i, totalInterfaceIPs, num_neighbors, cost;
 	uchar interfaceIPs[MAX_MTU][4];
 	ospf_gnode_t *this_node;
-	uchar null_ip_addr[] = {0, 0, 0, 0};
-	uchar netmask[] = {255, 255, 255, 0};
+	uchar null_ip_addr[] = ZEROED_IP;
+	uchar netmask[] = IP_BCAST_ADDR;
 	ospf_gnode_t* neighbors[MAX_ROUTES];
 
 	cost = 1;
@@ -699,7 +699,7 @@ int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neig
 void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int iface, int cost)
 {
 	int i, num_neighbors;
-	uchar netmask[] = {255, 255, 255, 0};
+	uchar netmask[] = IP_BCAST_ADDR;
 	ospf_gnode_t* neighbors[MAX_ROUTES];
 
 	// mark node as visited
@@ -769,7 +769,7 @@ void uncheckNodes(ospf_graph_t *graph)
 	}
 }
 
-int isCheaper(ospf_cost_entry_t ctable[], uchar *dest_ip_, int cost_)
+int isCheaper(ospf_cost_entry_t ctable[], uchar dest_ip_[], int cost_)
 {
 	int i, free_index;
 
