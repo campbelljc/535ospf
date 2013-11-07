@@ -145,6 +145,8 @@ void OSPFSetStubNetwork(gpacket_t *pkt);
 // Debug functions
 void printNeighborTable();
 void printLSData(gpacket_t *pkt);
+void printGraphNodes(ospf_graph_t *graph);
+void printGraphEdges(ospf_graph_t *graph);
 
 // Graph management functions
 ospf_gnode_t* getNode(ospf_graph_t *graph, uchar src[]);

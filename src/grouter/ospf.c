@@ -727,7 +727,7 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 
 		cost++;
 
-		findNetworks(graph, &neighbors[i], nxt_hop, iface, cost);
+		findNetworks(graph, neighbors[i], nxt_hop, iface, cost);
 	}
 }
 
@@ -799,4 +799,52 @@ int isCheaper(ospf_cost_entry_t ctable[], uchar *dest_ip_, int cost_)
 	COPY_IP(ctable[free_index].dest_ip, dest_ip_);
 	ctable[free_index].cost = cost_;
 	return TRUE;
+}
+
+void printGraphNodes(ospf_graph_t *graph)
+{
+	int i, ncount = 0;
+	char tmpbuf[MAX_TMPBUF_LEN];
+	ospf_gnode_t *node;
+
+	printf("\n=================================================================\n");
+	printf("      G R A P H   N O D E S \n");
+	printf("-----------------------------------------------------------------\n");
+	printf("Index\tIP\t\tLSN\t\tNum Networks \n");
+
+	for (i = 0; i < MAX_ROUTES; i++)
+		if (graph -> nodes[i].is_empty != TRUE)
+		{
+			node = &graph -> nodes[i];
+			printf("[%d]\t%s\t%d\t%d\n", i, IP2Dot(tmpbuf, node -> src),
+			       node -> last_LSN, node -> num_networks);
+			ncount++;
+		}
+	printf("-----------------------------------------------------------------\n");
+	printf("      %d number of nodes found. \n", ncount);
+	return;
+}
+
+void printGraphEdges(ospf_graph_t *graph)
+{
+	int i, ecount = 0;
+	char tmpbuf[MAX_TMPBUF_LEN];
+	ospf_gedge_t *edge;
+
+	printf("\n=================================================================\n");
+	printf("      G R A P H   E D G E S \n");
+	printf("-----------------------------------------------------------------\n");
+	printf("Index\tIP 1\t\tIP 2 \n");
+
+	for (i = 0; i < MAX_EDGES; i++)
+		if (graph -> edges[i].is_empty != TRUE)
+		{
+			edge = &graph -> edges[i];
+			printf("[%d]\t%s\t%s\n", i, IP2Dot(tmpbuf, edge -> addr1),
+			       IP2Dot((tmpbuf+20), edge -> addr2));
+			ecount++;
+		}
+	printf("-----------------------------------------------------------------\n");
+	printf("      %d number of edges found. \n", ecount);
+	return;
 }
