@@ -68,7 +68,7 @@ typedef struct _hello_packet_t
 	uint32_t hello_dead_interval;           // router dead interval - ALWAYS 40
 	uchar    hello_designated_ip[4];        // designated router ip address 0
 	uchar    hello_designated_ip_backup[4]; // backup designated router ip address 0
-	uint8_t  hello_numneighbors;
+	uint16_t  hello_numneighbors;
 	uchar    hello_neighbors[DEFAULT_MTU/2][4];		// neighbors list
 } hello_packet_t;
 

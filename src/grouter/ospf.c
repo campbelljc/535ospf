@@ -72,7 +72,7 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 	// update neighbor database
 	int newUpdate = addNeighborEntry(ospf_pkt->ospf_src, OSPF_ROUTER, pkt->frame.src_interface);
 
-	verbose(1, "Analyzing hello packet");
+	verbose(1, "Analyzing hello packet which has hello_numneighbors=%d", hello_pkt->hello_numneighbors);
 	int count;
 	for (count = 0; count < hello_pkt->hello_numneighbors; count ++)
 	{
@@ -433,12 +433,12 @@ void printNeighborTable()
 	printf("\n=================================================================\n");
 	printf("      N E I G H B O R   T A B L E \n");
 	printf("-----------------------------------------------------------------\n");
-	printf("Index\tNeighbor IP\tIs Alive\tType\t \n");
+	printf("Index\tNeighbor IP\tIs Alive\tType\tBidirectional \n");
 
 	for (i = 0; i < MAX_ROUTES; i++)
 		if (neighbor_tbl[i].isEmpty != TRUE)
 		{
-			printf("[%d]\t%s\t%d\t\t%d\t\n", i, IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), neighbor_tbl[i].isAlive, neighbor_tbl[i].type);
+			printf("[%d]\t%s\t%d\t\t%d\t\t%d\n", i, IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), neighbor_tbl[i].isAlive, neighbor_tbl[i].type, neighbor_tbl[i].bidirectional);
 			rcount++;
 		}
 	printf("-----------------------------------------------------------------\n");
