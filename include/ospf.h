@@ -145,9 +145,6 @@ void OSPFSetStubNetwork(gpacket_t *pkt);
 // Debug functions
 void printNeighborTable();
 void printLSData(gpacket_t *pkt);
-void printGraphNodes(ospf_graph_t *graph);
-void printGraphEdges(ospf_graph_t *graph);
-void printCostTable(ospf_graph_t *graph)
 
 // Graph management functions
 ospf_gnode_t* getNode(ospf_graph_t *graph, uchar src[]);
@@ -155,7 +152,6 @@ ospf_gnode_t* addNode(ospf_graph_t *graph, uchar src[]);
 void updateLinkData(lsu_packet_t *lsu_pkt, ospf_gnode_t *node);
 void updateEdges(ospf_graph_t *graph, ospf_gnode_t *node);
 void addEdge(uchar *addr1, uchar *addr2);
-void updateRoutingTable(ospf_graph_t *graph);
 
 // Routing table updating functions
 void updateRoutingTable(ospf_graph_t *graph);
