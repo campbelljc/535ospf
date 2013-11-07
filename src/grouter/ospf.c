@@ -279,14 +279,14 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 
 		lsu_pkt->links[currentLink].lsu_metric = 1;
 		lsu_pkt->links[currentLink].lsu_link_type = neighbor_tbl[neighborCount].type;
-		
+
 		// Set link ID.
 		uchar netIP[] = ZEROED_IP;
 		COPY_IP(netIP, neighbor_tbl[neighborCount].neighborIP);
 		netIP[0] = 0;
 //		memcpy(netIP, neighbor_tbl[neighborCount].neighborIP, 3);
 		COPY_IP(lsu_pkt->links[currentLink].lsu_link_ID, netIP);
-		
+
 		// Set link data.
 		if (neighbor_tbl[neighborCount].type == OSPF_STUB)
 		{
@@ -298,7 +298,7 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 			interface_t* neighborInterface = findInterface(neighbor_tbl[neighborCount].interface);
 			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, neighborInterface->ip_addr);
 		}
-		
+
 		currentLink ++;
 	}
 
@@ -581,6 +581,9 @@ void updateEdges(ospf_graph_t *graph, ospf_gnode_t *node)
 		{
 			for (k=0; k<crt_num_networks; k++)
 			{
+				char tmpbuf[MAX_TMPBUF_LEN];
+				verbose(1, "[updateEdges]:: comparing %s with %s.", IP2Dot(tmpbuf, node -> networks[j]), IP2Dot(tmpbuf+20, crt_node -> networks[k]));
+
 				if (COMPARE_IP(node -> networks[j], crt_node -> networks[k]) == 0)
 				{
 					addEdge(node -> src, crt_node -> src);
@@ -849,6 +852,8 @@ void printGraphNodes(ospf_graph_t *graph)
 			printf("[%d]\t%s\t%d\t\t%d\n", i, IP2Dot(tmpbuf, node -> src),
 			       node -> last_LSN, node -> num_networks);
 			ncount++;
+
+			printNodeNetworks(node);
 		}
 	printf("-----------------------------------------------------------------\n");
 	printf("      %d number of nodes found. \n", ncount);
@@ -898,5 +903,27 @@ void printCostTable(ospf_graph_t *graph)
 		}
 	printf("-----------------------------------------------------------------\n");
 	printf("      %d number of entries found. \n", ecount);
+	return;
+}
+
+void printNodeNetworks(ospf_gnode_t *node)
+{
+	int i, num_networks, ncount = 0;
+	char tmpbuf[MAX_TMPBUF_LEN];
+
+	num_networks = node -> num_networks;
+
+	printf("\n=================================================================\n");
+	printf("      R E A C H A B L E   N E T W O R K S \n");
+	printf("-----------------------------------------------------------------\n");
+	printf("Index\tIP \n");
+
+	for (i = 0; i < num_networks; i++)
+	{
+		printf("[%d]\t%s\n", i, IP2Dot(tmpbuf, node -> networks[i]));
+		ncount++;
+	}
+	printf("-----------------------------------------------------------------\n");
+	printf("      %d number of networks found. \n", ncount);
 	return;
 }
