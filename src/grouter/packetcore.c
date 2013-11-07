@@ -353,19 +353,19 @@ void *packetProcessor(void *pc)
 		switch (ntohs(in_pkt->data.header.prot))
 		{
 		case IP_PROTOCOL:
-			verbose(1, "[packetProcessor]:: Packet sent to IP routine for further processing.. ");
+			verbose(2, "[packetProcessor]:: Packet sent to IP routine for further processing.. ");
 			IPIncomingPacket(in_pkt);
 			break;
 		case ARP_PROTOCOL:
-			verbose(1, "[packetProcessor]:: Packet sent to ARP module for further processing.. ");
+			verbose(2, "[packetProcessor]:: Packet sent to ARP module for further processing.. ");
 			ARPProcess(in_pkt);
 			break;
 		case OSPF_PROTOCOL:
-			verbose(1, "[packetProcessor]:: Packet sent to OSPF module for further processing.. ");
+			verbose(2, "[packetProcessor]:: Packet sent to OSPF module for further processing.. ");
 			OSPFIncomingPacket(in_pkt);
 			break;
 		default:
-			verbose(1, "[packetProcessor]:: Packet discarded: Unknown protocol protocol");
+			verbose(2, "[packetProcessor]:: Packet discarded: Unknown protocol protocol");
 			// TODO: should we generate ICMP errors here.. check router RFCs
 			break;
 		}

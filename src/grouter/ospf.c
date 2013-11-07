@@ -126,6 +126,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	{
 		node = (ospf_gnode_t *)addNode(graph, src);
 	}
+	verbose(1, "HERE");
 	printLSData(pkt);
 
 	node -> last_LSN = lsa_pkt->lsa_sequence_number;
@@ -326,7 +327,6 @@ int OSPFSend2Output(gpacket_t *pkt)
 		return EXIT_FAILURE;
 	}
 
-	verbose(1, "[OSPFSend2Output]:: Enqueuing OSPF packet");
 	return writeQueue(pcore->outputQ, (void *)pkt, sizeof(gpacket_t));
 }
 
@@ -409,7 +409,10 @@ void OSPFMarkDeadNeighbor(uchar* neighborIP_)
 
 void OSPFSetStubNetwork(gpacket_t *pkt)
 {
-	addNeighborEntry(pkt->frame.src_ip_addr, OSPF_STUB, pkt->frame.src_interface);
+	ip_packet_t *ip_pkt = (ip_packet_t *)pkt->data.data;
+	
+	addNeighborEntry(ip_pkt->ip_src, OSPF_STUB, pkt->frame.src_interface);
+	
 	verbose(1, "[OSPFSetStubNetwork]:: Interface %d marked as stub", pkt->frame.src_interface);
 }
 
