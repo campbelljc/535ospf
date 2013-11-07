@@ -150,9 +150,6 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 	ospf_pkt->ospf_message_length = 4;
 	hello_packet_t *hello_pkt = (hello_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
 
-	char tmpbuf[MAX_TMPBUF_LEN];
-	verbose(1, "[OSPFSendHelloPacket]:: Creating Hello packet with source IP %s", IP2Dot(tmpbuf, gNtohl((uchar *)tmpbuf, src_ip)));
-
 	uchar netmask[] = IP_BCAST_ADDR;
 	COPY_IP(hello_pkt->hello_network_mask, netmask);
 
@@ -177,7 +174,8 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 	uchar bcast_addr[6];
 	memset(bcast_addr, 0xFF, 6);
 
-	verbose(1, "[sendHelloMessage]:: sending broadcast Hello message");
+	char tmpbuf[MAX_TMPBUF_LEN];
+	verbose(1, "[OSPFSendHelloPacket]:: Broadcasting Hello packet with source IP %s", IP2Dot(tmpbuf, gNtohl((uchar *)tmpbuf, src_ip)));
 
 	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), src_ip);
 	
@@ -223,23 +221,23 @@ void printLSData(gpacket_t *pkt)
 	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
 	lsu_packet_t *lsu_pkt = (lsu_packet_t *)((uchar *)lsa_pkt + lsa_pkt->lsa_header_length*4);
 	
-	printf("\n=================================================================\n");
-	printf("               L I N K   S T A T E   D A T A \n");
-	printf("-----------------------------------------------------------------\n");
-	printf("Index\tLink IDt\tLink Data\tType\n");
+	verbose(1, "\n=================================================================\n");
+	verbose(1, "               L I N K   S T A T E   D A T A \n");
+	verbose(1, "-----------------------------------------------------------------\n");
+	verbose(1, "Index\tLink IDt\tLink Data\tType\n");
 
 	int count;
 	char tmpbuf[MAX_TMPBUF_LEN];
 	for (count = 0; count < lsu_pkt->lsu_num_links; count ++)
 	{
-		printf("[%d]\t%s\t%s\t%d\n", count, IP2Dot(tmpbuf, lsu_pkt->links[count].lsu_link_ID), IP2Dot(tmpbuf, lsu_pkt->links[count].lsu_link_data), lsu_pkt->links[count].lsu_link_type);
+		verbose(1, "[%d]\t%s\t%s\t%d\n", count, IP2Dot(tmpbuf, lsu_pkt->links[count].lsu_link_ID), IP2Dot(tmpbuf, lsu_pkt->links[count].lsu_link_data), lsu_pkt->links[count].lsu_link_type);
 	}
-	printf("-----------------------------------------------------------------\n");
+	verbose(1, "-----------------------------------------------------------------\n");
 }
 
 gpacket_t* createLSUPacket(uchar sourceIP[])
 {
-	verbose(1, "[createLSUPacket]:: Starting to create LSU packet");
+	verbose(1, "[createLSUPacket]:: Creating LSU packet");
 	gpacket_t *out_pkt = (gpacket_t *) malloc(sizeof(gpacket_t));
 	ospf_packet_t *ospf_pkt = (ospf_packet_t *)(out_pkt->data.data);
 	ospf_pkt->ospf_message_length = 4;
@@ -276,7 +274,6 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 	lsu_pkt->lsu_num_links = currentLink - 1;
 
 	int totalLength = sizeof(lsa_packet_t) + sizeof(lsu_packet_t);
-	verbose(1, "[createLSUPacket]:: Done creating LSU packet");
 	return createOSPFHeader(createLSAHeader(out_pkt, sourceIP), OSPF_LINK_STAT_UPDATE, totalLength, sourceIP);
 }
 
@@ -295,14 +292,14 @@ gpacket_t* createLSAHeader(gpacket_t *gpkt, uchar sourceIP[])
 	COPY_IP(lsa_pkt->lsa_ID, sourceIP);
 	COPY_IP(lsa_pkt->lsa_advertising_number, sourceIP);
 	
-	verbose(1, "[createLSAHeader]:: Done creating LSA header");
+	verbose(1, "[createLSAHeader]:: Creating LSA header");
 
 	return gpkt;
 }
 
 gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar sourceIP[])
 {
-	verbose(1, "[createOSPFHeader]:: Starting to create OSPF Header");
+	verbose(1, "[createOSPFHeader]:: Creating OSPF Header");
 	
 	ospf_packet_t* header = (ospf_packet_t *)(gpacket->data.data);
 
@@ -319,7 +316,6 @@ gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar sou
 	
 	gpacket->data.header.prot = htons(OSPF_PROTOCOL);
 
-	verbose(1, "[createOSPFHeader]:: Done creating OSPF Header");
 	return gpacket;
 }
 
@@ -331,7 +327,7 @@ int OSPFSend2Output(gpacket_t *pkt)
 		return EXIT_FAILURE;
 	}
 
-	verbose(1, "[OSPFSend2Output]:: Putting OSPF packet on queue");
+	verbose(1, "[OSPFSend2Output]:: Enqueuing OSPF packet");
 	return writeQueue(pcore->outputQ, (void *)pkt, sizeof(gpacket_t));
 }
 

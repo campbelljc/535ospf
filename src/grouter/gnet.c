@@ -753,7 +753,6 @@ void *SendHelloPackets(){
 	int deadInterval = 0;
 	while(1){
 		sleep(10);
-		verbose(1, "[SendHelloPackets]:: Preparing to send Hello messages.");
 		deadInterval++;
 		if (deadInterval == 4){	//40s
 			deadInterval = 0;
@@ -766,7 +765,6 @@ void *SendHelloPackets(){
 					neighbor_tbl[counter].isAlive = FALSE;
 			}
 		}
-		verbose(1, "[SendHelloPackets]:: Preparing to send Hello messages 2.");
 		uchar interfaceIPs[MAX_MTU][4];
 		int indexes[MAX_MTU];
 		int count = findAllInterfaceIPsWithIndexes(MTU_tbl, interfaceIPs, indexes);
