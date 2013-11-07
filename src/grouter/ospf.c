@@ -221,7 +221,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 		COPY_IP(pkt->frame.nxth_ip_addr, neighbor_tbl[count].neighborIP);
 //		COPY_IP(pkt->frame.nxth_ip_addr, gHtonl(tmpbuf, neighbor_tbl[count].neighborIP));
 		pkt->frame.dst_interface = neighbor_tbl[count].interface;
-		verbose(1, "[broadcastLSUpdate]:: sent to IP %d", IP2Dot(tmpbuf, pkt->frame.nxth_ip_addr));
+		verbose(1, "[broadcastLSUpdate]:: sent to IP %s", IP2Dot(tmpbuf, pkt->frame.nxth_ip_addr));
 		OSPFSend2Output(pkt);
 	}
 	if (count == 0) verbose(1, "[broadcastLSUpdate]:: Wanted to send LS update, but have no neighbors to send it to :( ");
