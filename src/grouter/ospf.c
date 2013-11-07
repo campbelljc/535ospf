@@ -459,12 +459,12 @@ void printNeighborTable()
 	printf("\n=================================================================\n");
 	printf("      N E I G H B O R   T A B L E \n");
 	printf("-----------------------------------------------------------------\n");
-	printf("Index\tNeighbor IP\tIs Alive\tType\tBidirectional \n");
+	printf("Index\tNeighbor IP\tIs Alive\tType\tBidirectional\tInterface \n");
 
 	for (i = 0; i < MAX_ROUTES; i++)
 		if (neighbor_tbl[i].isEmpty != TRUE)
 		{
-			printf("[%d]\t%s\t%d\t\t%d\t\t%d\n", i, IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), neighbor_tbl[i].isAlive, neighbor_tbl[i].type, neighbor_tbl[i].bidirectional);
+			printf("[%d]\t%s\t%d\t\t%d\t\t%d\t%d\n", i, IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), neighbor_tbl[i].isAlive, neighbor_tbl[i].type, neighbor_tbl[i].bidirectional, neighbor_tbl[i].interface);
 			rcount++;
 		}
 	printf("-----------------------------------------------------------------\n");
