@@ -552,7 +552,7 @@ void updateEdges(ospf_graph_t *graph, ospf_gnode_t *node)
 
 		for (j=0; j<num_networks; j++)
 		{
-			for (k=0; j<crt_num_networks; k++)
+			for (k=0; k<crt_num_networks; k++)
 			{
 				if (COMPARE_IP(node -> networks[j], crt_node -> networks[k]) == 0)
 				{
