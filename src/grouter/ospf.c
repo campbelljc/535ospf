@@ -152,9 +152,9 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	updateRoutingTable(graph);
 
 	// forward the update packet
-/*	char tmpbuf[MAX_TMPBUF_LEN];
+	char tmpbuf[MAX_TMPBUF_LEN];
 	verbose(1, "[OSPFProcessLSUpdate]:: Broadcasting the LS update we just received from %s", IP2Dot(tmpbuf, src));
-	broadcastLSUpdate(FALSE, pkt); */
+	broadcastLSUpdate(FALSE, pkt);
 
 	verbose(1, "[OSPFProcessLSUpdate]:: at end");
 }
@@ -215,7 +215,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 
 		char tmpbuf[MAX_TMPBUF_LEN];
 
-		if (createPacket)
+		if (createPacket == TRUE)
 		{
 //			pkt = createLSUPacket(neighbor_tbl[count].neighborIP);
 			interface_t* neighborInterface = findInterface(neighbor_tbl[count].interface);
@@ -223,7 +223,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			printLSData(pkt);
 		}
 
-		COPY_IP(pkt->frame.nxth_ip_addr, neighbor_tbl[count].neighborIP);
+		COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
 //		COPY_IP(pkt->frame.nxth_ip_addr, gHtonl(tmpbuf, neighbor_tbl[count].neighborIP));
 		pkt->frame.dst_interface = neighbor_tbl[count].interface;
 		OSPFSend2Output(pkt);
@@ -280,7 +280,7 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 			uchar netIP[4];
 			COPY_IP(netIP, neighbor_tbl[neighborCount].neighborIP);
 			netIP[3] = '0';
-			COPY_IP(lsu_pkt->links[currentLink].lsu_link_ID, netIP);
+			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, netIP);
 		}
 		COPY_IP(lsu_pkt->links[currentLink].lsu_link_ID, neighbor_tbl[neighborCount].neighborIP);
 
