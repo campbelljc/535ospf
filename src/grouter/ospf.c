@@ -677,7 +677,7 @@ void updateRoutingTable(ospf_graph_t *graph)
 		if (isCheaper(cost_tbl, this_node -> networks[i], cost))
 		{
 			addRouteEntry(route_tbl, this_node->networks[i], netmask, null_ip_addr, interface);
-			verbose(1, "[updateRoutingTable]:: New route entry added.");
+			verbose(1, "[updateRoutingTable]:: New route entry added with interface %d.", interface);
 		}
 	}
 	
