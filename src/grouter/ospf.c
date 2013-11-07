@@ -221,16 +221,18 @@ void printLSData(gpacket_t *pkt)
 	lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + ospf_pkt->ospf_message_length*4);
 	lsu_packet_t *lsu_pkt = (lsu_packet_t *)((uchar *)lsa_pkt + lsa_pkt->lsa_header_length*4);
 	
-	verbose(1, "\n=================================================================\n");
+	printf("LINK STATE DATA");
+	
+	verbose(1, "=================================================================");
 	verbose(1, "               L I N K   S T A T E   D A T A \n");
-	verbose(1, "-----------------------------------------------------------------\n");
-	verbose(1, "Index\tLink IDt\tLink Data\tType\n");
+	verbose(1, "-----------------------------------------------------------------");
+	verbose(1, "Index\tLink IDt\tLink Data\tType");
 
 	int count;
 	char tmpbuf[MAX_TMPBUF_LEN];
 	for (count = 0; count < lsu_pkt->lsu_num_links; count ++)
 	{
-		verbose(1, "[%d]\t%s\t%s\t%d\n", count, IP2Dot(tmpbuf, lsu_pkt->links[count].lsu_link_ID), IP2Dot(tmpbuf, lsu_pkt->links[count].lsu_link_data), lsu_pkt->links[count].lsu_link_type);
+		verbose(1, "[%d]\t%s\t%s\t%d", count, IP2Dot(tmpbuf, lsu_pkt->links[count].lsu_link_ID), IP2Dot(tmpbuf, lsu_pkt->links[count].lsu_link_data), lsu_pkt->links[count].lsu_link_type);
 	}
 	verbose(1, "-----------------------------------------------------------------\n");
 }
@@ -292,15 +294,11 @@ gpacket_t* createLSAHeader(gpacket_t *gpkt, uchar sourceIP[])
 	COPY_IP(lsa_pkt->lsa_ID, sourceIP);
 	COPY_IP(lsa_pkt->lsa_advertising_number, sourceIP);
 	
-	verbose(1, "[createLSAHeader]:: Creating LSA header");
-
 	return gpkt;
 }
 
 gpacket_t* createOSPFHeader(gpacket_t *gpacket, int type, int mlength, uchar sourceIP[])
-{
-	verbose(1, "[createOSPFHeader]:: Creating OSPF Header");
-	
+{	
 	ospf_packet_t* header = (ospf_packet_t *)(gpacket->data.data);
 
 	header->ospf_version = OSPF_VERSION;
