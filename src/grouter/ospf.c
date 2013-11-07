@@ -280,7 +280,7 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 			uchar netIP[4];
 			COPY_IP(netIP, neighbor_tbl[neighborCount].neighborIP);
 			netIP[3] = '0';
-			COPY_IP(lsu_pkt->links[currentLink].lsu_link_ID, netIP);
+			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, netIP);
 		}
 		COPY_IP(lsu_pkt->links[currentLink].lsu_link_ID, neighbor_tbl[neighborCount].neighborIP);
 
