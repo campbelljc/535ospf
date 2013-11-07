@@ -133,7 +133,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	else
 	{
 		printLSData(pkt);
-		node = (ospf_gnode_t *)addNode(graph, src);
+//		node = (ospf_gnode_t *)addNode(graph, src);
 	}
 
 /*	node -> last_LSN = lsa_pkt->lsa_sequence_number;
