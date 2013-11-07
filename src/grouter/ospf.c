@@ -135,8 +135,10 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 		printLSData(pkt);
 		node = (ospf_gnode_t *)addNode(graph, src);
 	}
+	
+	printGraphNodes(graph);
 
-	node -> last_LSN = lsa_pkt->lsa_sequence_number;
+/*	node -> last_LSN = lsa_pkt->lsa_sequence_number;
 
 	verbose(1, "[OSPFProcessLSUpdate]:: New node created.");
 
@@ -152,7 +154,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	// forward the update packet
 	char tmpbuf[MAX_TMPBUF_LEN];
 	verbose(1, "[OSPFProcessLSUpdate]:: Broadcasting the LS update we just received from %s", IP2Dot(tmpbuf, src));
-	broadcastLSUpdate(FALSE, pkt);
+	broadcastLSUpdate(FALSE, pkt); */
 	
 	verbose(1, "[OSPFProcessLSUpdate]:: at end");
 }
