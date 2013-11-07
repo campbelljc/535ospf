@@ -149,12 +149,12 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	updateEdges(graph, node);
 
 	// update the routing table
-	updateRoutingTable(graph);
+	updateRoutingTable(graph); */
 
 	// forward the update packet
 	char tmpbuf[MAX_TMPBUF_LEN];
 	verbose(1, "[OSPFProcessLSUpdate]:: Broadcasting the LS update we just received from %s", IP2Dot(tmpbuf, src));
-	broadcastLSUpdate(FALSE, pkt); */
+	broadcastLSUpdate(FALSE, pkt);
 	
 	verbose(1, "[OSPFProcessLSUpdate]:: at end");
 }
