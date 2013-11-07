@@ -3,6 +3,7 @@
 #include "grouter.h"
 #include "mtu.h"
 #include "ospf.h"
+#include "ip.h"
 #include "packetcore.h"
 #include "routetable.h"
 #include "protocols.h"
