@@ -154,6 +154,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt, bool rebroadcast)
 	// update the routing table
 	updateRoutingTable(graph);
 	printCostTable(graph);
+	printNeighborTable();
 	printRouteTable(route_tbl);
 
 	if (rebroadcast == TRUE)
