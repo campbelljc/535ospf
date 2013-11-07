@@ -505,8 +505,8 @@ void updateLinkData(lsu_packet_t *lsu_pkt, ospf_gnode_t *node)
 	{
 		lsu_link_t link = lsu_pkt -> links[i];
 
-		COPY_IP(node -> networks[i], link -> lsu_link_ID);
-		node -> types[i] = link -> lsu_link_type;
+		COPY_IP(node -> networks[i], link.lsu_link_ID);
+		node -> types[i] = link.lsu_link_type;
 	}
 
 	node -> num_networks = num_links;
