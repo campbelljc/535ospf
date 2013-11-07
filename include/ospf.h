@@ -59,6 +59,11 @@ typedef struct _lsa_packet_t
 	uint16_t lsa_length;
 } lsa_packet_t;
 
+typedef _hello_neighbor_t
+{
+	uchar neighbor_ip[4];
+} hello_neighbor_t;
+
 typedef struct _hello_packet_t
 {
 	uchar    hello_network_mask[4];            // network mask - ALWAYS 255.255.255.0
@@ -68,8 +73,8 @@ typedef struct _hello_packet_t
 	uint32_t hello_dead_interval;           // router dead interval - ALWAYS 40
 	uchar    hello_designated_ip[4];        // designated router ip address 0
 	uchar    hello_designated_ip_backup[4]; // backup designated router ip address 0
-//	uint16_t  hello_numneighbors;
-	uchar    hello_neighbors[10][4];		// neighbors list
+	hello_neighbor_t hello_neighbors[10];
+//	uchar    hello_neighbors[10][4];		// neighbors list
 } hello_packet_t;
 
 typedef struct _ospf_packet_t

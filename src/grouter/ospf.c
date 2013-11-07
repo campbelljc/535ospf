@@ -78,14 +78,14 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 	for (count = 0; count < 10; count ++)
 	{
 		char tmpbuf3[MAX_TMPBUF_LEN];
-		verbose(1, "hello neighbor at index %d has IP %s.", count, IP2Dot(tmpbuf3, hello_pkt->hello_neighbors[count]));
-		if (COMPARE_IP(hello_pkt->hello_neighbors[count], zeroIP) == 0) continue; // empty entry.
+		verbose(1, "hello neighbor at index %d has IP %s.", count, IP2Dot(tmpbuf3, hello_pkt->hello_neighbors[count].neighbor_ip));
+		if (COMPARE_IP(hello_pkt->hello_neighbors[count].neighbor_ip, zeroIP) == 0) continue; // empty entry.
 		
 		// pkt->frame.src_ip_addr will be set to the IP of this router's interface which the packet arrived on.
 		char tmpbuf[MAX_TMPBUF_LEN];
 		char tmpbuf2[MAX_TMPBUF_LEN];
-		verbose(1, "pkt->frame.src_ip_addr is %s and hello packet neighbor IP is %s", IP2Dot(tmpbuf, pkt->frame.src_ip_addr), IP2Dot(tmpbuf, hello_pkt->hello_neighbors[count]));
-		if (COMPARE_IP(pkt->frame.src_ip_addr, hello_pkt->hello_neighbors[count]) == 0)
+		verbose(1, "pkt->frame.src_ip_addr is %s and hello packet neighbor IP is %s", IP2Dot(tmpbuf, pkt->frame.src_ip_addr), IP2Dot(tmpbuf, hello_pkt->hello_neighbors[count].neighbor_ip));
+		if (COMPARE_IP(pkt->frame.src_ip_addr, hello_pkt->hello_neighbors[count].neighbor_ip) == 0)
 		{ // the IP the packet is sending to is also contained in its neighbor table.
 			// therefore, it knows about this router, and we know about it (entry added above)
 			// so we have bidirectionality
@@ -184,16 +184,16 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 	int count;
 	for (count = 0; count < numEntries; count ++)
 	{
-		COPY_IP(hello_pkt->hello_neighbors[count], neighborEntries[count].neighborIP);
+		COPY_IP(hello_pkt->hello_neighbors[count].neighbor_ip, neighborEntries[count].neighborIP);
 	}
 	
 	for (count = numEntries; count < 10; count ++)
 	{
-		COPY_IP(hello_pkt->hello_neighbors[count], zeroIP);
+		COPY_IP(hello_pkt->hello_neighbors[count].neighbor_ip, zeroIP);
 	}
 	
 	char tmpbuf[MAX_TMPBUF_LEN];
-	verbose(1, "first hello ip is %s.", IP2Dot(tmpbuf, hello_pkt->hello_neighbors[0]));
+	verbose(1, "first hello ip is %s.", IP2Dot(tmpbuf, hello_pkt->hello_neighbors[0].neighbor_ip));
 
 	uchar bcast_addr[] = MAC_BCAST_ADDR;
 
@@ -204,7 +204,7 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 	finished_pkt->frame.arp_bcast = TRUE;
 	COPY_IP(finished_pkt->frame.nxth_ip_addr, netmask);
 	OSPFSend2Output(finished_pkt);
-	verbose(1, "(2)first hello ip is %s.", IP2Dot(tmpbuf, hello_pkt->hello_neighbors[0]));
+	verbose(1, "(2)first hello ip is %s.", IP2Dot(tmpbuf, hello_pkt->hello_neighbors[0].neighbor_ip));
 }
 
 // Takes in a LS update packet of type gpacket and broadcasts it to your neighbors.
