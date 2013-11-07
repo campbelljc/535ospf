@@ -659,11 +659,7 @@ void updateRoutingTable(ospf_graph_t *graph)
 		cost++;
 
 		// Search for new reachable networks from each neighbor
-<<<<<<< HEAD
-		findNetworks(graph, &neighbors[i], neighbors[i].src, getIfaceIDByIP(neighbors[i].src), cost);
-=======
 		findNetworks(graph, neighbors[i], neighbors[i]->src, getIfaceIDByIP(neighbors[i]->src), cost);
->>>>>>> 2df4830da00899ce075b6f09d7de5d1be1c419d1
 	}
 }
 
