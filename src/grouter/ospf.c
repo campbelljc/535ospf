@@ -150,6 +150,8 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 
 	// update the routing table
 	updateRoutingTable(graph);
+	printCostTable(graph);
+	printRouteTable(route_tbl);
 
 	// forward the update packet
 	char tmpbuf[MAX_TMPBUF_LEN];
@@ -218,21 +220,21 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			interface_t* neighborInterface = findInterface(neighbor_tbl[count].interface);
 			pkt = createLSUPacket(neighborInterface->ip_addr);
 			printLSData(pkt);
-			
+
 			char tmpbuf[MAX_TMPBUF_LEN];
 			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
 			pkt->frame.dst_interface = neighbor_tbl[count].interface;
-			
+
 			OSPFSend2Output(pkt);
 		}
 		else
-		{			
+		{
 			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
 			pkt->frame.dst_interface = neighbor_tbl[count].interface;
-			
+
 			gpacket_t *newpkt = (gpacket_t *)malloc(sizeof(gpacket_t));
 			memcpy(newpkt, pkt, sizeof(gpacket_t));
-			
+
 			OSPFSend2Output(newpkt);
 		}
 
