@@ -270,21 +270,24 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 
 		lsu_pkt->links[currentLink].lsu_metric = 1;
 		lsu_pkt->links[currentLink].lsu_link_type = neighbor_tbl[neighborCount].type;
+		
+		// Set link ID.
+		uchar netIP[] = ZEROED_IP;
+//		memcpy(netIP, neighbor_tbl[neighborCount].neighborIP, 3);
+		COPY_IP(lsu_pkt->links[currentLink].lsu_link_ID, netIP);
+		
+		// Set link data.
 		if (neighbor_tbl[neighborCount].type == OSPF_STUB)
 		{
 			uchar bcastmask[] = MAC_BCAST_ADDR;
 			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, bcastmask);
 		}
-		else
-		{ // for a router addr 192.168.x.y, we want link data to be set 192.168.x.0
-			uchar netIP[] = ZEROED_IP;
-			memcpy(netIP, neighbor_tbl[neighborCount].neighborIP, 3);
-//			COPY_IP(netIP, neighbor_tbl[neighborCount].neighborIP);
-//			netIP[3] = 0;
-			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, netIP);
+		else // OSPF_ROUTER
+		{
+			interface_t* neighborInterface = findInterface(neighbor_tbl[count].interface);
+			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, neighborInterface->ip_addr);
 		}
-		COPY_IP(lsu_pkt->links[currentLink].lsu_link_ID, neighbor_tbl[neighborCount].neighborIP);
-
+		
 		currentLink ++;
 	}
 
