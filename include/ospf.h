@@ -59,7 +59,7 @@ typedef struct _lsa_packet_t
 	uint16_t lsa_length;
 } lsa_packet_t;
 
-typedef _hello_neighbor_t
+typedef struct _hello_neighbor_t
 {
 	uchar neighbor_ip[4];
 } hello_neighbor_t;
