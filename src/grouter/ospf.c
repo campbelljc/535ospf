@@ -134,9 +134,9 @@ void OSPFProcessLSUpdate(gpacket_t *pkt)
 	// if the node doesn't exist, create it
 	else
 	{
+		printLSData(pkt);
 		node = (ospf_gnode_t *)addNode(graph, src);
 	}
-	printLSData(pkt);
 
 	node -> last_LSN = lsa_pkt->lsa_sequence_number;
 
@@ -215,7 +215,9 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 
 		if (createPacket)
 		{
-			pkt = createLSUPacket(neighbor_tbl[count].neighborIP);
+//			pkt = createLSUPacket(neighbor_tbl[count].neighborIP);
+			interface_t* neighborInterface = findInterface(neighbor_tbl[count].interface);
+			pkt = createLSUPacket(neighborInterface->ip_addr);
 			printLSData(pkt);
 		}
 
@@ -225,6 +227,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 		OSPFSend2Output(pkt);
 		verbose(1, "[broadcastLSUpdate]:: sent to IP %s", IP2Dot(tmpbuf, pkt->frame.nxth_ip_addr));
 	}
+	verbose(1, "[broadcastLSUpdate]:: end broadcasting LSU.");
 	if (count == 0) verbose(1, "[broadcastLSUpdate]:: Wanted to send LS update, but have no neighbors to send it to :( ");
 }
 
