@@ -223,7 +223,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			printLSData(pkt);
 		}
 
-		COPY_IP(pkt->frame.nxth_ip_addr, gNtonl(tmpbuf, neighbor_tbl[count].neighborIP));
+		COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
 //		COPY_IP(pkt->frame.nxth_ip_addr, gHtonl(tmpbuf, neighbor_tbl[count].neighborIP));
 		pkt->frame.dst_interface = neighbor_tbl[count].interface;
 		OSPFSend2Output(pkt);
