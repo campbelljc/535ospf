@@ -151,7 +151,7 @@ void updateRoutingTable(ospf_graph_t *graph);
 
 // Routing table updating functions
 void updateRoutingTable(ospf_graph_t *graph);
-int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t neighbors[]);
+int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neighbors[]);
 void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int iface, int cost);
 int getIfaceIDByNetwork(uchar *net_addr);
 int getIfaceIDByIP(uchar *ip_addr);

@@ -584,7 +584,7 @@ void updateRoutingTable(ospf_graph_t *graph)
 	ospf_gnode_t *this_node;
 	uchar null_ip_addr[] = {0, 0, 0, 0};
 	uchar netmask[] = {255, 255, 255, 0};
-	ospf_gnode_t neighbors[MAX_ROUTES];
+	ospf_gnode_t* neighbors[MAX_ROUTES];
 
 	cost = 1;
 
@@ -640,7 +640,7 @@ void updateRoutingTable(ospf_graph_t *graph)
 	for (i=0; i<num_neighbors; i++)
 	{
 		// ignore already visited neighbors
-		if (neighbors[i].checked == TRUE)
+		if (neighbors[i]->checked == TRUE)
 		{
 			continue;
 		}
@@ -652,7 +652,7 @@ void updateRoutingTable(ospf_graph_t *graph)
 	}
 }
 
-int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t neighbors[])
+int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neighbors[])
 {
 	int i, ncount = 0;
 
@@ -670,11 +670,11 @@ int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t neigh
 		{
 			if (COMPARE_IP(node -> src, edge -> addr1) == 0)
 			{
-				neighbors[ncount] = *getNode(graph, edge -> addr2);
+				neighbors[ncount] = getNode(graph, edge -> addr2);
 			}
 			else
 			{
-				neighbors[ncount] = *getNode(graph, edge -> addr1);
+				neighbors[ncount] = getNode(graph, edge -> addr1);
 			}
 
 			ncount++;
@@ -709,7 +709,7 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 	for (i=0; i<num_neighbors; i++)
 	{
 		// ignore already visited neighbors
-		if (neighbors[i].checked == TRUE)
+		if (neighbors[i]->checked == TRUE)
 		{
 			continue;
 		}
