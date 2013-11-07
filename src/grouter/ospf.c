@@ -246,7 +246,7 @@ void printLSData(gpacket_t *pkt)
 	char tmpbuf[MAX_TMPBUF_LEN];
 	for (count = 0; count < lsu_pkt->lsu_num_links; count ++)
 	{
-		verbose(1, "[%d]\t\t%s\t%s\t%d", count, IP2Dot(tmpbuf, lsu_pkt->links[count].lsu_link_ID), IP2Dot(tmpbuf, lsu_pkt->links[count].lsu_link_data), lsu_pkt->links[count].lsu_link_type);
+		verbose(1, "[%d]\t\t%s\t%s\t%d", count, IP2Dot(tmpbuf, lsu_pkt->links[count].lsu_link_ID), IP2Dot(tmpbuf+20, lsu_pkt->links[count].lsu_link_data), lsu_pkt->links[count].lsu_link_type);
 	}
 	verbose(1, "================================================================");
 }
@@ -273,7 +273,7 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 		
 		// Set link ID.
 		uchar netIP[] = ZEROED_IP;
-//		memcpy(netIP, neighbor_tbl[neighborCount].neighborIP, 3);
+		memcpy(netIP, neighbor_tbl[neighborCount].neighborIP, 3);
 		COPY_IP(lsu_pkt->links[currentLink].lsu_link_ID, netIP);
 		
 		// Set link data.
