@@ -184,7 +184,7 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 	memset(bcast_addr, 0xFF, 6);
 
 	char tmpbuf[MAX_TMPBUF_LEN];
-	verbose(1, "[OSPFSendHelloPacket]:: Broadcasting Hello packet with source IP %s, with numneighbors %d.", IP2Dot(tmpbuf, src_ip), hello_pkt->numneighbors);
+	verbose(1, "[OSPFSendHelloPacket]:: Broadcasting Hello packet with source IP %s, with numneighbors %d.", IP2Dot(tmpbuf, src_ip), hello_pkt->hello_numneighbors);
 
 	gpacket_t* finished_pkt = createOSPFHeader(out_pkt, OSPF_HELLO, sizeof(hello_pkt), src_ip);
 
