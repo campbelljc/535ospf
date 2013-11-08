@@ -340,6 +340,7 @@ void *packetProcessor(void *pc)
 	pktcore_t *pcore = (pktcore_t *)pc;
 	gpacket_t *in_pkt;
 	int pktsize;
+	char tmpbuf[MAX_TMPBUF_LEN];
 
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 	while (1)
@@ -365,7 +366,6 @@ void *packetProcessor(void *pc)
 			OSPFIncomingPacket(in_pkt);
 			break;
 		default:
-			char tmpbuf[MAX_TMPBUF_LEN];
 			verbose(1, "[packetProcessor]:: Packet discarded: Unknown protocol protocol, dropped from %s", IP2Dot(tmpbuf, in_pkt->frame.src_ip_addr));
 			// TODO: should we generate ICMP errors here.. check router RFCs
 			break;
