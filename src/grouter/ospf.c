@@ -777,7 +777,7 @@ int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neig
 
 	int i, j, ncount = 0;
 
-	uchar ips[MAX_ROUTES];
+	uchar ips[MAX_ROUTES][4];
 	int num_interfaces;
 
 	// Search through the edges of the graph for any which contain the given node as a vertex
