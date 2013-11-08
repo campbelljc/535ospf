@@ -761,7 +761,7 @@ int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neig
 			else
 			{
 				neighbors[ncount] = getNode(edge -> addr1);
-				verbose(1, "\t\t\t found %s\n",  IP2Dot(tmpbuf, edge -> addr3));
+				verbose(1, "\t\t\t found %s\n",  IP2Dot(tmpbuf, edge -> addr1));
 			}
 
 			ncount++;
