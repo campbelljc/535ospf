@@ -739,6 +739,8 @@ void updateRoutingTable(ospf_graph_t *graph)
 		// Search for new reachable networks from each neighbor
 		findNetworks(graph, neighbors[i], neighbors[i]->src, getIfaceIDByIP(neighbors[i]->src), cost);
 
+
+
 	}
 	verbose(1, "785");
 }
@@ -787,6 +789,8 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 	uchar netmask[] = IP_BCAST_ADDR2;
 	ospf_gnode_t* neighbors[MAX_ROUTES];
 
+	node -> tmp_checked = TRUE;
+
 	verbose(1, "752");
 	for (i=0; i<node -> num_networks; i++)
 	{
@@ -811,7 +815,7 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 	for (i=0; i<num_neighbors; i++)
 	{
 		// ignore already visited neighbors
-		if (neighbors[i]->checked == TRUE)
+		if (neighbors[i]->checked == TRUE || neighbors[i] -> tmp_checked == TRUE)
 		{
 			continue;
 		}
@@ -871,6 +875,17 @@ void uncheckNodes(ospf_graph_t *graph)
 	for (i=0; i<MAX_ROUTES; i++)
 	{
 		graph -> nodes[i].checked = FALSE;
+		graph -> nodes[i].tmp_checked = FALSE;
+	}
+}
+
+void clearTmpCheck(ospf_graph_t *graph)
+{
+	int i;
+
+	for (i=0; i<MAX_ROUTES; i++)
+	{
+		graph -> nodes[i].tmp_checked = FALSE;
 	}
 }
 
