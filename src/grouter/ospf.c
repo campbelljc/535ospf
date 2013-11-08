@@ -632,7 +632,7 @@ void addEdge(uchar addr1[], uchar addr2[])
 
 	if (containsIP(interfaceIPs, addr1, totalInterfaceIPs == TRUE))
 	{
-		if (isNeighbor(add2) == FALSE)
+		if (isNeighbor(addr2) == FALSE)
 		{
 			return;
 		}
@@ -640,7 +640,7 @@ void addEdge(uchar addr1[], uchar addr2[])
 
 	if (containsIP(interfaceIPs, addr2, totalInterfaceIPs == TRUE))
 	{
-		if (isNeighbor(add1) == FALSE)
+		if (isNeighbor(addr1) == FALSE)
 		{
 			return;
 		}
@@ -903,7 +903,7 @@ int isNeighbor(uchar *ip)
 {
 	int i;
 
-	for (int i = 0; i < MAX_ROUTES; ++i)
+	for (i = 0; i < MAX_ROUTES; ++i)
 	{
 		if (neighbor_tbl[i].isEmpty == TRUE)
 		{
