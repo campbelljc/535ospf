@@ -727,11 +727,11 @@ int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neig
 		{
 			if (COMPARE_IP(node -> src, edge -> addr1) == 0)
 			{
-				neighbors[ncount] = getNode(edge -> addr2);
+				neighbors[ncount] = getNode(edge -> addr1);
 			}
 			else
 			{
-				neighbors[ncount] = getNode(edge -> addr1);
+				neighbors[ncount] = getNode(edge -> addr2);
 			}
 
 			ncount++;
@@ -794,6 +794,8 @@ int getIfaceIDByNetwork(uchar *net_addr)
 		{
 			continue;
 		}
+
+		tmpbuf
 
 		if (compareIPUsingMask(neighbor_tbl[i].neighborIP, net_addr ,netmask) == 0)
 		{
