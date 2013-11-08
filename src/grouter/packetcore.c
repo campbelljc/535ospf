@@ -340,6 +340,7 @@ void *packetProcessor(void *pc)
 	pktcore_t *pcore = (pktcore_t *)pc;
 	gpacket_t *in_pkt;
 	int pktsize;
+	char tmpbuf[MAX_TMPBUF_LEN];
 
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 	while (1)
@@ -353,11 +354,11 @@ void *packetProcessor(void *pc)
 		switch (ntohs(in_pkt->data.header.prot))
 		{
 		case IP_PROTOCOL:
-			verbose(2, "[packetProcessor]:: Packet sent to IP routine for further processing.. ");
+			verbose(1, "[packetProcessor]:: Packet sent to IP routine for further processing.. ");
 			IPIncomingPacket(in_pkt);
 			break;
 		case ARP_PROTOCOL:
-			verbose(2, "[packetProcessor]:: Packet sent to ARP module for further processing.. ");
+			verbose(1, "[packetProcessor]:: Packet sent to ARP module for further processing.. ");
 			ARPProcess(in_pkt);
 			break;
 		case OSPF_PROTOCOL:
@@ -365,7 +366,7 @@ void *packetProcessor(void *pc)
 			OSPFIncomingPacket(in_pkt);
 			break;
 		default:
-			verbose(2, "[packetProcessor]:: Packet discarded: Unknown protocol protocol");
+			verbose(1, "[packetProcessor]:: Packet discarded: Unknown protocol protocol, dropped from %s", IP2Dot(tmpbuf, in_pkt->frame.src_ip_addr));
 			// TODO: should we generate ICMP errors here.. check router RFCs
 			break;
 		}
