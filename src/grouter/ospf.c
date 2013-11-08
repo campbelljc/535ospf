@@ -786,7 +786,8 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 int getIfaceIDByNetwork(uchar *net_addr)
 {
 	int i;
-	uchar netmask[] = {255,255,255,0};
+	uchar netmask[] = IP_BCAST_ADDR2;
+//	uchar netmask[] = {0,255,255,255,0};
 
 	for (i=0; i<MAX_ROUTES; i++)
 	{
@@ -796,11 +797,11 @@ int getIfaceIDByNetwork(uchar *net_addr)
 		}
 
 		char tmpbuf[MAX_TMPBUF_LEN];
-		verbose(1, "getting interface for network %s, found %d.", IP2Dot(tmpbuf, net_addr), neighbor_tbl[i].interface);
+		verbose(1, "Comparing neighbor IP %s with net address %s.", IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), IP2Dot(tmpbuf+20, net_addr));
 
 		if (compareIPUsingMask(neighbor_tbl[i].neighborIP, net_addr, netmask) == 0)
 		{
-			verbose(1, "getting interface for network %s, found %d.", IP2Dot(tmpbuf, net_addr), neighbor_tbl[i].interface);
+			verbose(1, "Found match, interface is %d.", neighbor_tbl[i].interface);
 
 			return neighbor_tbl[i].interface;
 		}
