@@ -790,7 +790,7 @@ uchar* getCorrectIp(uchar *src, uchar *dst)
 		}
 	}
 
-	return ncount;
+	return addr;
 }
 
 int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neighbors[])
