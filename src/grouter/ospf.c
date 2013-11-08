@@ -614,10 +614,10 @@ void addEdge(uchar addr1[], uchar addr2[])
 	uchar interfaceIPs[MAX_MTU][4];
 	int	totalInterfaceIPs = findAllInterfaceIPs(MTU_tbl, interfaceIPs);
 
-	if (containsIP(interfaceIPs, addr1, totalInterfaceIPs) == TRUE && containsIP(interfaceIPs, addr2, totalInterfaceIPs) == TRUE)
-	{
-		return;
-	}
+	// if (containsIP(interfaceIPs, addr1, totalInterfaceIPs) == TRUE && containsIP(interfaceIPs, addr2, totalInterfaceIPs) == TRUE)
+	// {
+	// 	return;
+	// }
 
 	int i;
 	verbose(1, "623");
