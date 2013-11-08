@@ -306,7 +306,7 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 		// Set link data.
 		if (neighbor_tbl[neighborCount].type == OSPF_STUB)
 		{
-			uchar bcastmask[] = MAC_BCAST_ADDR;
+			uchar bcastmask[] = IP_BCAST_ADDR2; //MAC_BCAST_ADDR;
 			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, bcastmask);
 		}
 		else // OSPF_ROUTER
