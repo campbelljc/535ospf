@@ -795,10 +795,11 @@ int getIfaceIDByNetwork(uchar *net_addr)
 			continue;
 		}
 
-		tmpbuf
-
 		if (compareIPUsingMask(neighbor_tbl[i].neighborIP, net_addr ,netmask) == 0)
 		{
+			char tmpbuf[MAX_TMPBUF_LEN];
+			verbose(1, "getting interface for network %s, found %d.", IP2Dot(tmpbuf, net_addr), neighbor_tbl[i].interface);
+
 			return neighbor_tbl[i].interface;
 		}
 	}
