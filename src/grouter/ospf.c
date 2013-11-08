@@ -384,7 +384,7 @@ int addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 		else if ((COMPARE_IP(neighborIP_, neighbor_tbl[i].neighborIP)) == 0)
 		{ // match
 	//		if (neighbor_tbl[i].isAlive == FALSE) fresh = TRUE;
-			else if (neighbor_tbl[i].type != type_) fresh = TRUE;
+			if (neighbor_tbl[i].type != type_) fresh = TRUE;
 
 			neighbor_tbl[i].type = type_;
 			neighbor_tbl[i].isAlive = TRUE;
