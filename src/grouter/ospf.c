@@ -614,10 +614,10 @@ void addEdge(uchar addr1[], uchar addr2[])
 	uchar interfaceIPs[MAX_MTU][4];
 	int	totalInterfaceIPs = findAllInterfaceIPs(MTU_tbl, interfaceIPs);
 
-	// if (containsIP(interfaceIPs, addr1, totalInterfaceIPs) == TRUE && containsIP(interfaceIPs, addr2, totalInterfaceIPs) == TRUE)
-	// {
-	// 	return;
-	// }
+	if (containsIP(interfaceIPs, addr1, totalInterfaceIPs) == TRUE && containsIP(interfaceIPs, addr2, totalInterfaceIPs) == TRUE)
+	{
+		return;
+	}
 
 	int i;
 	verbose(1, "623");
@@ -736,6 +736,9 @@ void updateRoutingTable(ospf_graph_t *graph)
 
 int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neighbors[])
 {
+	char tmpbuf[MAX_TMPBUF_LEN];
+	verbose(1, "getting neighbors of %s\n",  IP2Dot(tmpbuf, node -> src));
+
 	int i, ncount = 0;
 
 	// Search through the edges of the graph for any which contain the given node as a vertex
@@ -753,15 +756,18 @@ int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neig
 			if (COMPARE_IP(node -> src, edge -> addr1) == 0)
 			{
 				neighbors[ncount] = getNode(edge -> addr2);
+				verbose(1, "\t\t\t found %s\n",  IP2Dot(tmpbuf, edge -> addr2));
 			}
 			else
 			{
 				neighbors[ncount] = getNode(edge -> addr1);
+				verbose(1, "\t\t\t found %s\n",  IP2Dot(tmpbuf, edge -> addr3));
 			}
 
 			ncount++;
 		}
 	}
+
 
 	return ncount;
 }
