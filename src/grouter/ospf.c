@@ -153,7 +153,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt, bool rebroadcast)
 
 	// update the edges of the graph
 	updateEdges(graph, node);
-	//printGraphEdges(graph);
+	printGraphEdges(graph);
 
 	// update the routing table
 	updateRoutingTable(graph);
