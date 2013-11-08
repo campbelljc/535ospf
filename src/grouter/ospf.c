@@ -773,7 +773,7 @@ void updateRoutingTable(ospf_graph_t *graph)
 int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neighbors[])
 {
 	char tmpbuf[MAX_TMPBUF_LEN];
-//	verbose(1, "getting neighbors of %s\n",  IP2Dot(tmpbuf, node -> src));
+	verbose(1, "getting neighbors of %s\n",  IP2Dot(tmpbuf, node -> src));
 
 	int i, j, ncount = 0;
 
@@ -801,10 +801,9 @@ int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neig
 				{
 					neighbors[ncount] = getNode(ips[j]);
 					ncount++;
+
+					verbose(1, "\t\t\t found %s\n",  IP2Dot(tmpbuf, ips[j]));
 				}
-
-
-				//verbose(1, "\t\t\t found %s\n",  IP2Dot(tmpbuf, edge -> addr2));
 			}
 			else
 			{
@@ -814,6 +813,8 @@ int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neig
 				{
 					neighbors[ncount] = getNode(ips[j]);
 					ncount++;
+
+					verbose(1, "\t\t\t found %s\n",  IP2Dot(tmpbuf, ips[j]));
 				}
 
 				//verbose(1, "\t\t\t found %s\n",  IP2Dot(tmpbuf, edge -> addr1));
