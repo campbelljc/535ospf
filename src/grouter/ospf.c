@@ -89,7 +89,7 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 
 			for (count = 0; count < MAX_ROUTES; count ++)
 			{
-				if (neighbor_tbl[count].isEmpty == TRUE || neighbor_tbl[count].isAlive == FALSE) continue;
+				if (neighbor_tbl[count].isEmpty == TRUE /*|| neighbor_tbl[count].isAlive == FALSE*/) continue;
 
 				if (COMPARE_IP(neighbor_tbl[count].neighborIP, ospf_pkt->ospf_src) == 0)
 				{
@@ -122,7 +122,11 @@ void OSPFProcessLSUpdate(gpacket_t *pkt, bool rebroadcast)
 	COPY_IP(src, ospf_pkt->ospf_src); // get src address
 
 	char tmpbuf[MAX_TMPBUF_LEN];
+<<<<<<< HEAD
 	verbose(1, "receiving LSU from %s with the following data:", IP2Dot(tmpbuf, src));
+=======
+	verbose(1, "receiving LSU from IP %s, with OSPF Source %s. Contents:", IP2Dot(tmpbuf, src), IP2Dot(tmpbuf+20, ospf_pkt->ospf_src));
+>>>>>>> bd218dee74e12b4d3ca2eb181977f8dc22eabbaf
 	printLSData(pkt);
 
 	// check if node with the address already exists
@@ -140,8 +144,6 @@ void OSPFProcessLSUpdate(gpacket_t *pkt, bool rebroadcast)
 	// if the node doesn't exist, create it
 	else
 	{
-		verbose(1, "We just received an LSU packet and are about to add a node to the graph.");
-		printLSData(pkt);
 		node = (ospf_gnode_t *)addNode(graph, src);
 	}
 
@@ -221,7 +223,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 	for (count = 0; count < MAX_ROUTES; count ++)
 	{ // send out to each non-stub, non-dead neighbor who we have established bidirectional connection with
 		if (neighbor_tbl[count].isEmpty == TRUE
-			|| neighbor_tbl[count].isAlive == FALSE
+		/*	|| neighbor_tbl[count].isAlive == FALSE */
 			|| neighbor_tbl[count].type == OSPF_STUB
 			|| neighbor_tbl[count].bidirectional == FALSE) continue;
 
@@ -294,7 +296,7 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 	int neighborCount; // position in neighbor table
 	for (neighborCount = 0; neighborCount < MAX_ROUTES; neighborCount ++)
 	{
-		if (neighbor_tbl[neighborCount].isEmpty == TRUE || neighbor_tbl[neighborCount].isAlive == FALSE) continue;
+		if (neighbor_tbl[neighborCount].isEmpty == TRUE /*|| neighbor_tbl[neighborCount].isAlive == FALSE */ ) continue;
 
 		lsu_pkt->links[currentLink].lsu_metric = 1;
 		lsu_pkt->links[currentLink].lsu_link_type = neighbor_tbl[neighborCount].type;
@@ -308,7 +310,7 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 		// Set link data.
 		if (neighbor_tbl[neighborCount].type == OSPF_STUB)
 		{
-			uchar bcastmask[] = MAC_BCAST_ADDR;
+			uchar bcastmask[] = IP_BCAST_ADDR2; //MAC_BCAST_ADDR;
 			COPY_IP(lsu_pkt->links[currentLink].lsu_link_data, bcastmask);
 		}
 		else // OSPF_ROUTER
@@ -423,7 +425,7 @@ int getNeighborEntries(neighbor_entry_t buffer[])
 	int count, bufferCount = 0;
 	for (count = 0; count < MAX_ROUTES; count ++)
 	{
-		if (neighbor_tbl[count].isEmpty == TRUE || neighbor_tbl[count].isAlive == FALSE) continue;
+		if (neighbor_tbl[count].isEmpty == TRUE /*|| neighbor_tbl[count].isAlive == FALSE*/) continue;
 
 		COPY_IP(buffer[bufferCount].neighborIP, neighbor_tbl[count].neighborIP);
 		buffer[bufferCount].interface = neighbor_tbl[count].interface;
