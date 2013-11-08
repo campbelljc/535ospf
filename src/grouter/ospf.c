@@ -832,6 +832,11 @@ int getAllIpsFromNode(ospf_graph_t *graph, uchar *addr, uchar ips[])
 
 	for (i=0; i<MAX_ROUTES; i++)
 	{
+		if (graph -> is_empty == TRUE)
+		{
+			continue;
+		}
+
 		if (graph -> nodes[i].src[0] == addr[0])
 		{
 			COPY_IP(ips[ncount], graph -> nodes[i].src);
