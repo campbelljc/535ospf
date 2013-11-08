@@ -646,6 +646,11 @@ void addEdge(uchar addr1[], uchar addr2[])
 		}
 	}
 
+	if (addr1[1] != addr2[1])
+	{
+		return;
+	}
+
 	int i;
 	//verbose(1, "623");
 	for (i=0; i<MAX_EDGES; i++)
