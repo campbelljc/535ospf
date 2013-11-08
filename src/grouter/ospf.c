@@ -230,10 +230,10 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 		{
 			interface_t* neighborInterface = findInterface(neighbor_tbl[count].interface);
 			pkt = createLSUPacket(neighborInterface->ip_addr);
-			verbose(1, "Here is contents of the LSU packet we just created: ");
+			char tmpbuf[MAX_TMPBUF_LEN];
+			verbose(1, "Here is contents of the LSU packet we just created to send to %s: ", IP2Dot(tmpbuf, neighbor_tbl[count].neighborIP));
 			printLSData(pkt);
 
-			char tmpbuf[MAX_TMPBUF_LEN];
 			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
 			pkt->frame.dst_interface = neighbor_tbl[count].interface;
 
@@ -734,13 +734,14 @@ void updateRoutingTable(ospf_graph_t *graph)
 		char tmpbuf[MAX_TMPBUF_LEN];
 		verbose(1, "checking routes from %s\n",  IP2Dot(tmpbuf, neighbors[i] -> src));
 
-		neighbors[i] -> checked = TRUE;
-
 		// Search for new reachable networks from each neighbor
 		findNetworks(graph, neighbors[i], neighbors[i]->src, getIfaceIDByIP(neighbors[i]->src), cost);
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> d38d392654adfb39921698699e0090c59dd2c530
 	}
 	verbose(1, "785");
 }
