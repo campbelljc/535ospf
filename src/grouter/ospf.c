@@ -787,13 +787,6 @@ void updateRoutingTable(ospf_graph_t *graph)
 //	verbose(1, "785");
 }
 
-uchar* getCorrectIp(uchar *src, uchar *dst)
-{
-
-
-	return addr;
-}
-
 int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neighbors[])
 {
 	char tmpbuf[MAX_TMPBUF_LEN];
