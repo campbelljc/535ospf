@@ -762,12 +762,35 @@ void updateRoutingTable(ospf_graph_t *graph)
 
 		neighbors[i] -> checked = TRUE;
 
+		uchar *addr = getCorrectIp(this_node -> src, neighbors[i]->src);
+
 		// Search for new reachable networks from each neighbor
-		findNetworks(graph, neighbors[i], neighbors[i]->src, getIfaceIDByIP(neighbors[i]->src), cost);
+		findNetworks(graph, neighbors[i], addr, getIfaceIDByIP(neighbors[i]->src), cost);
 
 		clearTmpCheck(graph);
 	}
 //	verbose(1, "785");
+}
+
+uchar* getCorrectIp(uchar *src, uchar *dst)
+{
+	int i;
+	uchar addr[4];
+
+	for (i=0; i<MAX_ROUTES; i++)
+	{
+		if (graph -> nodes[i].is_empty == TRUE)
+		{
+			continue;
+		}
+
+		if (graph -> nodes[i].src[1] == src[1] && graph -> nodes[i].src[0] == dst[0])
+		{
+			COPY_IP(addr, graph -> nodes[i].src);
+		}
+	}
+
+	return ncount;
 }
 
 int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neighbors[])
