@@ -694,7 +694,7 @@ void updateRoutingTable(ospf_graph_t *graph)
 		int interface = getIfaceIDByNetwork(this_node -> networks[i]);
 
 		// add the entry to the cost table and routing table
-		if (isCheaper(cost_tbl, this_node -> networks[i], cost))
+		if (isCheaper(cost_tbl, this_node -> networks[i], cost) == TRUE)
 		{
 			addRouteEntry(route_tbl, this_node->networks[i], netmask, null_ip_addr, interface);
 			verbose(1, "[updateRoutingTable]:: New route entry added with interface %d.", interface);
@@ -776,7 +776,7 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 	{
 		// For each reachable network from this node, add it to the routing table if
 		// it does not already exist, otherwise update if the current path is cheaper
-		if (isCheaper(cost_tbl, node -> networks[i], cost))
+		if (isCheaper(cost_tbl, node -> networks[i], cost) == TRUE)
 		{
 			char tmpbuf[MAX_TMPBUF_LEN];
 			verbose(1, "checking route to %s\n",  IP2Dot(tmpbuf, node -> networks[i]));
