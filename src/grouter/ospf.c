@@ -711,6 +711,8 @@ void updateRoutingTable(ospf_graph_t *graph)
 
 	verbose(1, "690");
 
+	cost++;
+
 	for (i=0; i<num_neighbors; i++)
 	{
 		// ignore already visited neighbors
@@ -718,8 +720,6 @@ void updateRoutingTable(ospf_graph_t *graph)
 		{
 			continue;
 		}
-
-		cost++;
 
 		char tmpbuf[MAX_TMPBUF_LEN];
 		verbose(1, "checking routes from %s\n",  IP2Dot(tmpbuf, neighbors[i] -> src));
@@ -789,6 +789,9 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 	num_neighbors = getNodeNeighbors(graph, node, neighbors);
 
 	verbose(1, "769");
+
+	cost++;
+
 	for (i=0; i<num_neighbors; i++)
 	{
 		// ignore already visited neighbors
@@ -796,8 +799,6 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 		{
 			continue;
 		}
-
-		cost++;
 
 		findNetworks(graph, neighbors[i], nxt_hop, iface, cost);
 	}
