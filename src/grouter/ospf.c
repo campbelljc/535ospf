@@ -89,7 +89,7 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 
 			for (count = 0; count < MAX_ROUTES; count ++)
 			{
-				if (neighbor_tbl[count].isEmpty == TRUE || neighbor_tbl[count].isAlive == FALSE) continue;
+				if (neighbor_tbl[count].isEmpty == TRUE /*|| neighbor_tbl[count].isAlive == FALSE*/) continue;
 
 				if (COMPARE_IP(neighbor_tbl[count].neighborIP, ospf_pkt->ospf_src) == 0)
 				{
@@ -220,7 +220,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 	for (count = 0; count < MAX_ROUTES; count ++)
 	{ // send out to each non-stub, non-dead neighbor who we have established bidirectional connection with
 		if (neighbor_tbl[count].isEmpty == TRUE
-			|| neighbor_tbl[count].isAlive == FALSE
+		/*	|| neighbor_tbl[count].isAlive == FALSE */
 			|| neighbor_tbl[count].type == OSPF_STUB
 			|| neighbor_tbl[count].bidirectional == FALSE) continue;
 
@@ -293,7 +293,7 @@ gpacket_t* createLSUPacket(uchar sourceIP[])
 	int neighborCount; // position in neighbor table
 	for (neighborCount = 0; neighborCount < MAX_ROUTES; neighborCount ++)
 	{
-		if (neighbor_tbl[neighborCount].isEmpty == TRUE || neighbor_tbl[neighborCount].isAlive == FALSE) continue;
+		if (neighbor_tbl[neighborCount].isEmpty == TRUE /*|| neighbor_tbl[neighborCount].isAlive == FALSE */ ) continue;
 
 		lsu_pkt->links[currentLink].lsu_metric = 1;
 		lsu_pkt->links[currentLink].lsu_link_type = neighbor_tbl[neighborCount].type;
@@ -422,7 +422,7 @@ int getNeighborEntries(neighbor_entry_t buffer[])
 	int count, bufferCount = 0;
 	for (count = 0; count < MAX_ROUTES; count ++)
 	{
-		if (neighbor_tbl[count].isEmpty == TRUE || neighbor_tbl[count].isAlive == FALSE) continue;
+		if (neighbor_tbl[count].isEmpty == TRUE /*|| neighbor_tbl[count].isAlive == FALSE*/) continue;
 
 		COPY_IP(buffer[bufferCount].neighborIP, neighbor_tbl[count].neighborIP);
 		buffer[bufferCount].interface = neighbor_tbl[count].interface;
