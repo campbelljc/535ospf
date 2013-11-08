@@ -630,7 +630,7 @@ void addEdge(uchar addr1[], uchar addr2[])
 		return;
 	}
 
-	if (containsIP(interfaceIPs, addr1, totalInterfaceIPs == TRUE)
+	if (containsIP(interfaceIPs, addr1, totalInterfaceIPs == TRUE))
 	{
 		if (isNeighbor(add2) == FALSE)
 		{
@@ -638,7 +638,7 @@ void addEdge(uchar addr1[], uchar addr2[])
 		}
 	}
 
-	if (containsIP(interfaceIPs, addr2, totalInterfaceIPs == TRUE)
+	if (containsIP(interfaceIPs, addr2, totalInterfaceIPs == TRUE))
 	{
 		if (isNeighbor(add1) == FALSE)
 		{
