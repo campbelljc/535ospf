@@ -121,9 +121,7 @@ void* fromEthernetDev(void *arg)
 				continue;
 			}
 			else
-			{
-				verbose(1, "[fromEthernetDev]:: Received message indicating stub network. ");
-				
+			{				
 				in_pkt->frame.src_interface = iface->interface_id;
 				COPY_MAC(in_pkt->frame.src_hw_addr, iface->mac_addr);
 				COPY_IP(in_pkt->frame.src_ip_addr, iface->ip_addr);

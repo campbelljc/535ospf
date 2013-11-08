@@ -777,7 +777,6 @@ void *SendHelloPackets(){
 			{			
 				OSPFSendHelloPacket(interfaceIPs[i], indexes[i]);	
 			}
-			verbose(1, "Done broadcasting hello to all interfaces.");
 		}
 	}
 }

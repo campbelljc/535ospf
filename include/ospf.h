@@ -1,3 +1,4 @@
+<<<<<<< Local Changes
 #ifndef __OSPF_H_
 #define __OSPF_H_
 
@@ -167,8 +168,26 @@ int getIfaceIDByIP(uchar *ip_addr);
 void uncheckNodes(ospf_graph_t *graph);
 void clearTmpCheck(ospf_graph_t *graph);
 int isCheaper(ospf_cost_entry_t ctable[], uchar dest_ip_[], int cost_);
+<<<<<<< Local Changes
+<<<<<<< Local Changes
+<<<<<<< Local Changes
+int isNeighbor(uchar *ip);
+int getAllIpsFromNode(ospf_graph_t *graph, uchar *addr, uchar ips[]);
+=======
+int isNeighbor(uchar *ip);
+int getAllIpsFromNode(ospf_graph_t *graph, uchar *addr, uchar ips[][4]);
+>>>>>>> External Changes
+=======
 int isNeighbor(uchar *ip);
 int getAllIpsFromNode(ospf_graph_t *graph, uchar *addr, uchar ips[][4]);
 uchar* getCorrectIp(uchar *src, uchar *dst);
+>>>>>>> External Changes
+=======
+int isNeighbor(uchar *ip);
+int getAllIpsFromNode(ospf_graph_t *graph, uchar *addr, uchar ips[][4]);
+uchar* getCorrectIp(uchar *src, uchar *dst);
+>>>>>>> External Changes
 
 #endif
+=======
+>>>>>>> External Changes
