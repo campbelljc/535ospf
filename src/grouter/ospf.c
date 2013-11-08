@@ -744,7 +744,7 @@ int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neig
 void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int iface, int cost)
 {
 	int i, num_neighbors;
-	uchar netmask[] = IP_BCAST_ADDR;
+	uchar netmask[] = IP_BCAST_ADDR2;
 	ospf_gnode_t* neighbors[MAX_ROUTES];
 
 	// mark node as visited
