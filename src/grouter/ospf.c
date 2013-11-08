@@ -773,7 +773,7 @@ void updateRoutingTable(ospf_graph_t *graph)
 				continue;
 			}
 
-			if (graph -> nodes[i2].src[1] == src[1] && graph -> nodes[i2].src[0] == dst[0])
+			if (graph -> nodes[i2].src[1] == this_node->src[1] && graph -> nodes[i2].src[0] == neighbors[i]->src[0])
 			{
 				COPY_IP(addr, graph -> nodes[i2].src);
 			}
