@@ -738,6 +738,8 @@ void updateRoutingTable(ospf_graph_t *graph)
 
 		// Search for new reachable networks from each neighbor
 		findNetworks(graph, neighbors[i], neighbors[i]->src, getIfaceIDByIP(neighbors[i]->src), cost);
+
+		clearTmpCheck(graph);
 	}
 	verbose(1, "785");
 }
