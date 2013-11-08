@@ -246,7 +246,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 		}
 		else
 		{
-			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
+			COPY_IP(pkt->frame.nxth_ip_addr, tmpbuf, neighbor_tbl[count].neighborIP);
 			pkt->frame.dst_interface = neighbor_tbl[count].interface;
 
 			gpacket_t *newpkt = (gpacket_t *)malloc(sizeof(gpacket_t));
