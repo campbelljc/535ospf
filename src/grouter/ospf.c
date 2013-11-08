@@ -775,7 +775,10 @@ int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neig
 	char tmpbuf[MAX_TMPBUF_LEN];
 //	verbose(1, "getting neighbors of %s\n",  IP2Dot(tmpbuf, node -> src));
 
-	int i, ncount = 0;
+	int i, j, ncount = 0;
+
+	uchar ips[MAX_ROUTES];
+	int num_interfaces;
 
 	// Search through the edges of the graph for any which contain the given node as a vertex
 	for (i=0; i<MAX_EDGES; i++)
@@ -791,19 +794,49 @@ int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neig
 		{
 			if (COMPARE_IP(node -> src, edge -> addr1) == 0)
 			{
-				neighbors[ncount] = getNode(edge -> addr2);
+
+				num_interfaces = getAllIpsFromNode(graph, edge -> addr2, ips);
+
+				for (j=0; j<num_interfaces; j++)
+				{
+					neighbors[ncount] = getNode(ips[j]);
+					ncount++;
+				}
+
+
 				//verbose(1, "\t\t\t found %s\n",  IP2Dot(tmpbuf, edge -> addr2));
 			}
 			else
 			{
-				neighbors[ncount] = getNode(edge -> addr1);
+				num_interfaces = getAllIpsFromNode(graph, edge -> addr1, ips);
+
+				for (j=0; j<num_interfaces; j++)
+				{
+					neighbors[ncount] = getNode(ips[j]);
+					ncount++;
+				}
+
 				//verbose(1, "\t\t\t found %s\n",  IP2Dot(tmpbuf, edge -> addr1));
 			}
-
-			ncount++;
 		}
 	}
 
+
+	return ncount;
+}
+
+int getAllIpsFromNode(ospf_graph_t *graph, uchar *addr, uchar ips[])
+{
+	int i, ncount = 0;
+
+	for (i=0; i<MAX_ROUTES; i++)
+	{
+		if (graph -> nodes[i].src[0] == addr[0])
+		{
+			COPY_IP(ips[ncount], graph -> nodes[i].src);
+			ncount++;
+		}
+	}
 
 	return ncount;
 }

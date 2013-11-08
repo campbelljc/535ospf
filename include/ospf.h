@@ -168,5 +168,6 @@ void uncheckNodes(ospf_graph_t *graph);
 void clearTmpCheck(ospf_graph_t *graph);
 int isCheaper(ospf_cost_entry_t ctable[], uchar dest_ip_[], int cost_);
 int isNeighbor(uchar *ip);
+int getAllIpsFromNode(ospf_graph_t *graph, uchar *addr, uchar ips[]);
 
 #endif
