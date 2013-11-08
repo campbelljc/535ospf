@@ -122,7 +122,8 @@ void OSPFProcessLSUpdate(gpacket_t *pkt, bool rebroadcast)
 	COPY_IP(src, ospf_pkt->ospf_src); // get src address
 
 	char tmpbuf[MAX_TMPBUF_LEN];
-	verbose(1, "receiving LSU from %s", IP2Dot(tmpbuf, src));
+	verbose(1, "receiving LSU from %s with the following data:", IP2Dot(tmpbuf, src));
+	printLSData(pkt);
 
 	// check if node with the address already exists
 	ospf_gnode_t *node = getNode(src);
