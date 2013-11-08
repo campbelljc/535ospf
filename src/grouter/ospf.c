@@ -795,8 +795,6 @@ int getIfaceIDByNetwork(uchar *net_addr)
 			continue;
 		}
 
-		tmpbuf
-
 		if (compareIPUsingMask(neighbor_tbl[i].neighborIP, net_addr ,netmask) == 0)
 		{
 			return neighbor_tbl[i].interface;
