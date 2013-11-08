@@ -624,7 +624,7 @@ void addEdge(uchar addr1[], uchar addr2[])
 	for (i=0; i<MAX_EDGES; i++)
 	{
 		ospf_gedge_t *edge = &graph -> edges[i];
-		verbose9(1, "627");
+		verbose(1, "627");
 		if (edge -> is_empty)
 		{
 			COPY_IP(edge -> addr1, addr1);
