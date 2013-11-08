@@ -242,6 +242,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			}
 
 			OSPFSend2Output(pkt);
+			verbose(1, "[broadcastLSUpdate]:: sent LSU to IP %s", IP2Dot(tmpbuf, pkt->frame.nxth_ip_addr));
 		}
 		else
 		{
@@ -251,12 +252,12 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			gpacket_t *newpkt = (gpacket_t *)malloc(sizeof(gpacket_t));
 			memcpy(newpkt, pkt, sizeof(gpacket_t));
 			
-			pkt->data.header.prot = htons(OSPF_PROTOCOL);
+			newpkt->data.header.prot = htons(OSPF_PROTOCOL);
+			verbose(1, "[broadcastLSUpdate]:: sent LSU to IP %s", IP2Dot(tmpbuf, newpkt->frame.nxth_ip_addr));
 
 			OSPFSend2Output(newpkt);
 		}
 
-		verbose(1, "[broadcastLSUpdate]:: sent LSU to IP %s", IP2Dot(tmpbuf, pkt->frame.nxth_ip_addr));
 	}
 	if (count == 0) verbose(1, "[broadcastLSUpdate]:: Wanted to send LS update, but have no neighbors to send it to :( ");
 }

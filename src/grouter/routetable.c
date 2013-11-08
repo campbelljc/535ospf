@@ -76,7 +76,7 @@ int findRouteEntry(route_entry_t route_tbl[], uchar *ip_addr, uchar *nhop, int *
 void addRouteEntry(route_entry_t route_tbl[], uchar* nwork, uchar* nmask, uchar* nhop, int interface)
 {
 	char tmpbuf[MAX_TMPBUF_LEN];
-	verbose(1, "Adding route entry with nwork %s, nmask %s, nhop %s, and interface %d.", IP2Dot(tmpbuf, nwork), IP2Dot(tmpbuf+20, nmask), IP2Dot(tmpbuf+20+20, nhop), interface);
+//	verbose(1, "Adding route entry with nwork %s, nmask %s, nhop %s, and interface %d.", IP2Dot(tmpbuf, nwork), IP2Dot(tmpbuf+20, nmask), IP2Dot(tmpbuf+20+20, nhop), interface);
 	int i;
 	int ifree = -1;
 
