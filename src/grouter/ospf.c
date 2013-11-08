@@ -748,8 +748,11 @@ void updateRoutingTable(ospf_graph_t *graph)
 		char tmpbuf[MAX_TMPBUF_LEN];
 		verbose(1, "checking routes from %s\n",  IP2Dot(tmpbuf, neighbors[i] -> src));
 
+		neighbors[i] -> checked = TRUE;
+
 		// Search for new reachable networks from each neighbor
 		findNetworks(graph, neighbors[i], neighbors[i]->src, getIfaceIDByIP(neighbors[i]->src), cost);
+
 	}
 	verbose(1, "785");
 }
@@ -797,9 +800,6 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 	int i, num_neighbors;
 	uchar netmask[] = IP_BCAST_ADDR2;
 	ospf_gnode_t* neighbors[MAX_ROUTES];
-
-	// mark node as visited
-	node -> checked = TRUE;
 
 	verbose(1, "752");
 	for (i=0; i<node -> num_networks; i++)
