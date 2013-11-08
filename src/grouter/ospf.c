@@ -832,7 +832,7 @@ int getAllIpsFromNode(ospf_graph_t *graph, uchar *addr, uchar ips[])
 
 	for (i=0; i<MAX_ROUTES; i++)
 	{
-		if (graph -> is_empty == TRUE)
+		if (graph -> nodes[i].is_empty == TRUE)
 		{
 			continue;
 		}
