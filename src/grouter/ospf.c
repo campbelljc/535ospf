@@ -702,7 +702,9 @@ void updateRoutingTable(ospf_graph_t *graph)
 
 		cost++;
 
-		verbose(1, "782 %d", i);
+		char tmpbuf[MAX_TMPBUF_LEN];
+		verbose(1, "checking routes from %s\n",  IP2Dot(tmpbuf, neighbors[i] -> src));
+
 		// Search for new reachable networks from each neighbor
 		findNetworks(graph, neighbors[i], neighbors[i]->src, getIfaceIDByIP(neighbors[i]->src), cost);
 	}
