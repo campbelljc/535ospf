@@ -216,14 +216,6 @@ void OSPFSendHelloPacket(uchar src_ip[], int interface_)
 // Takes in a LS update packet of type gpacket and broadcasts it to your neighbors.
 void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 {
-	if (createPacket == TRUE)
-	{
-		uchar zeroIP[] = ZEROED_IP;
-		pkt = createLSUPacket(zeroIP);
-		verbose(1, "We just created our own LS update, with this contents:");
-		printLSData(pkt);
-	}
-	
 	int count;
 	for (count = 0; count < MAX_ROUTES; count ++)
 	{ // send out to each non-stub, non-dead neighbor who we have established bidirectional connection with
@@ -237,17 +229,11 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 		if (createPacket == TRUE)
 		{
 			interface_t* neighborInterface = findInterface(neighbor_tbl[count].interface);
-			
-			ospf_packet_t *ospf_pkt = (ospf_packet_t*) &pkt -> data.data;
-			lsa_packet_t *lsa_pkt = (lsa_packet_t *)((uchar *)ospf_pkt + 4*4);
-			COPY_IP(lsa_pkt->lsa_ID, neighborInterface->ip_addr);
-			COPY_IP(lsa_pkt->lsa_advertising_number, neighborInterface->ip_addr);
-			
-	//		pkt = createLSUPacket(neighborInterface->ip_addr);
-	//		verbose(1, "Here is contents of the LSU packet we just created: ");
-	//		printLSData(pkt);
-
+			pkt = createLSUPacket(neighborInterface->ip_addr);
 			char tmpbuf[MAX_TMPBUF_LEN];
+			verbose(1, "Here is contents of the LSU packet we just created to send to %s: ", IP2Dot(tmpbuf, neighbor_tbl[count].neighborIP));
+			printLSData(pkt);
+
 			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
 			pkt->frame.dst_interface = neighbor_tbl[count].interface;
 
@@ -748,11 +734,8 @@ void updateRoutingTable(ospf_graph_t *graph)
 		char tmpbuf[MAX_TMPBUF_LEN];
 		verbose(1, "checking routes from %s\n",  IP2Dot(tmpbuf, neighbors[i] -> src));
 
-		neighbors[i] -> checked = TRUE;
-
 		// Search for new reachable networks from each neighbor
 		findNetworks(graph, neighbors[i], neighbors[i]->src, getIfaceIDByIP(neighbors[i]->src), cost);
-
 	}
 	verbose(1, "785");
 }
@@ -800,6 +783,9 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 	int i, num_neighbors;
 	uchar netmask[] = IP_BCAST_ADDR2;
 	ospf_gnode_t* neighbors[MAX_ROUTES];
+
+	// mark node as visited
+	node -> checked = TRUE;
 
 	verbose(1, "752");
 	for (i=0; i<node -> num_networks; i++)
