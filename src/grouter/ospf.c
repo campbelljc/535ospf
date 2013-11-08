@@ -237,7 +237,11 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
 			pkt->frame.dst_interface = neighbor_tbl[count].interface;
 
-			OSPFProcessLSUpdate(pkt, FALSE);
+			if (count == 0)
+			{
+				OSPFProcessLSUpdate(pkt, FALSE);
+			}
+
 			OSPFSend2Output(pkt);
 		}
 		else
@@ -738,6 +742,9 @@ void updateRoutingTable(ospf_graph_t *graph)
 
 int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neighbors[])
 {
+	char tmpbuf[MAX_TMPBUF_LEN];
+	verbose(1, "getting neighbors of %s\n",  IP2Dot(tmpbuf, node -> src));
+
 	int i, ncount = 0;
 
 	// Search through the edges of the graph for any which contain the given node as a vertex
@@ -755,15 +762,18 @@ int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neig
 			if (COMPARE_IP(node -> src, edge -> addr1) == 0)
 			{
 				neighbors[ncount] = getNode(edge -> addr2);
+				verbose(1, "\t\t\t found %s\n",  IP2Dot(tmpbuf, edge -> addr2));
 			}
 			else
 			{
 				neighbors[ncount] = getNode(edge -> addr1);
+				verbose(1, "\t\t\t found %s\n",  IP2Dot(tmpbuf, edge -> addr1));
 			}
 
 			ncount++;
 		}
 	}
+
 
 	return ncount;
 }
