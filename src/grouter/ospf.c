@@ -606,7 +606,10 @@ void updateEdges(ospf_graph_t *graph, ospf_gnode_t *node)
 // Add an edge to the graph
 void addEdge(uchar addr1[], uchar addr2[])
 {
-	if (COMPARE_IP(addr1, addr2) == 0)
+	uchar interfaceIPs[MAX_MTU][4];
+	int	totalInterfaceIPs = findAllInterfaceIPs(MTU_tbl, interfaceIPs);
+
+	if (containsIP(interfaceIPs, addr1, totalInterfaceIPs) == TRUE && containsIP(interfaceIPs, addr1, totalInterfaceIPs) == TRUE)
 	{
 		return;
 	}
@@ -626,6 +629,21 @@ void addEdge(uchar addr1[], uchar addr2[])
 			return;
 		}
 	}
+}
+
+int containsIP(uchar *ip_list[], uchar *ip, int list_size)
+{
+	int i;
+
+	for (i=0; i<list_size; i++)
+	{
+		if (COMPARE_IP(ip_list[i], ip) == 0)
+		{
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 void updateRoutingTable(ospf_graph_t *graph)
