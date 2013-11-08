@@ -149,16 +149,16 @@ void OSPFProcessLSUpdate(gpacket_t *pkt, bool rebroadcast)
 
 	// update the reachable networks of the node
 	updateLinkData(lsu_pkt, node);
-	printGraphNodes(graph);
+	//printGraphNodes(graph);
 
 	// update the edges of the graph
 	updateEdges(graph, node);
-	printGraphEdges(graph);
+	//printGraphEdges(graph);
 
 	// update the routing table
 	updateRoutingTable(graph);
-	printCostTable(graph);
-	printNeighborTable();
+	//printCostTable(graph);
+	//printNeighborTable();
 	printRouteTable(route_tbl);
 
 	if (rebroadcast == TRUE)
@@ -399,9 +399,10 @@ int addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 
 			neighbor_tbl[i].type = type_;
 			neighbor_tbl[i].isAlive = TRUE;
-
-			if (fresh == TRUE) verbose(1, "[addNeighborEntry]:: updated neighbor table entry #%d", i);
-			else verbose(1, "[addNeighborEntry]:: LS update did not contain new information. ");
+			
+			if (fresh != TRUE)
+		/*	if (fresh == TRUE) verbose(1, "[addNeighborEntry]:: updated neighbor table entry #%d", i);
+			else*/ verbose(1, "[addNeighborEntry]:: LS update did not contain new information. ");
 			return fresh;
 		}
 	}
@@ -414,7 +415,7 @@ int addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 	neighbor_tbl[ifree].interface = interface_;
 
 	char tmpbuf[MAX_TMPBUF_LEN];
-	verbose(1, "[addNeighborEntry]:: added neighbor entry with IP %s", IP2Dot(tmpbuf, neighborIP_));
+//	verbose(1, "[addNeighborEntry]:: added neighbor entry with IP %s", IP2Dot(tmpbuf, neighborIP_));
 	return TRUE;
 }
 
