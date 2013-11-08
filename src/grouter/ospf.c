@@ -221,7 +221,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 		if (neighbor_tbl[count].isEmpty == TRUE
 		/*	|| neighbor_tbl[count].isAlive == FALSE */
 			|| neighbor_tbl[count].type == OSPF_STUB
-			|| neighbor_tbl[count].bidirectional == FALSE) continue;
+		/*	|| neighbor_tbl[count].bidirectional == FALSE*/) continue;
 
 		char tmpbuf[MAX_TMPBUF_LEN];
 
@@ -392,7 +392,7 @@ int addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 		}
 		else if ((COMPARE_IP(neighborIP_, neighbor_tbl[i].neighborIP)) == 0)
 		{ // match
-//			if (neighbor_tbl[i].isAlive == FALSE) fresh = TRUE;
+			if (neighbor_tbl[i].isAlive == FALSE) fresh = TRUE;
 			if (neighbor_tbl[i].type != type_) fresh = TRUE;
 
 			neighbor_tbl[i].type = type_;
