@@ -799,10 +799,10 @@ int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neig
 
 				for (j=0; j<num_interfaces; j++)
 				{
-					neighbors[ncount] = getNode(ips[j]);
-					ncount++;
 
 					verbose(1, "\t\t\t found %s\n",  IP2Dot(tmpbuf, ips[j]));
+					neighbors[ncount] = getNode(ips[j]);
+					ncount++;
 				}
 			}
 			else
@@ -811,10 +811,9 @@ int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neig
 
 				for (j=0; j<num_interfaces; j++)
 				{
+					verbose(1, "\t\t\t found %s\n",  IP2Dot(tmpbuf, ips[j]));
 					neighbors[ncount] = getNode(ips[j]);
 					ncount++;
-
-					verbose(1, "\t\t\t found %s\n",  IP2Dot(tmpbuf, ips[j]));
 				}
 
 				//verbose(1, "\t\t\t found %s\n",  IP2Dot(tmpbuf, edge -> addr1));
@@ -826,7 +825,7 @@ int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neig
 	return ncount;
 }
 
-int getAllIpsFromNode(ospf_graph_t *graph, uchar *addr, uchar ips[])
+int getAllIpsFromNode(ospf_graph_t *graph, uchar *addr, uchar ips[][4])
 {
 	int i, ncount = 0;
 
