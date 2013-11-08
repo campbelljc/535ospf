@@ -139,7 +139,8 @@ void OSPFProcessLSUpdate(gpacket_t *pkt, bool rebroadcast)
 	// if the node doesn't exist, create it
 	else
 	{
-//		printLSData(pkt);
+		verbose(1, "We just received an LSU packet and are about to add a node to the graph.");
+		printLSData(pkt);
 		node = (ospf_gnode_t *)addNode(graph, src);
 	}
 
@@ -229,7 +230,8 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 		{
 			interface_t* neighborInterface = findInterface(neighbor_tbl[count].interface);
 			pkt = createLSUPacket(neighborInterface->ip_addr);
-	//		printLSData(pkt);
+			verbose(1, "Here is contents of the LSU packet we just created: ");
+			printLSData(pkt);
 
 			char tmpbuf[MAX_TMPBUF_LEN];
 			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
