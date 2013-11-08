@@ -93,10 +93,13 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 
 				if (COMPARE_IP(neighbor_tbl[count].neighborIP, ospf_pkt->ospf_src) == 0)
 				{
-					char tmpbuf[MAX_TMPBUF_LEN];
-					verbose(1, "[OSPFProcessHelloMessage]:: We have bidirectional connection with IP %s.", IP2Dot(tmpbuf, neighbor_tbl[count].neighborIP));
-					neighbor_tbl[count].bidirectional = TRUE;
-					broadcastLSUpdate(TRUE, NULL);
+					if (neighbor_tbl[count].bidirectional == FALSE)
+					{
+						char tmpbuf[MAX_TMPBUF_LEN];
+						verbose(1, "[OSPFProcessHelloMessage]:: We have bidirectional connection with IP %s.", IP2Dot(tmpbuf, neighbor_tbl[count].neighborIP));
+						neighbor_tbl[count].bidirectional = TRUE;
+						broadcastLSUpdate(TRUE, NULL);
+					}
 				}
 			}
 		}
