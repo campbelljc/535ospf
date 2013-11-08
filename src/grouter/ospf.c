@@ -71,7 +71,8 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 
 	// update neighbor database
 	int newUpdate = addNeighborEntry(ospf_pkt->ospf_src, OSPF_ROUTER, pkt->frame.src_interface);
-
+	if (newUpdate == FALSE) verbose(1, "Hello msg did not contain new neighbor info.");
+		
 	uchar zeroIP[] = ZEROED_IP;
 
 	int count;
@@ -397,9 +398,8 @@ int addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 			neighbor_tbl[i].type = type_;
 			neighbor_tbl[i].isAlive = TRUE;
 
-			if (fresh != TRUE)
-		/*	if (fresh == TRUE) verbose(1, "[addNeighborEntry]:: updated neighbor table entry #%d", i);
-			else*/ verbose(1, "[addNeighborEntry]:: LS update did not contain new information. ");
+	//		if (fresh != TRUE) verbose(1, "[addNeighborEntry]:: LS update did not contain new information. ");
+		//	if (fresh == TRUE) verbose(1, "[addNeighborEntry]:: updated neighbor table entry #%d", i);
 			return fresh;
 		}
 	}
