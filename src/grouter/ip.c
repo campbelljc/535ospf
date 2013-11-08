@@ -135,6 +135,11 @@ int IPProcessForwardingPacket(gpacket_t *in_pkt)
 
 	// find the route... if it does not exist, should we send a
 	// ICMP network/host unreachable message -- CHECK??
+	if (ip_pkt->ip_prot == ICMP_PROTOCOL)
+	{
+		char tmpbuf2[MAX_TMPBUF_LEN];
+		verbose(1, "Received ICMP packet. Now looking up route entry for DESTIP:%s && NXTHIP:%s && DSTINTERFACE:%d", IP2Dot(tmpbuf2, gNtohl(tmpbuf2, ip_pkt->ip_dst)), IP2Dot(tmpbuf2+20, in_pkt->frame.nxth_ip_addr), in_pkt->frame.dst_interface);
+	}
 	if (findRouteEntry(route_tbl, gNtohl(tmpbuf, ip_pkt->ip_dst),
 			   in_pkt->frame.nxth_ip_addr,
 			   &(in_pkt->frame.dst_interface)) == EXIT_FAILURE)
