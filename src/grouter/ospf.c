@@ -610,7 +610,10 @@ void updateEdges(ospf_graph_t *graph, ospf_gnode_t *node)
 // Add an edge to the graph
 void addEdge(uchar addr1[], uchar addr2[])
 {
-	if (COMPARE_IP(addr1, addr2) == 0)
+	uchar interfaceIPs[MAX_MTU][4];
+	int	totalInterfaceIPs = findAllInterfaceIPs(MTU_tbl, interfaceIPs);
+
+	if (containsIP(interfaceIPs, addr1, totalInterfaceIPs) == TRUE && containsIP(interfaceIPs, addr1, totalInterfaceIPs) == TRUE)
 	{
 		return;
 	}
@@ -630,6 +633,21 @@ void addEdge(uchar addr1[], uchar addr2[])
 			return;
 		}
 	}
+}
+
+int containsIP(uchar *ip_list[], uchar *ip, int list_size)
+{
+	int i;
+
+	for (i=0; i<list_size; i++)
+	{
+		if (COMPARE_IP(ip_list[i], ip) == 0)
+		{
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 
 void updateRoutingTable(ospf_graph_t *graph)
@@ -679,7 +697,7 @@ void updateRoutingTable(ospf_graph_t *graph)
 		int interface = getIfaceIDByNetwork(this_node -> networks[i]);
 
 		// add the entry to the cost table and routing table
-		if (isCheaper(cost_tbl, this_node -> networks[i], cost))
+		if (isCheaper(cost_tbl, this_node -> networks[i], cost) == TRUE)
 		{
 			addRouteEntry(route_tbl, this_node->networks[i], netmask, null_ip_addr, interface);
 			verbose(1, "[updateRoutingTable]:: New route entry added with interface %d.", interface);
@@ -696,6 +714,8 @@ void updateRoutingTable(ospf_graph_t *graph)
 
 	verbose(1, "690");
 
+	cost++;
+
 	for (i=0; i<num_neighbors; i++)
 	{
 		// ignore already visited neighbors
@@ -703,8 +723,6 @@ void updateRoutingTable(ospf_graph_t *graph)
 		{
 			continue;
 		}
-
-		cost++;
 
 		char tmpbuf[MAX_TMPBUF_LEN];
 		verbose(1, "checking routes from %s\n",  IP2Dot(tmpbuf, neighbors[i] -> src));
@@ -761,7 +779,7 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 	{
 		// For each reachable network from this node, add it to the routing table if
 		// it does not already exist, otherwise update if the current path is cheaper
-		if (isCheaper(cost_tbl, node -> networks[i], cost))
+		if (isCheaper(cost_tbl, node -> networks[i], cost) == TRUE)
 		{
 			char tmpbuf[MAX_TMPBUF_LEN];
 			verbose(1, "checking route to %s\n",  IP2Dot(tmpbuf, node -> networks[i]));
@@ -774,6 +792,9 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 	num_neighbors = getNodeNeighbors(graph, node, neighbors);
 
 	verbose(1, "769");
+
+	cost++;
+
 	for (i=0; i<num_neighbors; i++)
 	{
 		// ignore already visited neighbors
@@ -781,8 +802,6 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int i
 		{
 			continue;
 		}
-
-		cost++;
 
 		findNetworks(graph, neighbors[i], nxt_hop, iface, cost);
 	}
