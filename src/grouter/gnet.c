@@ -753,6 +753,7 @@ void *SendHelloPackets(){
 	int deadInterval = 0;
 	while(1){
 		sleep(10);
+		pthread_testcancel();
 		deadInterval++;
 		if (deadInterval == 4){	//40s
 			deadInterval = 0;
