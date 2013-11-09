@@ -50,12 +50,12 @@ void OSPFIncomingPacket(gpacket_t *pkt)
 	char tmpbuf[MAX_TMPBUF_LEN];
 	if (ospf_pkt->ospf_type == OSPF_HELLO)
 	{
-		verbose(1, "[OSPFIncomingPacket]:: received OSPF Hello message from ospf src %s", IP2Dot(tmpbuf, ospf_pkt->ospf_src));
+		verbose(1, "[OSPFIncomingPacket]:: received Hello message originating from %s", IP2Dot(tmpbuf, ospf_pkt->ospf_src));
 		OSPFProcessHelloMessage(pkt);
 	}
 	else if (ospf_pkt->ospf_type == OSPF_LINK_STAT_UPDATE)
 	{
-		verbose(1, "[OSPFIncomingPacket]:: received OSPF link state update from ospf src %s", IP2Dot(tmpbuf, ospf_pkt->ospf_src));
+		verbose(1, "[OSPFIncomingPacket]:: received LS update originating from %s", IP2Dot(tmpbuf, ospf_pkt->ospf_src));
 		OSPFProcessLSUpdate(pkt, TRUE);
 	}
 	else
@@ -149,11 +149,11 @@ void OSPFProcessLSUpdate(gpacket_t *pkt, bool rebroadcast)
 
 	// update the reachable networks of the node
 	updateLinkData(lsu_pkt, node);
-	printGraphNodes(graph);
+	//printGraphNodes(graph);
 
 	// update the edges of the graph
 	updateEdges(graph, node);
-	printGraphEdges(graph);
+	//printGraphEdges(graph);
 
 	// update the routing table
 	updateRoutingTable(graph);
@@ -462,8 +462,8 @@ void OSPFSetStubNetwork(gpacket_t *pkt)
 	{
 		char tmpbuf[MAX_TMPBUF_LEN];
 		verbose(1, "[OSPFSetStubNetwork]:: Interface %d marked as stub with IP %s", pkt->frame.src_interface, IP2Dot(tmpbuf, pkt->frame.src_ip_addr));
-		broadcastLSUpdate(TRUE, NULL);	
 	}
+	broadcastLSUpdate(TRUE, NULL);	
 }
 
 void printNeighborTable()
