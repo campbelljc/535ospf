@@ -395,7 +395,7 @@ int addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 		}
 		else if ((COMPARE_IP(neighborIP_, neighbor_tbl[i].neighborIP)) == 0)
 		{ // match
-		//	if (neighbor_tbl[i].isAlive == FALSE) fresh = TRUE;
+			if (neighbor_tbl[i].isAlive == FALSE) fresh = TRUE;
 			if (neighbor_tbl[i].type != type_) fresh = TRUE;
 
 			neighbor_tbl[i].type = type_;
@@ -462,7 +462,8 @@ void OSPFSetStubNetwork(gpacket_t *pkt)
 	if (fresh == TRUE)
 	{
 		char tmpbuf[MAX_TMPBUF_LEN];
-		verbose(1, "[OSPFSetStubNetwork]:: Interface %d marked as stub with IP %s", pkt->frame.src_interface, IP2Dot(tmpbuf, pkt->frame.src_ip_addr));		
+		verbose(1, "[OSPFSetStubNetwork]:: Interface %d marked as stub with IP %s", pkt->frame.src_interface, IP2Dot(tmpbuf, pkt->frame.src_ip_addr));
+		broadcastLSUpdate(TRUE, NULL);	
 	}
 }
 
