@@ -751,6 +751,7 @@ int GNETInit(int *ghandler, int* hello, char *config_dir, char *rname, simpleque
 void *SendHelloPackets(){
 	int counter; //loop counter
 	int deadInterval = 0;
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);       // die as soon as cancelled
 	while(1){
 		sleep(10);
 		pthread_testcancel();
