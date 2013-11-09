@@ -128,7 +128,7 @@ void OSPFProcessLSUpdate(gpacket_t *pkt, bool rebroadcast)
 	ospf_gnode_t *node = getNode(src);
 
 	// if the node exists and the last sequence number received by the node is greater or equal to the current sequence number, ignore it
-/*	if (node != NULL && node->last_LSN >= lsa_pkt->lsa_sequence_number)
+	if (node != NULL && node->last_LSN >= lsa_pkt->lsa_sequence_number)
 	{
 		verbose(1, "[OSPFProcessLSUpdate]:: LS update is old so we are dropping it.");
 		return;
@@ -136,14 +136,14 @@ void OSPFProcessLSUpdate(gpacket_t *pkt, bool rebroadcast)
 	// if the node doesn't exist, create it
 	else
 	{
-*/		verbose(1, "receiving LSU from IP %s, with OSPF Source %s. Contents:", IP2Dot(tmpbuf, src), IP2Dot(tmpbuf+20, ospf_pkt->ospf_src));
+		verbose(1, "receiving LSU from IP %s, with OSPF Source %s. Contents:", IP2Dot(tmpbuf, src), IP2Dot(tmpbuf+20, ospf_pkt->ospf_src));
 		printLSData(pkt);
 		if (node == NULL)
 		{
 			node = (ospf_gnode_t *)addNode(graph, src);
 		//	verbose(1, "[OSPFProcessLSUpdate]:: New node created.");
 		}
-//	}
+	}
 
 	node->last_LSN = lsa_pkt->lsa_sequence_number;
 
