@@ -71,7 +71,7 @@ void OSPFProcessHelloMessage(gpacket_t *pkt)
 
 	// update neighbor database
 	int newUpdate = addNeighborEntry(ospf_pkt->ospf_src, OSPF_ROUTER, pkt->frame.src_interface);
-	if (newUpdate == FALSE) verbose(1, "Hello msg did not contain new neighbor info.");
+//	if (newUpdate == FALSE) verbose(1, "Hello msg did not contain new neighbor info.");
 		
 	uchar zeroIP[] = ZEROED_IP;
 
@@ -134,12 +134,15 @@ void OSPFProcessLSUpdate(gpacket_t *pkt, bool rebroadcast)
 		return;
 	}
 	// if the node doesn't exist, create it
-	else if (node == NULL)
+	else
 	{
 		verbose(1, "receiving LSU from IP %s, with OSPF Source %s. Contents:", IP2Dot(tmpbuf, src), IP2Dot(tmpbuf+20, ospf_pkt->ospf_src));
 		printLSData(pkt);
-		node = (ospf_gnode_t *)addNode(graph, src);
-	//	verbose(1, "[OSPFProcessLSUpdate]:: New node created.");
+		if (node == NULL)
+		{
+			node = (ospf_gnode_t *)addNode(graph, src);
+		//	verbose(1, "[OSPFProcessLSUpdate]:: New node created.");
+		}
 	}
 
 	node->last_LSN = lsa_pkt->lsa_sequence_number;
@@ -454,10 +457,13 @@ void OSPFSetStubNetwork(gpacket_t *pkt)
 //	verbose(1, "[OSPFSetStubNetwork]:: received packet was using protocol %d", pkt->data.header.prot);
 //	ip_packet_t *ip_pkt = (ip_packet_t *)pkt->data.data;
 
-	addNeighborEntry(pkt->frame.src_ip_addr, OSPF_STUB, pkt->frame.src_interface);
+	int fresh = addNeighborEntry(pkt->frame.src_ip_addr, OSPF_STUB, pkt->frame.src_interface);
 
-	char tmpbuf[MAX_TMPBUF_LEN];
-	verbose(1, "[OSPFSetStubNetwork]:: Interface %d marked as stub with IP %s", pkt->frame.src_interface, IP2Dot(tmpbuf, pkt->frame.src_ip_addr));
+	if (fresh == TRUE)
+	{
+		char tmpbuf[MAX_TMPBUF_LEN];
+		verbose(1, "[OSPFSetStubNetwork]:: Interface %d marked as stub with IP %s", pkt->frame.src_interface, IP2Dot(tmpbuf, pkt->frame.src_ip_addr));		
+	}
 }
 
 void printNeighborTable()
