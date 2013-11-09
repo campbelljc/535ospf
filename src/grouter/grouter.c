@@ -113,6 +113,9 @@ void wait4thread(pthread_t threadid)
 
 void shutdownRouter()
 {
+	verbose(1, "[main]:: shutting down Hello thread... ");
+	pthread_cancel(rconfig.hello);
+
 	verbose(1, "[main]:: shutting down the GNET handler...");
 	GNETHalt(rconfig.ghandler);
 	verbose(1, "[main]:: shutting down the packet core... "); fflush(stdout);
@@ -121,8 +124,6 @@ void shutdownRouter()
 	verbose(1, "[main]:: shutting down the CLI handler.. ");
 	pthread_cancel(rconfig.clihandler);
 	
-	verbose(1, "[main]:: shutting down Hello thread... ");
-	pthread_cancel(rconfig.hello);
 
 	// we should cancel CLI thread too??
 	verbose(1, "[main]:: removing the PID files... ");

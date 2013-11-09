@@ -50,12 +50,12 @@ void OSPFIncomingPacket(gpacket_t *pkt)
 	char tmpbuf[MAX_TMPBUF_LEN];
 	if (ospf_pkt->ospf_type == OSPF_HELLO)
 	{
-		verbose(1, "[OSPFIncomingPacket]:: received Hello message originating from %s", IP2Dot(tmpbuf, ospf_pkt->ospf_src));
+		verbose(1, "[OSPFIncomingPacket]:: received Hello message, source: %s", IP2Dot(tmpbuf, ospf_pkt->ospf_src));
 		OSPFProcessHelloMessage(pkt);
 	}
 	else if (ospf_pkt->ospf_type == OSPF_LINK_STAT_UPDATE)
 	{
-		verbose(1, "[OSPFIncomingPacket]:: received LS update originating from %s", IP2Dot(tmpbuf, ospf_pkt->ospf_src));
+		verbose(1, "[OSPFIncomingPacket]:: received LS update, source: %s", IP2Dot(tmpbuf, ospf_pkt->ospf_src));
 		OSPFProcessLSUpdate(pkt, TRUE);
 	}
 	else
