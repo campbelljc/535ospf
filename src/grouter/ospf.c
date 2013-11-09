@@ -236,10 +236,10 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
 			pkt->frame.dst_interface = neighbor_tbl[count].interface;
 
-			if (count == 0)
-			{
-				OSPFProcessLSUpdate(pkt, FALSE);
-			}
+	//		if (count == 0)
+	//		{
+	//			OSPFProcessLSUpdate(pkt, FALSE);
+	//		}
 
 			OSPFSend2Output(pkt);
 			verbose(1, "[broadcastLSUpdate]:: sent LSU to IP %s", IP2Dot(tmpbuf, pkt->frame.nxth_ip_addr));
