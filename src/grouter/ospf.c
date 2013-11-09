@@ -233,7 +233,7 @@ void broadcastLSUpdate(bool createPacket, gpacket_t *pkt)
 		//	verbose(1, "Here is contents of the LSU packet we just created to send to %s: ", IP2Dot(tmpbuf, neighbor_tbl[count].neighborIP));
 	//		printLSData(pkt);
 
-			COPY_IP(pkt->frame.nxth_ip_addr, gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
+			COPY_IP(pkt->frame.nxth_ip_addr, neighbor_tbl[count].neighborIP); //gNtohl(tmpbuf, neighbor_tbl[count].neighborIP));
 			pkt->frame.dst_interface = neighbor_tbl[count].interface;
 
 	//		if (count == 0)
@@ -391,7 +391,6 @@ int addNeighborEntry(uchar* neighborIP_, int type_, int interface_)
 		if (neighbor_tbl[i].isEmpty == TRUE)
 		{
 			if (ifree < 0) ifree = i;
-
 		}
 		else if ((COMPARE_IP(neighborIP_, neighbor_tbl[i].neighborIP)) == 0)
 		{ // match
