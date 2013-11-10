@@ -19,6 +19,7 @@
 #define OSPF_ROUTER			 2
 #define OSPF_STUB			 3
 
+#define MAX_NODES			 (MAX_ROUTES * MAX_ROUTES)
 #define MAX_EDGES			 ((MAX_ROUTES * (MAX_ROUTES-1)) / 2)
 
 #define ZEROED_IP	  		{0x00, 0x00, 0x00, 0x00}
@@ -111,7 +112,7 @@ typedef struct _ospf_gedge_t
 
 typedef struct _ospf_graph_t
 {
-	ospf_gnode_t nodes[MAX_ROUTES];			// set of nodes
+	ospf_gnode_t nodes[MAX_NODES];			// set of nodes
 	ospf_gedge_t edges[MAX_EDGES];			// set of edges
 } ospf_graph_t;
 
@@ -160,8 +161,8 @@ void addEdge(uchar addr1[], uchar addr2[]);
 
 // Routing table updating functions
 void updateRoutingTable(ospf_graph_t *graph);
-int getNodeNeighbors(ospf_graph_t *graph, ospf_gnode_t *node, ospf_gnode_t* neighbors[]);
-void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar *nxt_hop, int iface, int cost);
+int getNodeNeighbor(ospf_graph_t *graph, ospf_gnode_t *node, uchar neighbor[4]);
+void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar visited[][4], int vindex, int cost);
 int getIfaceIDByNetwork(uchar *net_addr);
 int getIfaceIDByIP(uchar *ip_addr);
 void uncheckNodes(ospf_graph_t *graph);
@@ -169,5 +170,6 @@ void clearTmpCheck(ospf_graph_t *graph);
 int isCheaper(ospf_cost_entry_t ctable[], uchar dest_ip_[], int cost_);
 int isNeighbor(uchar *ip);
 int getAllIpsFromNode(ospf_graph_t *graph, uchar *addr, uchar ips[][4]);
+int containsIP(uchar ip_list[][4], uchar *ip, int list_size);
 
 #endif
