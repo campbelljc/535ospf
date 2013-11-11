@@ -851,7 +851,18 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar visited[][4], i
 		// 	}
 		// }
 
-		nxtHopPos = 2;
+		for (i=0; i<vindex; i++)
+		{
+			if (containsIP(interfaceIPs, visited[i], totalInterfaceIPs) == TRUE)
+			{
+				nxtHopPos++;
+			}
+			else
+			{
+				break;
+			}
+		}
+
 
 		for (i=0; i<node -> num_networks; i++)
 		{
