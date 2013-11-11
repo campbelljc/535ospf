@@ -153,9 +153,11 @@ void printNodeNetworks(ospf_gnode_t *node);
 // Graph management functions
 ospf_gnode_t* getNode(uchar src[]);
 ospf_gnode_t* addNode(ospf_graph_t *graph, uchar src[]);
+void removeNodes(ospf_graph_t *graph, uchar ip[4]);
 void updateLinkData(lsu_packet_t *lsu_pkt, ospf_gnode_t *node);
 void updateEdges(ospf_graph_t *graph, ospf_gnode_t *node);
 void addEdge(uchar addr1[], uchar addr2[]);
+void removeEdges(ospf_graph_t *graph, uchar ip[4]);
 
 // Routing table updating functions
 void updateRoutingTable(ospf_graph_t *graph);
