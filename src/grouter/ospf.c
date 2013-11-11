@@ -992,7 +992,7 @@ int getIfaceIDByNetwork(uchar *net_addr)
 		}
 	}
 
-	return -1;
+	// return -1;
 }
 
 int getIfaceIDByIP(uchar *ip_addr)
@@ -1012,7 +1012,7 @@ int getIfaceIDByIP(uchar *ip_addr)
 		}
 	}
 
-	return -1;
+	// return -1;
 }
 
 int isNeighbor(uchar *ip)
