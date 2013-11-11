@@ -843,13 +843,15 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar visited[][4], i
 	{
 		totalInterfaceIPs = findAllInterfaceIPs(MTU_tbl, interfaceIPs);
 
-		for (i=0; i<totalInterfaceIPs; i++)
-		{
-			if (containsIP(visited, interfaceIPs[i], vindex) == TRUE)
-			{
-				nxtHopPos++;
-			}
-		}
+		// for (i=0; i<totalInterfaceIPs; i++)
+		// {
+		// 	if (containsIP(visited, interfaceIPs[i], vindex) == TRUE)
+		// 	{
+		// 		nxtHopPos++;
+		// 	}
+		// }
+
+		nxtHopPos = 2;
 
 		for (i=0; i<node -> num_networks; i++)
 		{
