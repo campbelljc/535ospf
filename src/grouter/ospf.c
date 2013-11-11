@@ -741,12 +741,14 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar visited[][4], i
 	// if this is the original router
 	if (vindex == 1)
 	{
+		verbose(1, "scanning through %d networks\n",  node -> num_networks);
+
 		for (i=0; i<node -> num_networks; i++)
 		{
 			// get the interface ID to this network
 			interface = getIfaceIDByNetwork(node -> networks[i]);
 
-			// verbose(1, "getting interface of the network %s, found %d\n",  IP2Dot(tmpbuf, node -> networks[i]), interface);
+			verbose(1, "getting interface of the network %s, found %d\n",  IP2Dot(tmpbuf, node -> networks[i]), interface);
 
 			// add the entry to the cost table and routing table
 			if (isCheaper(cost_tbl, node -> networks[i], cost) == TRUE)
