@@ -854,7 +854,7 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar visited[][4], i
 		for (i=0; i<node -> num_networks; i++)
 		{
 			// get the interface ID to this network
-			interface = getIfaceIDByNetwork(visited[nxtHopPos]);
+			interface = getIfaceIDByIP(visited[nxtHopPos]);
 
 			verbose(1, "859getting the interface to %s, found %d\n",  IP2Dot(tmpbuf, visited[nxtHopPos]), interface);
 
@@ -978,7 +978,7 @@ int getIfaceIDByNetwork(uchar *net_addr)
 			return neighbor_tbl[i].interface;
 		}
 	}
-	
+
 	return -1;
 }
 
