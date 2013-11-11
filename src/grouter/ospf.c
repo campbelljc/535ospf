@@ -869,7 +869,7 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar visited[][4], i
 			// get the interface ID to this network
 			interface = getIfaceIDByIP(visited[nxtHopPos]);
 
-			verbose(1, "859getting the interface to %s, found %d\n",  IP2Dot(tmpbuf, visited[nxtHopPos]), interface);
+			// verbose(1, "859getting the interface to %s, found %d\n",  IP2Dot(tmpbuf, visited[nxtHopPos]), interface);
 
 			// add the entry to the cost table and routing table
 			if (isCheaper(cost_tbl, node -> networks[i], cost) == TRUE)
@@ -982,11 +982,11 @@ int getIfaceIDByNetwork(uchar *net_addr)
 		}
 
 		char tmpbuf[MAX_TMPBUF_LEN];
-		verbose(1, "Comparing neighbor IP %s with net address %s.", IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), IP2Dot(tmpbuf+20, net_addr));
+		// verbose(1, "Comparing neighbor IP %s with net address %s.", IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), IP2Dot(tmpbuf+20, net_addr));
 
 		if (compareIPUsingMask(neighbor_tbl[i].neighborIP, net_addr, netmask) == 0)
 		{
-			verbose(1, "Found match, interface is %d.", neighbor_tbl[i].interface);
+			// verbose(1, "Found match, interface is %d.", neighbor_tbl[i].interface);
 
 			return neighbor_tbl[i].interface;
 		}
