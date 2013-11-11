@@ -969,15 +969,17 @@ int getIfaceIDByNetwork(uchar *net_addr)
 		}
 
 		char tmpbuf[MAX_TMPBUF_LEN];
-		//verbose(1, "Comparing neighbor IP %s with net address %s.", IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), IP2Dot(tmpbuf+20, net_addr));
+		verbose(1, "Comparing neighbor IP %s with net address %s.", IP2Dot(tmpbuf, neighbor_tbl[i].neighborIP), IP2Dot(tmpbuf+20, net_addr));
 
 		if (compareIPUsingMask(neighbor_tbl[i].neighborIP, net_addr, netmask) == 0)
 		{
-			//verbose(1, "Found match, interface is %d.", neighbor_tbl[i].interface);
+			verbose(1, "Found match, interface is %d.", neighbor_tbl[i].interface);
 
 			return neighbor_tbl[i].interface;
 		}
 	}
+	
+	return -1;
 }
 
 int getIfaceIDByIP(uchar *ip_addr)
