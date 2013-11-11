@@ -27,7 +27,7 @@
 #include <unistd.h>
 
 extern route_entry_t route_tbl[MAX_ROUTES];
-extern neighbor_entry_t neighbor_tbl[MAX_ROUTES]; 
+extern neighbor_entry_t neighbor_tbl[MAX_ROUTES];
 extern mtu_entry_t MTU_tbl[MAX_MTU];
 
 interface_array_t netarray;
@@ -763,6 +763,7 @@ void *SendHelloPackets(){
 					neighbor_tbl[counter].isEmpty = TRUE;
 					verbose(1, "Sending new LS update to neighbors because a link went down.");
 					broadcastLSUpdate(TRUE, NULL);
+					removeIPFromGraph(neighbor_tbl[counter].neighborIP);
 				}
 				if (neighbor_tbl[counter].type != OSPF_STUB) // since we don't get continuous messages from stub networks.
 					neighbor_tbl[counter].isAlive = FALSE;
@@ -776,8 +777,8 @@ void *SendHelloPackets(){
 		{
 			verbose(1, "Broadcasting hello packets to all %d interfaces.", count);
 			for (i = 0; i < count; i++)
-			{			
-				OSPFSendHelloPacket(interfaceIPs[i], indexes[i]);	
+			{
+				OSPFSendHelloPacket(interfaceIPs[i], indexes[i]);
 			}
 		}
 	}

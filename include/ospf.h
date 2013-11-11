@@ -158,6 +158,7 @@ void updateLinkData(lsu_packet_t *lsu_pkt, ospf_gnode_t *node);
 void updateEdges(ospf_graph_t *graph, ospf_gnode_t *node);
 void addEdge(uchar addr1[], uchar addr2[]);
 void removeEdges(ospf_graph_t *graph, uchar ip[4]);
+void removeIPFromGraph(uchar ip[4]);
 
 // Routing table updating functions
 void updateRoutingTable(ospf_graph_t *graph);
