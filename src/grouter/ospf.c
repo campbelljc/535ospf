@@ -738,13 +738,6 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar visited[][4], i
 	COPY_IP(visited[vindex], node -> src);
 	vindex++;
 
-	// verbose(1, "At cost %d, the visited list has size %d and contains:\n", cost, vindex);
-	// for (i=0; i<vindex; i++)
-	// {
-	// 	verbose(1, "\t%d - %s", i, IP2Dot(tmpbuf, visited[i]));
-	// }
-	// verbose(1, "\t\t\t from %s\n",  IP2Dot(tmpbuf, node -> src));
-
 	// if this is the original router
 	if (vindex == 1)
 	{
@@ -791,8 +784,6 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar visited[][4], i
 
 	numNodeIPs = getAllIpsFromNode(graph, node -> src, ips);
 
-	// verbose(1, "number nodes - %d", numNodeIPs);
-
 	cost++;
 
 	for (i=0; i<numNodeIPs; i++)
@@ -802,13 +793,11 @@ void findNetworks(ospf_graph_t *graph, ospf_gnode_t *node, uchar visited[][4], i
 
 		if (getNodeNeighbor(graph, nxt_node, neighbor) == FALSE)
 		{
-			// verbose(1, "789");
 			continue;
 		}
 
 		if (containsIP(visited, ips[i], vindex) == TRUE)
 		{
-			// verbose(1, "795");
 			continue;
 		}
 
@@ -881,7 +870,6 @@ int getIfaceIDByNetwork(uchar *net_addr)
 {
 	int i;
 	uchar netmask[] = IP_BCAST_ADDR2;
-//	uchar netmask[] = {0,255,255,255,0};
 
 	for (i=0; i<MAX_ROUTES; i++)
 	{
@@ -920,17 +908,6 @@ int getIfaceIDByIP(uchar *ip_addr)
 	}
 }
 
-void uncheckNodes(ospf_graph_t *graph)
-{
-	int i;
-
-	for (i=0; i<MAX_NODES; i++)
-	{
-		graph -> nodes[i].checked = FALSE;
-		graph -> nodes[i].tmp_checked = FALSE;
-	}
-}
-
 int isNeighbor(uchar *ip)
 {
 	int i;
@@ -949,16 +926,6 @@ int isNeighbor(uchar *ip)
 	}
 
 	return FALSE;
-}
-
-void clearTmpCheck(ospf_graph_t *graph)
-{
-	int i;
-
-	for (i=0; i<MAX_NODES; i++)
-	{
-		graph -> nodes[i].tmp_checked = FALSE;
-	}
 }
 
 int isCheaper(ospf_cost_entry_t ctable[], uchar *dest_ip_, int cost_)
